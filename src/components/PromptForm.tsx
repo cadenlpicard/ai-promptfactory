@@ -15,6 +15,7 @@ import { domainContextOptions, audienceOptions, toneOptions, styleOptions, think
 import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play } from 'lucide-react';
 
 const formSchema = z.object({
+  targetModel: z.string().min(1, 'Please select a target model'),
   model_id: z.string().min(1, 'Please select a model'),
   provider: z.enum(['openai', 'gemini', 'claude', 'grok', 'llama', 'mistral', 'cohere']),
   user_prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
@@ -29,14 +30,18 @@ const formSchema = z.object({
   exemplars: z.string().optional(),
   avoid_list: z.string().optional(),
   temperature: z.number().min(0).max(2),
+  creativity: z.number().min(0).max(2).optional(),
   top_p: z.number().min(0).max(1).optional(),
   top_k: z.number().min(1).max(100).optional(),
   max_tokens: z.number().min(1).max(16384),
+  responseLengthTokens: z.number().min(1).max(16384).optional(),
   reasoning_effort: z.enum(['low', 'medium', 'high']).optional(),
   verbosity: z.enum(['concise', 'standard', 'detailed']).optional(),
   structured_output: z.boolean(),
   live_search: z.boolean().optional(),
   enable_parallelization: z.boolean(),
+  focusLevel: z.string().optional(),
+  thinkingDepth: z.string().optional(),
 });
 
 interface PromptFormProps {
@@ -72,13 +77,18 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      targetModel: 'gpt-5',
       model_id: '',
       provider: 'openai',
       user_prompt: '',
       temperature: 0.7,
+      creativity: 0.7,
       max_tokens: 512,
+      responseLengthTokens: 512,
       structured_output: false,
       enable_parallelization: false,
+      focusLevel: 'Standard',
+      thinkingDepth: 'Standard',
     },
   });
 
@@ -115,48 +125,45 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
-            {/* Model Selection */}
+            {/* Target Model Selection */}
             <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Zap className="h-4 w-4 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold">🤖 Model Selection</h3>
+                <h3 className="text-lg font-semibold">🎯 Target Model</h3>
               </div>
               
               <FormField
                 control={form.control}
-                name="model_id"
+                name="targetModel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-medium">AI Model</FormLabel>
-                    <Select onValueChange={handleModelChange} value={field.value}>
+                    <FormLabel className="text-base font-medium">Optimize For</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                          <SelectValue placeholder="Choose your AI model..." />
+                          <SelectValue placeholder="Choose target model..." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Object.entries(
-                          getAllModels().reduce((acc, model) => {
-                            if (!acc[model.provider]) acc[model.provider] = [];
-                            acc[model.provider].push(model);
-                            return acc;
-                          }, {} as Record<Provider, ModelConfig[]>)
-                        ).map(([provider, models]) => (
-                          <div key={provider}>
-                            <div className="px-2 py-1.5 text-xs font-semibold text-primary uppercase tracking-wide">
-                              {provider}
-                            </div>
-                            {models.map((model) => (
-                              <SelectItem key={model.id} value={model.id} className="pl-4">
-                                {model.name}
-                              </SelectItem>
-                            ))}
-                          </div>
-                        ))}
+                        <SelectItem value="gpt-5">GPT-5 (OpenAI)</SelectItem>
+                        <SelectItem value="gpt-4o">GPT-4o (OpenAI)</SelectItem>
+                        <SelectItem value="claude-sonnet-4">Claude Sonnet 4</SelectItem>
+                        <SelectItem value="claude-opus-4">Claude Opus 4</SelectItem>
+                        <SelectItem value="gemini-1.5-pro">Gemini 1.5 Pro</SelectItem>
+                        <SelectItem value="gemini-1.5-flash">Gemini 1.5 Flash</SelectItem>
+                        <SelectItem value="llama-3.1-405b-instruct">Llama 3.1 405B Instruct</SelectItem>
+                        <SelectItem value="llama-3.1-70b-instruct">Llama 3.1 70B Instruct</SelectItem>
+                        <SelectItem value="llama-3.1-8b-instruct">Llama 3.1 8B Instruct</SelectItem>
+                        <SelectItem value="mistral-large-2">Mistral Large 2</SelectItem>
+                        <SelectItem value="command-r-plus">Cohere Command R+</SelectItem>
+                        <SelectItem value="grok-4">xAI Grok 4</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormDescription>
+                      We'll optimize your prompt for this model's best practices using OpenAI
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -371,16 +378,16 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Creativity Level */}
+                 {/* Creativity Level */}
                 <FormField
                   control={form.control}
-                  name="temperature"
+                  name="creativity"
                   render={({ field }) => (
                     <FormItem className="space-y-3">
                        <FormLabel className="text-sm font-medium flex items-center gap-2">
                          🎨 Creativity Level
                          <span className="text-xs text-muted-foreground">
-                           ({field.value} - {getCreativityLabel(field.value)})
+                           ({field.value || 0.7} - {getCreativityLabel(field.value || 0.7)})
                          </span>
                        </FormLabel>
                       <FormControl>
@@ -388,13 +395,16 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           min={0}
                           max={2}
                           step={0.1}
-                          value={[field.value]}
-                          onValueChange={(vals) => field.onChange(vals[0])}
+                          value={[field.value || 0.7]}
+                          onValueChange={(vals) => {
+                            field.onChange(vals[0]);
+                            form.setValue('temperature', vals[0]);
+                          }}
                           className="w-full"
                         />
                       </FormControl>
                       <FormDescription className="text-xs">
-                        How creative should the AI be? 🎪
+                        How creative should the final model be? 🎪
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
