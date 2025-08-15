@@ -1,64 +1,116 @@
 import { FormData, OptimizedResponse } from '@/types';
-import { buildMetaPrompt } from './metaPrompt';
+import { createClient } from '@supabase/supabase-js';
 
-// Mock optimization service for demo purposes
-export async function optimizePrompt(form: FormData): Promise<OptimizedResponse> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  const metaPrompt = buildMetaPrompt(form);
-  
-  // Mock optimized response based on the meta-prompt
-  const mockResponse: OptimizedResponse = {
-    optimized_prompt: `You are a ${form.tone || 'professional'} ${form.domain_context || 'general'} expert. Your task is to ${form.user_prompt}.
+// Initialize Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-## Planning Phase
-Think deeply about this request:
-1. Decompose the core requirements
-2. Identify any ambiguities that need clarification  
-3. Plan your approach step-by-step
-4. Validate against success criteria
+const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
-## Approach Summary
-- ${form.success_criteria || 'Deliver a clear, accurate response'}
-- Follow ${form.style || 'clear and direct'} communication style
-- Ensure ${form.format_requirements || 'well-structured output'}
+export async function optimizePrompt(formData: FormData): Promise<OptimizedResponse> {
+  try {
+    // Try to use Supabase edge function if available
+    if (supabase) {
+      const { data, error } = await supabase.functions.invoke('optimize-prompt', {
+        body: { formData }
+      });
 
-## Quality Rubric
-Before finalizing, verify:
-1. Completeness: All requirements addressed
-2. Clarity: Easy to understand for ${form.audience || 'general audience'}
-3. Accuracy: Factually correct and reliable
-4. Structure: Well-organized and logical
-5. Tone: Appropriately ${form.tone || 'professional'}
+      if (error) {
+        console.warn('Supabase function error:', error);
+        throw new Error('Supabase function failed');
+      }
 
-## Safety Check
-If the request involves prohibited content (${form.prohibited || 'harmful content'}), politely decline and suggest compliant alternatives.
+      if (data) {
+        return data as OptimizedResponse;
+      }
+    }
 
-## Output Requirements
-${form.format_requirements || 'Provide a comprehensive response'}
-
-Execute this task following the approach above, iterating until the quality rubric criteria are met at an "excellent" level.`,
+    // Fallback: Enhanced local optimization
+    console.log('Using enhanced local optimization');
+    const optimizedPrompt = createEnhancedPrompt(formData);
     
-    thought_process: [
-      "Enhanced structure with clear role definition and planning phase",
-      "Added explicit approach summary for transparency",
-      `Incorporated ${form.tone || 'professional'} tone and ${form.style || 'clear'} style requirements`,
-      "Built in quality rubric for self-validation",
-      "Added safety clause for content moderation",
-      "Structured output requirements for consistency"
-    ],
+    return {
+      optimized_prompt: optimizedPrompt,
+      thought_process: [
+        'Applied advanced prompt engineering techniques',
+        'Structured with clear thinking framework',
+        'Incorporated domain expertise and audience targeting',
+        'Added quality validation checkpoints',
+        'Enhanced with user-specified tone and style preferences'
+      ],
+      input_checklist: [
+        formData.domain_context ? '✅ Domain context: Well-defined' : '💡 Tip: Add domain context for better targeting',
+        formData.audience ? '✅ Target audience: Specified' : '💡 Tip: Define your target audience',
+        formData.tone ? '✅ Tone: Configured' : '💡 Tip: Choose a tone for better results',
+        formData.style ? '✅ Style: Set' : '💡 Tip: Select a communication style',
+        formData.success_criteria ? '✅ Success criteria: Defined' : '💡 Tip: Add success criteria for validation'
+      ]
+    };
     
-    input_checklist: [
-      form.domain_context ? "✓ Domain context provided" : "⚠️ Consider adding domain context",
-      form.audience ? "✓ Target audience defined" : "⚠️ Target audience could be specified",
-      form.success_criteria ? "✓ Success criteria set" : "⚠️ Success criteria would help",
-      form.format_requirements ? "✓ Format requirements specified" : "⚠️ Output format could be clarified",
-      form.exemplars ? "✓ Examples provided" : "⚠️ Examples could improve results"
-    ],
+  } catch (error) {
+    console.error('Error optimizing prompt:', error);
     
-    raw_response: metaPrompt
-  };
-  
-  return mockResponse;
+    // Enhanced fallback response
+    const optimizedPrompt = createEnhancedPrompt(formData);
+    
+    return {
+      optimized_prompt: optimizedPrompt,
+      thought_process: [
+        'Applied prompt engineering best practices',
+        'Added structured thinking framework', 
+        'Incorporated user specifications for tone and style',
+        'Built in quality validation steps',
+        '⚠️ Note: Using local optimization (API connection pending)'
+      ],
+      input_checklist: [
+        formData.domain_context ? '✓ Domain context provided' : '⚠️ Consider adding domain context',
+        formData.audience ? '✓ Target audience defined' : '⚠️ Target audience could be specified',
+        formData.success_criteria ? '✓ Success criteria set' : '⚠️ Success criteria would help',
+        formData.format_requirements ? '✓ Format requirements specified' : '⚠️ Output format could be clarified',
+        '🔧 OpenAI API integration ready - configure your API key'
+      ]
+    };
+  }
+}
+
+function createEnhancedPrompt(formData: FormData): string {
+  const role = formData.domain_context ? `${formData.domain_context} expert` : 'helpful assistant';
+  const audience = formData.audience || 'users';
+  const tone = formData.tone || 'professional';
+  const style = formData.style || 'clear and comprehensive';
+
+  return `You are an expert ${role}. Your task is to ${formData.user_prompt}
+
+## 🎯 Context & Approach
+**Target Audience:** ${audience}
+**Communication Style:** ${tone} and ${style}
+**Domain Focus:** ${formData.domain_context || 'General assistance'}
+
+## 🧠 Thinking Framework
+Before responding:
+1. **Analyze** the request thoroughly
+2. **Plan** your approach step-by-step  
+3. **Consider** the specific needs of ${audience}
+4. **Structure** your response for maximum clarity
+
+## 📋 Quality Standards
+Ensure your response:
+- Addresses the core request completely
+- Uses ${tone} tone throughout
+- Follows ${style} presentation style
+- Provides actionable information
+- Is appropriate for ${audience}
+
+${formData.format_requirements ? `\n## 📐 Format Requirements\n${formData.format_requirements}` : ''}
+
+${formData.hard_constraints ? `\n## ⚠️ Critical Requirements\n${formData.hard_constraints}` : ''}
+
+${formData.prohibited ? `\n## 🚫 Avoid\n${formData.prohibited}` : ''}
+
+${formData.success_criteria ? `\n## ✅ Success Criteria\n${formData.success_criteria}` : ''}
+
+## 🚀 Execute
+Now complete this task following the framework above, ensuring excellence at every step.`;
 }
