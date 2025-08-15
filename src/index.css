@@ -2,23 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    /* Prevent tiny UI on iOS by keeping a solid base size */
-    font-size: 16px;
-  }
-  body {
-    @apply text-base leading-6 antialiased;
-    /* Avoid content under notch on iOS */
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  /* Improve focus/scrolling of anchored sections under sticky header */
-  :root {
-    scroll-padding-top: 72px;
-  }
-}
-
 /* Prompt Factory Design System - Light & Playful Theme */
 
 @layer base {

@@ -100,128 +100,107 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
 
   if (isLoading) {
     return (
-    <Card className="h-full bg-gradient-surface border border-border/50 sm:border-2 shadow-card">
-      <CardHeader className="px-4 py-4 sm:px-6 sm:py-5">
-        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-          Optimizing Your Prompt...
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-4 py-4 sm:px-6 sm:py-6">
-        <div className="space-y-4">
-          <div className="h-4 bg-muted/30 rounded animate-pulse" />
-          <div className="h-4 bg-muted/30 rounded animate-pulse w-3/4" />
-          <div className="h-4 bg-muted/30 rounded animate-pulse w-1/2" />
-        </div>
-      </CardContent>
-    </Card>
+      <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+            Optimizing Your Prompt...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="h-4 bg-muted/30 rounded animate-pulse" />
+            <div className="h-4 bg-muted/30 rounded animate-pulse w-3/4" />
+            <div className="h-4 bg-muted/30 rounded animate-pulse w-1/2" />
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   if (!response) {
     return (
-    <Card className="h-full bg-gradient-surface border border-border/50 sm:border-2 shadow-card">
-      <CardHeader className="px-4 py-4 sm:px-6 sm:py-5">
-        <CardTitle className="flex items-center gap-2 text-muted-foreground text-base sm:text-lg">
-          <FileText className="h-5 w-5" />
-          Optimized Prompt
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
-            <Lightbulb className="h-8 w-8 text-muted-foreground" />
+      <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-muted-foreground">
+            <FileText className="h-5 w-5" />
+            Optimized Prompt
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center">
+              <Lightbulb className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium text-foreground">Ready to Optimize</h3>
+              <p className="text-muted-foreground max-w-md">
+                Configure your prompt settings and click "Optimize Prompt" to get an enhanced version
+                tailored for your chosen AI model.
+              </p>
+            </div>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-base sm:text-lg font-medium text-foreground">Ready to Optimize</h3>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-md">
-              Configure your prompt settings and click "Optimize Prompt" to get an enhanced version
-              tailored for your chosen AI model.
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <Card className="h-full bg-gradient-surface border border-border/50 sm:border-2 shadow-card">
-      <CardHeader className="px-4 py-4 sm:px-6 sm:py-5 sticky top-0 z-10 bg-gradient-surface/95 backdrop-blur rounded-t-lg">
+    <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
+      <CardHeader className="pb-4 sm:pb-4 px-6 py-6 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-            <CheckCircle className="h-5 w-5 text-success" />
+          <CardTitle className="flex items-center gap-3 sm:gap-2 text-xl sm:text-lg">
+            <CheckCircle className="h-6 w-6 sm:h-5 sm:w-5 text-success" />
             Optimized Prompt
           </CardTitle>
-          <div className="hidden sm:flex gap-2">
+          <div className="flex gap-2 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-              className="border-border/50 h-11"
+              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
             >
               {copiedSection === "Optimized Prompt" ? (
-                <CheckCircle className="h-4 w-4" />
+                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
               ) : (
-                <Copy className="h-4 w-4" />
+                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
               )}
-              <span className="ml-1">Copy</span>
+              <span className="ml-2 sm:ml-1">Copy</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={downloadPrompt}
-              className="border-border/50 h-11"
+              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
             >
-              <Download className="h-4 w-4" />
-              <span className="ml-1">Download</span>
+              <Download className="h-5 w-5 sm:h-4 sm:w-4" />
+              <span className="ml-2 sm:ml-1">Download</span>
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="px-4 py-4 sm:px-6 sm:py-6 space-y-4">
-        <div className="relative">
-          <Textarea
-            value={response.optimizedPrompt || response.optimized_prompt}
-            readOnly
-            className="min-h-[300px] sm:min-h-[400px] bg-background/50 border-border/50 resize-none text-base leading-relaxed"
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-            className="absolute top-2 right-2 opacity-70 hover:opacity-100 h-9 w-9"
-          >
-            {copiedSection === "Optimized Prompt" ? (
-              <CheckCircle className="h-4 w-4" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-
-        {/* Copy / Download buttons row on mobile */}
-        <div className="sm:hidden grid grid-cols-2 gap-2">
-          <Button 
-            onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")} 
-            className="h-11"
-          >
-            {copiedSection === "Optimized Prompt" ? (
-              <CheckCircle className="h-4 w-4 mr-2" />
-            ) : (
-              <Copy className="h-4 w-4 mr-2" />
-            )}
-            Copy
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={downloadPrompt} 
-            className="h-11"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
+      <CardContent className="max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-6 sm:p-6">
+        <div className="mt-4 space-y-4">
+          <div className="relative">
+            <Textarea
+              value={response.optimizedPrompt || response.optimized_prompt}
+              readOnly
+              className="min-h-[500px] sm:min-h-[400px] bg-background/50 border-border/50 resize-none text-base sm:text-sm leading-relaxed p-4 sm:p-3"
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
+              className="absolute top-3 right-3 sm:top-2 sm:right-2 opacity-70 hover:opacity-100 h-10 w-10 sm:h-9 sm:w-9"
+            >
+              {copiedSection === "Optimized Prompt" ? (
+                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
+              ) : (
+                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -29,10 +29,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-gradient-subtle">
+    <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
       <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-4 h-16 sm:h-16 flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-3">
             <div className="w-12 h-12 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-fun flex items-center justify-center shadow-fun transform hover:scale-105 transition-transform duration-200">
               <Factory className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
@@ -56,8 +56,8 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 sm:gap-6 min-h-[calc(100vh-7rem)]">
+      <main className="container mx-auto px-4 sm:px-4 py-6 sm:py-6">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-6 min-h-[calc(100vh-7rem)] sm:min-h-[calc(100vh-7rem)]">
           {/* Form Panel - Full width on mobile */}
           <div className="flex flex-col order-1 lg:order-1">
             <PromptForm onSubmit={handleOptimize} isLoading={isLoading} />
