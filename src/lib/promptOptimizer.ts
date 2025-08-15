@@ -8,8 +8,9 @@ export async function optimizePrompt(form: FormData): Promise<OptimizedResponse>
     const meta = buildMetaPrompt(form);
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-2025-08-07",
-      max_completion_tokens: 4000,
+      model: "gpt-4o-mini",
+      max_tokens: 2000,
+      temperature: 0.3,
       messages: [
         { role: "system", content: "You are a meticulous assistant that follows the output contract exactly." },
         { role: "user", content: meta }
@@ -28,12 +29,10 @@ export async function optimizePrompt(form: FormData): Promise<OptimizedResponse>
       inputChecklist
     };
 
-    // Save to database
-    try {
-      await savePromptSession(form, response);
-    } catch (saveError) {
+    // Save to database (non-blocking)
+    savePromptSession(form, response).catch(saveError => {
       console.error('Error saving prompt session:', saveError);
-    }
+    });
     
     return response;
     
@@ -43,12 +42,10 @@ export async function optimizePrompt(form: FormData): Promise<OptimizedResponse>
     // Enhanced fallback response
     const optimizedResponse = await createLocalOptimizedResponse(form);
     
-    // Try to save to database even on error
-    try {
-      await savePromptSession(form, optimizedResponse);
-    } catch (saveError) {
+    // Try to save to database even on error (non-blocking)
+    savePromptSession(form, optimizedResponse).catch(saveError => {
       console.error('Error saving prompt session:', saveError);
-    }
+    });
     
     return optimizedResponse;
   }
@@ -70,8 +67,7 @@ function splitThreeSections(text: string) {
 async function createLocalOptimizedResponse(form: FormData): Promise<OptimizedResponse> {
   const optimizedPrompt = createEnhancedPrompt(form);
   
-  // Simulate processing time for better UX
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  // Removed artificial delay for better performance
   
   return {
     optimized_prompt: optimizedPrompt,
