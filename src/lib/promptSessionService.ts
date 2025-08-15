@@ -51,46 +51,44 @@ export async function savePromptSession(
       ? formData.user_prompt.substring(0, 50) + '...'
       : formData.user_prompt;
 
-    const sessionData: Partial<PromptSessionData> = {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const sessionData = {
       title,
+      user_id: user?.id,
       // Form data
       model_id: formData.model_id,
       provider: formData.provider,
       user_prompt: formData.user_prompt,
-      domain_context: formData.domain_context,
-      audience: formData.audience,
-      tone: formData.tone,
-      style: formData.style,
-      format_requirements: formData.format_requirements,
-      hard_constraints: formData.hard_constraints,
-      prohibited: formData.prohibited,
-      success_criteria: formData.success_criteria,
-      exemplars: formData.exemplars,
-      avoid_list: formData.avoid_list,
+      domain_context: formData.domain_context || null,
+      audience: formData.audience || null,
+      tone: formData.tone || null,
+      style: formData.style || null,
+      format_requirements: formData.format_requirements || null,
+      hard_constraints: formData.hard_constraints || null,
+      prohibited: formData.prohibited || null,
+      success_criteria: formData.success_criteria || null,
+      exemplars: formData.exemplars || null,
+      avoid_list: formData.avoid_list || null,
       
       // Model parameters
       temperature: formData.temperature,
-      top_p: formData.top_p,
-      top_k: formData.top_k,
+      top_p: formData.top_p || null,
+      top_k: formData.top_k || null,
       max_tokens: formData.max_tokens,
-      reasoning_effort: formData.reasoning_effort,
-      verbosity: formData.verbosity,
+      reasoning_effort: formData.reasoning_effort || null,
+      verbosity: formData.verbosity || null,
       structured_output: formData.structured_output,
-      live_search: formData.live_search,
+      live_search: formData.live_search || null,
       enable_parallelization: formData.enable_parallelization,
       
       // Optimization results (if available)
-      optimized_prompt: response?.optimized_prompt,
-      thought_process: response?.thought_process,
-      input_checklist: response?.input_checklist,
-      raw_response: response?.raw_response,
+      optimized_prompt: response?.optimized_prompt || null,
+      thought_process: response?.thought_process || null,
+      input_checklist: response?.input_checklist || null,
+      raw_response: response?.raw_response || null,
     };
-
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      sessionData.user_id = user.id;
-    }
 
     const { data, error } = await supabase
       .from('prompt_sessions')
@@ -98,7 +96,26 @@ export async function savePromptSession(
       .select()
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error };
+    }
+
+    // Convert back to proper format
+    const convertedData: PromptSessionData = {
+      ...data,
+      thought_process: Array.isArray(data.thought_process) 
+        ? data.thought_process as string[]
+        : data.thought_process 
+          ? JSON.parse(data.thought_process as string)
+          : [],
+      input_checklist: Array.isArray(data.input_checklist)
+        ? data.input_checklist as string[]
+        : data.input_checklist
+          ? JSON.parse(data.input_checklist as string)
+          : []
+    };
+
+    return { data: convertedData, error: null };
   } catch (error) {
     console.error('Error saving prompt session:', error);
     return { data: null, error };
@@ -112,7 +129,26 @@ export async function getUserPromptSessions(): Promise<{ data: PromptSessionData
       .select('*')
       .order('created_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error };
+    }
+
+    // Convert to proper format
+    const convertedData: PromptSessionData[] = (data || []).map(session => ({
+      ...session,
+      thought_process: Array.isArray(session.thought_process)
+        ? session.thought_process as string[]
+        : session.thought_process
+          ? JSON.parse(session.thought_process as string)
+          : [],
+      input_checklist: Array.isArray(session.input_checklist)
+        ? session.input_checklist as string[]
+        : session.input_checklist
+          ? JSON.parse(session.input_checklist as string)
+          : []
+    }));
+
+    return { data: convertedData, error: null };
   } catch (error) {
     console.error('Error fetching prompt sessions:', error);
     return { data: null, error };

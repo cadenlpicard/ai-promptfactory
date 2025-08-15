@@ -44,6 +44,30 @@ interface PromptFormProps {
   isLoading?: boolean;
 }
 
+// Helper functions for representative labels
+const getCreativityLabel = (value: number): string => {
+  if (value <= 0.3) return "Rule Follower";
+  if (value <= 0.7) return "Balanced";
+  if (value <= 1.2) return "Creative";
+  if (value <= 1.6) return "Very Creative";
+  return "Creative Genius";
+};
+
+const getFocusLabel = (value: number): string => {
+  if (value <= 0.2) return "Laser Focused";
+  if (value <= 0.5) return "Focused";
+  if (value <= 0.8) return "Balanced";
+  return "Less Focused";
+};
+
+const getResponseLengthLabel = (value: number): string => {
+  if (value <= 100) return "Brief";
+  if (value <= 300) return "Concise";
+  if (value <= 800) return "Standard";
+  if (value <= 1500) return "Detailed";
+  return "Comprehensive";
+};
+
 export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -353,10 +377,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   name="temperature"
                   render={({ field }) => (
                     <FormItem className="space-y-3">
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        🎨 Creativity Level
-                        <span className="text-xs text-muted-foreground">({field.value})</span>
-                      </FormLabel>
+                       <FormLabel className="text-sm font-medium flex items-center gap-2">
+                         🎨 Creativity Level
+                         <span className="text-xs text-muted-foreground">
+                           ({field.value} - {getCreativityLabel(field.value)})
+                         </span>
+                       </FormLabel>
                       <FormControl>
                         <Slider
                           min={0}
@@ -381,10 +407,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   name="max_tokens"
                   render={({ field }) => (
                     <FormItem className="space-y-3">
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        📏 Response Length
-                        <span className="text-xs text-muted-foreground">({field.value} tokens)</span>
-                      </FormLabel>
+                       <FormLabel className="text-sm font-medium flex items-center gap-2">
+                         📏 Response Length
+                         <span className="text-xs text-muted-foreground">
+                           ({field.value} tokens - {getResponseLengthLabel(field.value)})
+                         </span>
+                       </FormLabel>
                       <FormControl>
                         <Slider
                           min={50}
@@ -410,10 +438,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                     name="top_p"
                     render={({ field }) => (
                       <FormItem className="space-y-3">
-                        <FormLabel className="text-sm font-medium flex items-center gap-2">
-                          🎯 Focus Level
-                          <span className="text-xs text-muted-foreground">({field.value || 'Auto'})</span>
-                        </FormLabel>
+                         <FormLabel className="text-sm font-medium flex items-center gap-2">
+                           🎯 Focus Level
+                           <span className="text-xs text-muted-foreground">
+                             ({field.value || 1.0} - {getFocusLabel(field.value || 1.0)})
+                           </span>
+                         </FormLabel>
                         <FormControl>
                           <Slider
                             min={0}

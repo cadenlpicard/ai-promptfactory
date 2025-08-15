@@ -1,50 +1,70 @@
 import { FormData } from '@/types';
 
 export function buildMetaPrompt(form: FormData): string {
-  return `You are an expert prompt engineer. Rewrite the user's prompt into a clear, constrained, reproducible prompt that maximizes instruction adherence.
+  return `You are an expert prompt engineer. Think deeper first (briefly). Decompose the task, spot ambiguities, and plan before writing the Optimized Prompt.
 
-## Model Controls
+ASSISTANT INSTRUCTIONS (how to rewrite):
 
-Reasoning effort: ${form.reasoning_effort || 'medium'}
-Verbosity: ${form.verbosity || 'standard'} (final answer length only)
-Temperature: ${form.temperature}
-Top-p: ${form.top_p || 'unset'}
-Parallelization: ${form.enable_parallelization}
+1. Think deeper first (briefly). Decompose the task, spot ambiguities, and plan before writing the Optimized Prompt.
 
-## Output Contract
+2. Eliminate conflicts. If two rules clash, apply this priority: hard_constraints > safety/compliance > success_criteria > tone/style. State the chosen resolution in "Brief Thought Process."
 
-Return ONLY:
+3. Planning phase (inline in the prompt). Include a short pre-execution checklist inside the Optimized Prompt:
+   - Decompose task
+   - Identify ambiguities  
+   - Plan steps
+   - Validate understanding
 
-1. Optimized Prompt (final version ready for user)
-2. Brief Thought Process (3–6 bullets on improvement choices)
-3. Input Checklist (missing inputs)
+4. Explicit structure. In the Optimized Prompt, specify: role, goal, inputs expected, steps/sequence, output format (headings/bullets/tables as needed), and the verbosity target.
 
-Tone: ${form.tone || 'professional'}
-Style: ${form.style || 'clear and direct'}
-Avoid: ${form.avoid_list || 'ambiguity, verbosity'}
+5. Reasoning transparency (short). Instruct the model to include a 3–5 bullet "Approach Summary" at the start of its final answer (not chain-of-thought; just high-level rationale).
+
+6. Iteration & self-check. Add a self-evaluation rubric (5–7 criteria) and tell the model to quietly iterate until it meets "excellent" across criteria, then deliver the final answer.
+
+7. Parallelization. If enable_parallelization = true, add a note allowing parallel work on independent subtasks.
+
+8. Parameter hints. Reflect UI choices inside the prompt (e.g., "Answer length: ${form.verbosity}", "Creativity: temperature ${form.temperature}, top-p ${form.top_p || 1.0}," "Reasoning effort: ${form.reasoning_effort}").
+
+9. Safety & compliance. Include one line instructing refusal/redirect if the user asks for disallowed content.
 
 # USER CONTENT
 
 Raw Prompt: ${form.user_prompt}
-Domain: ${form.domain_context || 'general'}
-Audience: ${form.audience || 'general'}
-Formatting: ${form.format_requirements || 'clear text'}
-Hard constraints: ${form.hard_constraints || 'none specified'}
-Prohibited: ${form.prohibited || 'none specified'}
-Success criteria: ${form.success_criteria || 'clear, accurate response'}
-Exemplars: ${form.exemplars || 'none provided'}
+Domain: ${form.domain_context || 'not specified'}
+Audience: ${form.audience || 'not specified'}
+Formatting: ${form.format_requirements || 'not specified'}
+Hard constraints: ${form.hard_constraints || 'not specified'}
+Prohibited: ${form.prohibited || 'not specified'}
+Success criteria: ${form.success_criteria || 'not specified'}
+Exemplars: ${form.exemplars || 'not specified'}
+Tone: ${form.tone || 'not specified'}
+Style: ${form.style || 'not specified'}
 
-# Instructions for Optimized Prompt
+EXAMPLE SHAPE OF "Optimized Prompt" YOU SHOULD PRODUCE:
 
-1. Include "think deeper" and a short planning phase (decompose, identify ambiguities, plan, validate).
-2. Eliminate conflicts (priority: hard_constraints > safety/compliance > success_criteria > tone/style).
-3. Explicitly structure: role, goal, inputs, process, output format, tone/style/verbosity.
-4. Require an Approach Summary at the start of the final answer (3–5 bullets, no hidden reasoning).
-5. Add an internal Quality Rubric (5–7 criteria) and iterate until "excellent".
-6. ${form.enable_parallelization ? "Allow parallel tasks" : "No parallelization"}
-7. Add a Safety clause to refuse/redirect if disallowed.
+**Role & Goal:** You are a ${form.domain_context || 'domain'} expert. Your goal is to [succinct_goal].
 
-# Safety
+**Inputs You Will Receive:** [explicit_input_list]
 
-If disallowed or risky, briefly refuse and suggest compliant alternatives.`;
+**When to Start:** Proceed only after confirming missing inputs from the checklist are resolved.
+
+**Process (do in order):**
+1. Decompose the request into core components
+2. Identify ambiguities and ask up to 3 clarifying questions (one batch)
+3. Draft solution; validate against success criteria
+4. Revise to meet the rubric; finalize
+
+**Parallelization:** ${form.enable_parallelization ? 'Allow parallel work on independent subtasks' : 'Complete tasks sequentially'}
+
+**Output Format:** ${form.format_requirements || 'Clear structured response'} (headings/bullets/tables/code blocks as needed)
+
+**Approach Summary:** Begin your final answer with 3–5 bullets explaining your approach (no chain-of-thought).
+
+**Quality Rubric (internal, do not show scores):** [5-7 criteria for excellence]
+
+**Answer Length & Tone:** ${form.verbosity || 'standard'}, ${form.tone || 'professional'}; creativity temp ${form.temperature}, top-p ${form.top_p || 1.0}; reasoning effort ${form.reasoning_effort || 'medium'}.
+
+**Safety:** If the request is disallowed or risky, refuse with a brief reason and suggest compliant alternatives.
+
+Return ONLY the optimized prompt.`;
 }

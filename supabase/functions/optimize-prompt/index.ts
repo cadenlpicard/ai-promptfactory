@@ -74,27 +74,31 @@ serve(async (req) => {
 })
 
 function buildMetaPrompt(formData: any): string {
-  return `You are an expert prompt engineer. Rewrite the user's prompt into a clear, constrained, reproducible prompt that maximizes instruction adherence.
+  return `You are an expert prompt engineer. Think deeper first (briefly). Decompose the task, spot ambiguities, and plan before writing the Optimized Prompt.
 
-## Model Controls
+ASSISTANT INSTRUCTIONS (how to rewrite):
 
-Reasoning effort: ${formData.reasoning_effort || 'medium'}
-Verbosity: ${formData.verbosity || 'standard'} (final answer length only)
-Temperature: ${formData.temperature || 0.7}
-Top-p: ${formData.top_p || 1.0}
-Parallelization: ${formData.enable_parallelization ? 'enabled' : 'disabled'}
+1. Think deeper first (briefly). Decompose the task, spot ambiguities, and plan before writing the Optimized Prompt.
 
-## Output Contract
+2. Eliminate conflicts. If two rules clash, apply this priority: hard_constraints > safety/compliance > success_criteria > tone/style. State the chosen resolution in "Brief Thought Process."
 
-Return ONLY:
+3. Planning phase (inline in the prompt). Include a short pre-execution checklist inside the Optimized Prompt:
+   - Decompose task
+   - Identify ambiguities  
+   - Plan steps
+   - Validate understanding
 
-1. **Optimized Prompt** (final version ready for user)
-2. **Brief Thought Process** (3–6 bullets on improvement choices)
-3. **Input Checklist** (missing inputs or suggestions)
+4. Explicit structure. In the Optimized Prompt, specify: role, goal, inputs expected, steps/sequence, output format (headings/bullets/tables as needed), and the verbosity target.
 
-Tone: ${formData.tone || 'not specified'}
-Style: ${formData.style || 'not specified'}
-Avoid: ${formData.avoid_list || 'not specified'}
+5. Reasoning transparency (short). Instruct the model to include a 3–5 bullet "Approach Summary" at the start of its final answer (not chain-of-thought; just high-level rationale).
+
+6. Iteration & self-check. Add a self-evaluation rubric (5–7 criteria) and tell the model to quietly iterate until it meets "excellent" across criteria, then deliver the final answer.
+
+7. Parallelization. If enable_parallelization = true, add a note allowing parallel work on independent subtasks.
+
+8. Parameter hints. Reflect UI choices inside the prompt (e.g., "Answer length: ${formData.verbosity}", "Creativity: temperature ${formData.temperature}, top-p ${formData.top_p || 1.0}," "Reasoning effort: ${formData.reasoning_effort}").
+
+9. Safety & compliance. Include one line instructing refusal/redirect if the user asks for disallowed content.
 
 # USER CONTENT
 
@@ -106,74 +110,44 @@ Hard constraints: ${formData.hard_constraints || 'not specified'}
 Prohibited: ${formData.prohibited || 'not specified'}
 Success criteria: ${formData.success_criteria || 'not specified'}
 Exemplars: ${formData.exemplars || 'not specified'}
+Tone: ${formData.tone || 'not specified'}
+Style: ${formData.style || 'not specified'}
 
-# Instructions for Optimized Prompt
+EXAMPLE SHAPE OF "Optimized Prompt" YOU SHOULD PRODUCE:
 
-1. Include "think deeper" and a short planning phase (decompose, identify ambiguities, plan, validate).
-2. Eliminate conflicts (priority: hard_constraints > safety/compliance > success_criteria > tone/style).
-3. Explicitly structure: role, goal, inputs, process, output format, tone/style/verbosity.
-4. Require an Approach Summary at the start of the final answer (3–5 bullets, no hidden reasoning).
-5. Add an internal Quality Rubric (5–7 criteria) and iterate until "excellent".
-6. ${formData.enable_parallelization ? 'Allow parallel tasks' : 'No parallelization'}
-7. Add a Safety clause to refuse/redirect if disallowed.
+**Role & Goal:** You are a ${formData.domain_context || 'domain'} expert. Your goal is to [succinct_goal].
 
-# Safety
+**Inputs You Will Receive:** [explicit_input_list]
 
-If disallowed or risky, briefly refuse and suggest compliant alternatives.
+**When to Start:** Proceed only after confirming missing inputs from the checklist are resolved.
 
-# Response Format
+**Process (do in order):**
+1. Decompose the request into core components
+2. Identify ambiguities and ask up to 3 clarifying questions (one batch)
+3. Draft solution; validate against success criteria
+4. Revise to meet the rubric; finalize
 
-Please structure your response exactly as follows:
+**Parallelization:** ${formData.enable_parallelization ? 'Allow parallel work on independent subtasks' : 'Complete tasks sequentially'}
 
-## Optimized Prompt
-[Your improved prompt here]
+**Output Format:** ${formData.format_requirements || 'Clear structured response'} (headings/bullets/tables/code blocks as needed)
 
-## Thought Process
-• [Improvement 1]
-• [Improvement 2]
-• [Improvement 3]
-• [Additional improvements as needed]
+**Approach Summary:** Begin your final answer with 3–5 bullets explaining your approach (no chain-of-thought).
 
-## Input Checklist
-• [Missing input 1 or suggestion]
-• [Missing input 2 or suggestion]
-• [Additional suggestions as needed]`
+**Quality Rubric (internal, do not show scores):** [5-7 criteria for excellence]
+
+**Answer Length & Tone:** ${formData.verbosity || 'standard'}, ${formData.tone || 'professional'}; creativity temp ${formData.temperature}, top-p ${formData.top_p || 1.0}; reasoning effort ${formData.reasoning_effort || 'medium'}.
+
+**Safety:** If the request is disallowed or risky, refuse with a brief reason and suggest compliant alternatives.
+
+Return ONLY the optimized prompt.`
 }
 
 function parseOptimizedResponse(rawResponse: string): any {
-  try {
-    // Split the response into sections
-    const sections = rawResponse.split('##').map(s => s.trim()).filter(s => s.length > 0)
-    
-    let optimized_prompt = ''
-    let thought_process: string[] = []
-    let input_checklist: string[] = []
-    
-    sections.forEach(section => {
-      if (section.toLowerCase().startsWith('optimized prompt')) {
-        optimized_prompt = section.replace(/^optimized prompt\s*/i, '').trim()
-      } else if (section.toLowerCase().startsWith('thought process')) {
-        const content = section.replace(/^thought process\s*/i, '').trim()
-        thought_process = content.split('•').map(item => item.trim()).filter(item => item.length > 0)
-      } else if (section.toLowerCase().startsWith('input checklist')) {
-        const content = section.replace(/^input checklist\s*/i, '').trim()
-        input_checklist = content.split('•').map(item => item.trim()).filter(item => item.length > 0)
-      }
-    })
-    
-    return {
-      optimized_prompt: optimized_prompt || rawResponse,
-      thought_process: thought_process.length > 0 ? thought_process : ['Prompt optimized for clarity and effectiveness'],
-      input_checklist: input_checklist.length > 0 ? input_checklist : ['All required inputs provided'],
-      raw_response: rawResponse
-    }
-  } catch (error) {
-    // Fallback if parsing fails
-    return {
-      optimized_prompt: rawResponse,
-      thought_process: ['Prompt optimized using advanced techniques'],
-      input_checklist: ['Review output for completeness'],
-      raw_response: rawResponse
-    }
+  // Since we're only returning the optimized prompt now, no parsing needed
+  return {
+    optimized_prompt: rawResponse.trim(),
+    thought_process: [],
+    input_checklist: [],
+    raw_response: rawResponse
   }
 }
