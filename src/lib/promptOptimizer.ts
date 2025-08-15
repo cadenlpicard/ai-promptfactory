@@ -1,67 +1,74 @@
 import { FormData, OptimizedResponse } from '@/types';
-
-// For now, we'll use the enhanced local optimization
-// The Supabase edge function can be connected later when the project is properly set up
+import { supabase } from '@/integrations/supabase/client';
+import { savePromptSession } from './promptSessionService';
 
 export async function optimizePrompt(formData: FormData): Promise<OptimizedResponse> {
   try {
-    // For now, use enhanced local optimization
-    // TODO: Connect to OpenAI API via Supabase edge function later
-    console.log('Processing prompt optimization...', { 
-      hasPrompt: !!formData.user_prompt,
-      domain: formData.domain_context,
-      audience: formData.audience 
+    // Try to use the OpenAI edge function first
+    const { data: optimizeData, error: optimizeError } = await supabase.functions.invoke('optimize-prompt', {
+      body: { formData }
     });
+
+    if (optimizeData && !optimizeError) {
+      console.log('Using OpenAI optimization via edge function');
+      
+      // Save to database
+      await savePromptSession(formData, optimizeData);
+      
+      return optimizeData;
+    }
+
+    // Fall back to enhanced local optimization
+    console.log('Falling back to local optimization...');
+    const optimizedResponse = await createLocalOptimizedResponse(formData);
     
-    const optimizedPrompt = createEnhancedPrompt(formData);
+    // Save to database
+    await savePromptSession(formData, optimizedResponse);
     
-    // Simulate processing time for better UX
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    return {
-      optimized_prompt: optimizedPrompt,
-      thought_process: [
-        '🎯 Applied advanced prompt engineering techniques',
-        '📐 Structured with clear thinking framework',
-        '👥 Incorporated domain expertise and audience targeting',
-        '✅ Added quality validation checkpoints',
-        '🎨 Enhanced with user-specified tone and style preferences',
-        '🚀 Ready for production use!'
-      ],
-      input_checklist: [
-        formData.domain_context ? '✅ Domain context: Well-defined' : '💡 Tip: Add domain context for better targeting',
-        formData.audience ? '✅ Target audience: Specified' : '💡 Tip: Define your target audience',
-        formData.tone ? '✅ Tone: Configured' : '💡 Tip: Choose a tone for better results',
-        formData.style ? '✅ Style: Set' : '💡 Tip: Select a communication style',
-        formData.success_criteria ? '✅ Success criteria: Defined' : '💡 Tip: Add success criteria for validation',
-        '🔧 OpenAI API ready to connect via Supabase edge function'
-      ]
-    };
+    return optimizedResponse;
     
   } catch (error) {
     console.error('Error optimizing prompt:', error);
     
     // Enhanced fallback response
-    const optimizedPrompt = createEnhancedPrompt(formData);
+    const optimizedResponse = await createLocalOptimizedResponse(formData);
     
-    return {
-      optimized_prompt: optimizedPrompt,
-      thought_process: [
-        'Applied prompt engineering best practices',
-        'Added structured thinking framework', 
-        'Incorporated user specifications for tone and style',
-        'Built in quality validation steps',
-        '⚠️ Note: Using local optimization (API connection pending)'
-      ],
-      input_checklist: [
-        formData.domain_context ? '✓ Domain context provided' : '⚠️ Consider adding domain context',
-        formData.audience ? '✓ Target audience defined' : '⚠️ Target audience could be specified',
-        formData.success_criteria ? '✓ Success criteria set' : '⚠️ Success criteria would help',
-        formData.format_requirements ? '✓ Format requirements specified' : '⚠️ Output format could be clarified',
-        '🔧 OpenAI API integration ready - configure your API key'
-      ]
-    };
+    // Try to save to database even on error
+    try {
+      await savePromptSession(formData, optimizedResponse);
+    } catch (saveError) {
+      console.error('Error saving prompt session:', saveError);
+    }
+    
+    return optimizedResponse;
   }
+}
+
+async function createLocalOptimizedResponse(formData: FormData): Promise<OptimizedResponse> {
+  const optimizedPrompt = createEnhancedPrompt(formData);
+  
+  // Simulate processing time for better UX
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  return {
+    optimized_prompt: optimizedPrompt,
+    thought_process: [
+      '🎯 Applied advanced prompt engineering techniques',
+      '📐 Structured with clear thinking framework',
+      '👥 Incorporated domain expertise and audience targeting',
+      '✅ Added quality validation checkpoints',
+      '🎨 Enhanced with user-specified tone and style preferences',
+      '🚀 Ready for production use!'
+    ],
+    input_checklist: [
+      formData.domain_context ? '✅ Domain context: Well-defined' : '💡 Tip: Add domain context for better targeting',
+      formData.audience ? '✅ Target audience: Specified' : '💡 Tip: Define your target audience',
+      formData.tone ? '✅ Tone: Configured' : '💡 Tip: Choose a tone for better results',
+      formData.style ? '✅ Style: Set' : '💡 Tip: Select a communication style',
+      formData.success_criteria ? '✅ Success criteria: Defined' : '💡 Tip: Add success criteria for validation',
+      '🔧 Session saved to your prompt history'
+    ]
+  };
 }
 
 function createEnhancedPrompt(formData: FormData): string {
