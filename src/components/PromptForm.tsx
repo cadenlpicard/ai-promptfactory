@@ -106,22 +106,22 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   };
 
   return (
-    <Card className="h-full border-2 border-primary/20 shadow-card hover:shadow-fun transition-all duration-300">
-      <CardHeader className="pb-4 sm:pb-4 bg-gradient-subtle rounded-t-lg px-6 py-6 sm:px-6 sm:py-4">
-        <div className="flex items-center gap-4 sm:gap-3">
-          <div className="w-12 h-12 sm:w-10 sm:h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-            <Factory className="h-6 w-6 sm:h-5 sm:w-5 text-white" />
+    <Card className="h-full border border-primary/20 sm:border-2 shadow-card hover:shadow-fun transition-all duration-300">
+      <CardHeader className="px-4 py-4 sm:px-6 sm:py-5 bg-gradient-subtle rounded-t-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+            <Factory className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl sm:text-xl">🏭 Factory Controls</CardTitle>
-            <CardDescription className="text-base sm:text-sm text-muted-foreground">
+            <CardTitle className="text-lg sm:text-xl">🏭 Factory Controls</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">
               Configure your prompt manufacturing settings
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6 sm:space-y-6 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-6 sm:p-6">
+      <CardContent className="space-y-5 sm:space-y-6 max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => {
             console.log("Form submission triggered with data:", data);
@@ -129,12 +129,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
           })} className="space-y-8 sm:space-y-8">
             
             {/* Target Model Selection */}
-            <div className="space-y-6 sm:space-y-4 p-6 sm:p-4 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-4 sm:gap-3">
-                <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Zap className="h-5 w-5 sm:h-4 sm:w-4 text-primary" />
+            <div className="space-y-4 sm:space-y-4 p-4 sm:p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-4 w-4 text-primary" />
                 </div>
-                <h3 className="text-xl sm:text-lg font-semibold">🎯 Target Model</h3>
+                <h3 className="text-base sm:text-lg font-semibold">🎯 Target Model</h3>
               </div>
               
               <FormField
@@ -142,10 +142,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                 name="targetModel"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg sm:text-base font-medium">Optimize For</FormLabel>
+                    <FormLabel className="text-sm font-medium">Optimize For</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-14 sm:h-12 text-base sm:text-sm">
+                        <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                           <SelectValue placeholder="Choose target model..." />
                         </SelectTrigger>
                       </FormControl>
@@ -164,7 +164,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         <SelectItem value="grok-4">xAI Grok 4</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription className="text-base sm:text-sm">
+                    <FormDescription className="text-xs sm:text-sm">
                       We'll optimize your prompt for this model's best practices using OpenAI
                     </FormDescription>
                     <FormMessage />
@@ -174,12 +174,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
             </div>
 
             {/* Raw Material Input */}
-            <div className="space-y-6 sm:space-y-4 p-6 sm:p-4 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-4 sm:gap-3">
-                <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 sm:h-4 sm:w-4 text-secondary" />
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-secondary" />
                 </div>
-                <h3 className="text-xl sm:text-lg font-semibold">✨ Raw Material</h3>
+                <h3 className="text-base sm:text-lg font-semibold">✨ Raw Material</h3>
               </div>
 
               <FormField
@@ -187,15 +187,15 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                 name="user_prompt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg sm:text-base font-medium">🎯 Your Raw Prompt</FormLabel>
+                    <FormLabel className="text-sm font-medium">🎯 Your Raw Prompt</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Describe what you want the AI to do... We'll turn it into gold! ✨"
-                        className="min-h-[150px] sm:min-h-[120px] resize-none border-2 border-primary/20 focus:border-primary/40 rounded-xl text-base sm:text-sm p-4 sm:p-3"
+                        className="min-h-[120px] resize-none border-2 border-primary/20 focus:border-primary/40 rounded-xl text-base"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-base sm:text-sm">
+                    <FormDescription className="text-xs sm:text-sm">
                       Don't worry about perfection - that's our job! 🏭
                     </FormDescription>
                     <FormMessage />
@@ -221,7 +221,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       <FormLabel className="text-sm font-medium">🏢 Domain Context</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                          <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                             <SelectValue placeholder="Choose your domain..." />
                           </SelectTrigger>
                         </FormControl>
@@ -245,7 +245,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       <FormLabel className="text-sm font-medium">👥 Target Audience</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                          <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                             <SelectValue placeholder="Who's your audience?" />
                           </SelectTrigger>
                         </FormControl>
@@ -269,7 +269,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       <FormLabel className="text-sm font-medium">🎭 Tone</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                          <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                             <SelectValue placeholder="Pick your tone..." />
                           </SelectTrigger>
                         </FormControl>
@@ -293,7 +293,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       <FormLabel className="text-sm font-medium">✍️ Style</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                          <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                             <SelectValue placeholder="Choose your style..." />
                           </SelectTrigger>
                         </FormControl>
@@ -322,7 +322,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       <FormControl>
                         <Input 
                           placeholder="e.g., Use bullet points, Include examples..."
-                          className="border-2 border-primary/20 rounded-xl"
+                          className="h-11 border-2 border-primary/20 rounded-xl"
                           {...field} 
                         />
                       </FormControl>
@@ -341,7 +341,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         <FormControl>
                           <Input 
                             placeholder="Must include..."
-                            className="border-2 border-primary/20 rounded-xl"
+                            className="h-11 border-2 border-primary/20 rounded-xl"
                             {...field} 
                           />
                         </FormControl>
@@ -359,7 +359,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         <FormControl>
                           <Input 
                             placeholder="Don't mention..."
-                            className="border-2 border-primary/20 rounded-xl"
+                            className="h-11 border-2 border-primary/20 rounded-xl"
                             {...field} 
                           />
                         </FormControl>
@@ -403,7 +403,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             field.onChange(vals[0]);
                             form.setValue('temperature', vals[0]);
                           }}
-                          className="w-full"
+                          className="w-full h-9"
                         />
                       </FormControl>
                       <FormDescription className="text-xs">
@@ -433,7 +433,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           step={50}
                           value={[field.value]}
                           onValueChange={(vals) => field.onChange(vals[0])}
-                          className="w-full"
+                          className="w-full h-9"
                         />
                       </FormControl>
                       <FormDescription className="text-xs">
@@ -464,7 +464,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             step={0.1}
                             value={[field.value || 1]}
                             onValueChange={(vals) => field.onChange(vals[0])}
-                            className="w-full"
+                            className="w-full h-9"
                           />
                         </FormControl>
                         <FormDescription className="text-xs">
@@ -494,7 +494,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             step={1}
                             value={[field.value || 40]}
                             onValueChange={(vals) => field.onChange(vals[0])}
-                            className="w-full"
+                            className="w-full h-9"
                           />
                         </FormControl>
                         <FormDescription className="text-xs">
@@ -514,12 +514,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="border-2 border-primary/20 rounded-xl">
-                              <SelectValue placeholder="How deep should it think?" />
-                            </SelectTrigger>
-                          </FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
+                                <SelectValue placeholder="How deep should it think?" />
+                              </SelectTrigger>
+                            </FormControl>
                           <SelectContent>
                             {thinkingDepthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
@@ -547,7 +547,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         <FormLabel className="text-sm font-medium">📝 Detail Level</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                            <SelectTrigger className="h-11 border-2 border-primary/20 rounded-xl">
                               <SelectValue placeholder="How detailed?" />
                             </SelectTrigger>
                           </FormControl>
@@ -638,25 +638,51 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
               </div>
             </div>
 
-            <div className="pt-8 sm:pt-6 border-t border-border/30">
+            {/* Desktop button */}
+            <div className="hidden sm:block pt-6 border-t border-border/30">
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-xl sm:text-lg h-16 sm:h-14 rounded-2xl transition-all duration-300" 
+                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-base h-12 rounded-2xl transition-all duration-300" 
                 disabled={isLoading}
                 size="lg"
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-6 w-6 sm:h-5 sm:w-5 border-b-2 border-white mr-3" />
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                     🏭 Manufacturing Magic...
                   </>
                 ) : (
                   <>
-                    <Play className="mr-3 h-6 w-6 sm:h-5 sm:w-5" />
+                    <Play className="mr-2 h-5 w-5" />
                     🚀 Start Production!
                   </>
                 )}
               </Button>
+            </div>
+
+            {/* Sticky action bar on mobile */}
+            <div className="sm:hidden sticky bottom-2 left-0 right-0 z-20">
+              <div className="mx-auto max-w-screen-sm">
+                <div className="rounded-2xl border bg-background/90 shadow-card backdrop-blur p-2">
+                  <Button
+                    type="submit"
+                    className="w-full h-12 rounded-xl text-base font-bold bg-gradient-fun border-0 text-white"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                        🏭 Manufacturing...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="mr-2 h-5 w-5" />
+                        🚀 Start Production!
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           </form>
         </Form>
