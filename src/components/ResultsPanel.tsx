@@ -18,24 +18,44 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
   const { toast } = useToast();
 
   const copyToClipboard = async (text: string, section: string) => {
+    console.log('Attempting to copy:', { text: text?.substring(0, 50), section, hasText: !!text });
+    
+    if (!text || text.trim() === '') {
+      toast({
+        title: "Error",
+        description: "No content to copy",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Check if clipboard API is available
+      // Check if clipboard API is available and secure context
       if (navigator.clipboard && window.isSecureContext) {
+        console.log('Using navigator.clipboard');
         await navigator.clipboard.writeText(text);
       } else {
+        console.log('Using fallback method');
         // Fallback for older browsers or non-HTTPS
         const textArea = document.createElement('textarea');
         textArea.value = text;
         textArea.style.position = 'fixed';
         textArea.style.left = '-999999px';
         textArea.style.top = '-999999px';
+        textArea.style.opacity = '0';
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
+        
+        const successful = document.execCommand('copy');
         document.body.removeChild(textArea);
+        
+        if (!successful) {
+          throw new Error('execCommand copy failed');
+        }
       }
       
+      console.log('Copy successful');
       setCopiedSection(section);
       toast({
         title: "Copied!",
@@ -46,7 +66,7 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
       console.error('Copy failed:', err);
       toast({
         title: "Error", 
-        description: "Failed to copy to clipboard",
+        description: `Failed to copy: ${err instanceof Error ? err.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
