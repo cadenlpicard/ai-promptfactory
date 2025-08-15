@@ -55,10 +55,18 @@ function splitThreeSections(text: string) {
   const t = text.replace(/\r\n/g, "\n");
   const get = (label: string) => {
     const re = new RegExp(`(^|\\n)##\\s*${label}[\\s\\S]*?(?=\\n##\\s*|$)`, "i");
-    return (t.match(re)?.[0] || "").replace(/(^|\\n)##\\s*[^\\n]+\\n?/, "").trim();
+    const match = t.match(re)?.[0] || "";
+    // Remove the header (## Section Name) and any leading/trailing whitespace
+    return match.replace(/(^|\\n)##\\s*[^\\n]+\\n?/, "").trim();
   };
+  
+  let optimizedPrompt = get("Optimized Prompt") || t;
+  
+  // Additional cleanup: remove any remaining "## Optimized Prompt" headers
+  optimizedPrompt = optimizedPrompt.replace(/^##\s*Optimized\s+Prompt\s*\n?/i, "").trim();
+  
   return {
-    optimizedPrompt: get("Optimized Prompt") || t,
+    optimizedPrompt,
     briefThoughtProcess: get("Brief Thought Process"),
     inputChecklist: get("Input Checklist")
   };
