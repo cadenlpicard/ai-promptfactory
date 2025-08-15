@@ -19,7 +19,23 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
 
   const copyToClipboard = async (text: string, section: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      // Check if clipboard API is available
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      
       setCopiedSection(section);
       toast({
         title: "Copied!",
@@ -27,8 +43,9 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
       });
       setTimeout(() => setCopiedSection(null), 2000);
     } catch (err) {
+      console.error('Copy failed:', err);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to copy to clipboard",
         variant: "destructive",
       });
