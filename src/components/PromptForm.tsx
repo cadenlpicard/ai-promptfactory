@@ -16,7 +16,7 @@ import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play } from
 
 const formSchema = z.object({
   targetModel: z.string().min(1, 'Please select a target model'),
-  model_id: z.string().min(1, 'Please select a model'),
+  model_id: z.string().optional(), // Made optional since we use targetModel now
   provider: z.enum(['openai', 'gemini', 'claude', 'grok', 'llama', 'mistral', 'cohere']),
   user_prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
   domain_context: z.string().optional(),
@@ -78,7 +78,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       targetModel: 'gpt-5',
-      model_id: '',
+      model_id: 'gpt-5', // Set default to prevent validation issues
       provider: 'openai',
       user_prompt: '',
       temperature: 0.7,
