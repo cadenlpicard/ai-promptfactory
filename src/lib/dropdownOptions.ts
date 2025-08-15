@@ -1,5 +1,4 @@
 export const domainContextOptions = [
-  { value: '', label: 'Select domain...' },
   { value: 'software-development', label: '💻 Software Development' },
   { value: 'marketing', label: '📢 Marketing' },
   { value: 'legal', label: '⚖️ Legal' },
@@ -17,7 +16,6 @@ export const domainContextOptions = [
 ];
 
 export const audienceOptions = [
-  { value: '', label: 'Select audience...' },
   { value: 'developers', label: '👨‍💻 Developers' },
   { value: 'executives', label: '👔 Business Executives' },
   { value: 'students', label: '🎒 Students' },
@@ -33,7 +31,6 @@ export const audienceOptions = [
 ];
 
 export const toneOptions = [
-  { value: '', label: 'Select tone...' },
   { value: 'professional', label: '💼 Professional' },
   { value: 'casual', label: '😊 Casual' },
   { value: 'friendly', label: '🤝 Friendly' },
@@ -49,7 +46,6 @@ export const toneOptions = [
 ];
 
 export const styleOptions = [
-  { value: '', label: 'Select style...' },
   { value: 'concise', label: '⚡ Concise' },
   { value: 'detailed', label: '📖 Detailed' },
   { value: 'creative', label: '🎨 Creative' },
