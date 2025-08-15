@@ -1,32 +1,29 @@
-import { openai } from "./openai";
-import { buildMetaPrompt } from "./buildMetaPrompt";
+import { supabase } from "@/integrations/supabase/client";
 import type { FormData, OptimizedResponse } from "@/types";
 import { savePromptSession } from './promptSessionService';
 
 export async function optimizePrompt(form: FormData): Promise<OptimizedResponse> {
   try {
-    const meta = buildMetaPrompt(form);
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      max_tokens: 2000,
-      temperature: 0.3,
-      messages: [
-        { role: "system", content: "You are a meticulous assistant that follows the output contract exactly." },
-        { role: "user", content: meta }
-      ]
+    console.log('Calling Supabase edge function with form data:', form);
+    
+    const { data, error } = await supabase.functions.invoke('optimize-prompt', {
+      body: form
     });
 
-    const text = completion.choices?.[0]?.message?.content?.trim() || "";
-    const { optimizedPrompt, briefThoughtProcess, inputChecklist } = splitThreeSections(text);
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+
+    console.log('Received response from edge function:', data);
     
     const response: OptimizedResponse = {
-      optimized_prompt: optimizedPrompt,
-      optimizedPrompt,
-      thought_process: briefThoughtProcess.split('\n').filter(line => line.trim()),
-      briefThoughtProcess,
-      input_checklist: inputChecklist.split('\n').filter(line => line.trim()),
-      inputChecklist
+      optimized_prompt: data.optimizedPrompt,
+      optimizedPrompt: data.optimizedPrompt,
+      thought_process: data.thought_process || [],
+      briefThoughtProcess: data.briefThoughtProcess || '',
+      input_checklist: data.input_checklist || [],
+      inputChecklist: data.inputChecklist || ''
     };
 
     // Save to database (non-blocking)
@@ -49,27 +46,6 @@ export async function optimizePrompt(form: FormData): Promise<OptimizedResponse>
     
     return optimizedResponse;
   }
-}
-
-function splitThreeSections(text: string) {
-  const t = text.replace(/\r\n/g, "\n");
-  const get = (label: string) => {
-    const re = new RegExp(`(^|\\n)##\\s*${label}[\\s\\S]*?(?=\\n##\\s*|$)`, "i");
-    const match = t.match(re)?.[0] || "";
-    // Remove the header (## Section Name) and any leading/trailing whitespace
-    return match.replace(/(^|\\n)##\\s*[^\\n]+\\n?/, "").trim();
-  };
-  
-  let optimizedPrompt = get("Optimized Prompt") || t;
-  
-  // Additional cleanup: remove any remaining "## Optimized Prompt" headers
-  optimizedPrompt = optimizedPrompt.replace(/^##\s*Optimized\s+Prompt\s*\n?/i, "").trim();
-  
-  return {
-    optimizedPrompt,
-    briefThoughtProcess: get("Brief Thought Process"),
-    inputChecklist: get("Input Checklist")
-  };
 }
 
 async function createLocalOptimizedResponse(form: FormData): Promise<OptimizedResponse> {
