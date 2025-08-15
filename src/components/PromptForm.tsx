@@ -121,7 +121,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+      <CardContent className="space-y-4 sm:space-y-6 max-h-[calc(100vh-9rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-4 sm:p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => {
             console.log("Form submission triggered with data:", data);
@@ -212,7 +212,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                 </div>
                 <h3 className="text-lg font-semibold">🎯 Manufacturing Specs</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField
                   control={form.control}
                   name="domain_context"
@@ -331,7 +331,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   )}
                 />
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <FormField
                     control={form.control}
                     name="hard_constraints"
@@ -380,7 +380,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                 <h3 className="text-lg font-semibold">⚙️ Factory Settings</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                  {/* Creativity Level */}
                 <FormField
                   control={form.control}
@@ -570,7 +570,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
               </div>
 
               {/* Feature Toggles */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-6">
                 <FormField
                   control={form.control}
                   name="structured_output"
