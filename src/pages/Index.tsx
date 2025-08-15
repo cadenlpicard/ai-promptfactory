@@ -3,7 +3,7 @@ import { PromptForm } from '@/components/PromptForm';
 import { ResultsPanel } from '@/components/ResultsPanel';
 import { FormData, OptimizedResponse } from '@/types';
 import { optimizePrompt } from '@/lib/promptOptimizer';
-import { Sparkles } from 'lucide-react';
+import { Factory, Sparkles, Zap } from 'lucide-react';
 
 const Index = () => {
   const [response, setResponse] = useState<OptimizedResponse | null>(null);
@@ -30,18 +30,21 @@ const Index = () => {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Sparkles className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-fun flex items-center justify-center shadow-fun transform hover:scale-105 transition-transform duration-200">
+              <Factory className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">PromptRefinery</h1>
-              <p className="text-xs text-muted-foreground">Multi-Model Prompt Optimization</p>
+              <h1 className="text-2xl font-bold text-foreground">Prompt Factory</h1>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                <Zap className="h-3 w-3" />
+                Where Raw Prompts Become Refined Gold
+              </p>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
-            <div className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-xs font-medium text-primary">Beta</span>
+            <div className="px-4 py-2 rounded-full bg-gradient-primary border-2 border-primary/20 shadow-glow">
+              <span className="text-sm font-semibold text-white">Beta</span>
             </div>
           </div>
         </div>

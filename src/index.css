@@ -2,65 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PromptRefinery Design System - Modern AI Tool Theme */
+/* Prompt Factory Design System - Light & Playful Theme */
 
 @layer base {
   :root {
-    /* Core backgrounds */
-    --background: 240 10% 3.9%;
-    --foreground: 210 40% 98%;
+    /* Core backgrounds - Light & Airy */
+    --background: 50 100% 98%;
+    --foreground: 220 20% 20%;
 
     /* Cards and surfaces */
-    --card: 240 10% 5.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 20%;
 
-    --popover: 240 10% 5.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 20%;
 
-    /* Brand colors - Deep blue to purple gradient theme */
-    --primary: 243 75% 59%;
-    --primary-foreground: 210 40% 98%;
-    --primary-glow: 258 90% 66%;
+    /* Brand colors - Bright Teal to Mint Gradient */
+    --primary: 180 84% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 160 84% 55%;
 
-    --secondary: 240 4.8% 15.9%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Warm Orange */
+    --secondary: 38 92% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 5.9% 10%;
-    --muted-foreground: 240 5% 64.9%;
+    /* Muted - Light Gray */
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 13% 45%;
 
-    --accent: 240 4.8% 15.9%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Soft Purple */
+    --accent: 260 60% 75%;
+    --accent-foreground: 220 20% 20%;
 
-    /* Status colors */
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status colors - Bright & Friendly */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --success: 140 84% 50%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 240 10% 3.9%;
+    --warning: 45 93% 58%;
+    --warning-foreground: 220 20% 20%;
 
     /* UI elements */
-    --border: 240 5.9% 10%;
-    --input: 240 5.9% 10%;
-    --ring: 243 75% 59%;
+    --border: 220 13% 90%;
+    --input: 220 13% 95%;
+    --ring: 180 84% 55%;
 
-    /* Gradients for modern AI aesthetic */
+    /* Gradients for playful factory aesthetic */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-surface: linear-gradient(180deg, hsl(var(--card)), hsl(var(--muted)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(220 40% 98%));
+    --gradient-fun: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
 
-    /* Shadows with brand glow */
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.3);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.15);
-    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.1);
+    /* Shadows with colorful glow */
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.15);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.1);
+    --shadow-card: 0 4px 20px -2px hsl(var(--primary) / 0.08);
+    --shadow-fun: 0 8px 25px -5px hsl(var(--secondary) / 0.15);
 
-    /* Animation timing */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-fast: all 0.15s ease-out;
+    /* Animation timing - Bouncy & Fun */
+    --transition-smooth: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-fast: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
 

@@ -2,17 +2,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { FormData, Provider, ModelConfig } from '@/types';
 import { getAllModels, getProviderConfig, getModelConfig } from '@/lib/providerRegistry';
-import { Sparkles, Settings, Target, Users } from 'lucide-react';
+import { domainContextOptions, audienceOptions, toneOptions, styleOptions, thinkingDepthOptions, detailLevelOptions } from '@/lib/dropdownOptions';
+import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play } from 'lucide-react';
 
 const formSchema = z.object({
   model_id: z.string().min(1, 'Please select a model'),
@@ -60,7 +60,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
 
   const selectedModelId = form.watch('model_id');
   const selectedModel = getModelConfig(selectedModelId);
-  const providerConfig = selectedModel ? getProviderConfig(selectedModel.provider) : null;
+  const selectedProvider = selectedModel ? getProviderConfig(selectedModel.provider) : null;
 
   const handleModelChange = (modelId: string) => {
     const modelConfig = getModelConfig(modelId);
@@ -72,23 +72,32 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   };
 
   return (
-    <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-xl font-semibold">
-          <Sparkles className="h-5 w-5 text-primary" />
-          Prompt Configuration
-        </CardTitle>
+    <Card className="h-full border-2 border-primary/20 shadow-card hover:shadow-fun transition-all duration-300">
+      <CardHeader className="pb-4 bg-gradient-subtle rounded-t-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+            <Factory className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-xl">🏭 Factory Controls</CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Configure your prompt manufacturing settings
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
       
       <CardContent className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
             {/* Model Selection */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium text-foreground">Model Selection</h3>
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-4 w-4 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold">🤖 Model Selection</h3>
               </div>
               
               <FormField
@@ -96,14 +105,14 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                 name="model_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>AI Model</FormLabel>
+                    <FormLabel className="text-base font-medium">AI Model</FormLabel>
                     <Select onValueChange={handleModelChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-background/50 border-border/50">
-                          <SelectValue placeholder="Select an AI model" />
+                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                          <SelectValue placeholder="Choose your AI model..." />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent className="bg-card border-border/50">
+                      <SelectContent>
                         {Object.entries(
                           getAllModels().reduce((acc, model) => {
                             if (!acc[model.provider]) acc[model.provider] = [];
@@ -112,7 +121,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           }, {} as Record<Provider, ModelConfig[]>)
                         ).map(([provider, models]) => (
                           <div key={provider}>
-                            <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            <div className="px-2 py-1.5 text-xs font-semibold text-primary uppercase tracking-wide">
                               {provider}
                             </div>
                             {models.map((model) => (
@@ -124,97 +133,203 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <Separator className="bg-border/50" />
-
-            {/* Core Prompt */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium text-foreground">Core Prompt</h3>
+            {/* Raw Material Input */}
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-secondary" />
+                </div>
+                <h3 className="text-lg font-semibold">✨ Raw Material</h3>
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="user_prompt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Prompt</FormLabel>
+                    <FormLabel className="text-base font-medium">🎯 Your Raw Prompt</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter your prompt that needs optimization..."
-                        className="min-h-[120px] bg-background/50 border-border/50 resize-none"
+                        placeholder="Describe what you want the AI to do... We'll turn it into gold! ✨"
+                        className="min-h-[120px] resize-none border-2 border-primary/20 focus:border-primary/40 rounded-xl"
                         {...field}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Don't worry about perfection - that's our job! 🏭
+                    </FormDescription>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <Separator className="bg-border/50" />
-
-            {/* Context & Requirements */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium text-foreground">Context & Requirements</h3>
+            {/* Manufacturing Specs */}
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <Target className="h-4 w-4 text-accent" />
+                </div>
+                <h3 className="text-lg font-semibold">🎯 Manufacturing Specs</h3>
               </div>
-              
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="domain_context"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Domain Context</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., software development, marketing, legal" className="bg-background/50 border-border/50" {...field} />
-                      </FormControl>
+                      <FormLabel className="text-sm font-medium">🏢 Domain Context</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                            <SelectValue placeholder="Choose your domain..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {domainContextOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-                
                 <FormField
                   control={form.control}
                   name="audience"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Target Audience</FormLabel>
+                      <FormLabel className="text-sm font-medium">👥 Target Audience</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                            <SelectValue placeholder="Who's your audience?" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {audienceOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">🎭 Tone</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                            <SelectValue placeholder="Pick your tone..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {toneOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="style"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">✍️ Style</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                            <SelectValue placeholder="Choose your style..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {styleOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Additional Context Fields */}
+              <div className="grid grid-cols-1 gap-4 mt-4">
+                <FormField
+                  control={form.control}
+                  name="format_requirements"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">📋 Format Requirements</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., developers, executives, students" className="bg-background/50 border-border/50" {...field} />
+                        <Input 
+                          placeholder="e.g., Use bullet points, Include examples..."
+                          className="border-2 border-primary/20 rounded-xl"
+                          {...field} 
+                        />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="tone"
+                    name="hard_constraints"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tone</FormLabel>
+                        <FormLabel className="text-sm font-medium">⚠️ Hard Constraints</FormLabel>
                         <FormControl>
-                          <Input placeholder="professional, casual, academic" className="bg-background/50 border-border/50" {...field} />
+                          <Input 
+                            placeholder="Must include..."
+                            className="border-2 border-primary/20 rounded-xl"
+                            {...field} 
+                          />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   
                   <FormField
                     control={form.control}
-                    name="style"
+                    name="prohibited"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Style</FormLabel>
+                        <FormLabel className="text-sm font-medium">🚫 Prohibited Content</FormLabel>
                         <FormControl>
-                          <Input placeholder="concise, detailed, creative" className="bg-background/50 border-border/50" {...field} />
+                          <Input 
+                            placeholder="Don't mention..."
+                            className="border-2 border-primary/20 rounded-xl"
+                            {...field} 
+                          />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -222,50 +337,234 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
               </div>
             </div>
 
-            <Separator className="bg-border/50" />
+            {/* Factory Settings */}
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                  <Sliders className="h-4 w-4 text-success" />
+                </div>
+                <h3 className="text-lg font-semibold">⚙️ Factory Settings</h3>
+              </div>
 
-            {/* Model Parameters */}
-            {providerConfig && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-foreground">Model Parameters</h3>
-                
-                {providerConfig.params.temperature && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Creativity Level */}
+                <FormField
+                  control={form.control}
+                  name="temperature"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-sm font-medium flex items-center gap-2">
+                        🎨 Creativity Level
+                        <span className="text-xs text-muted-foreground">({field.value})</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Slider
+                          min={0}
+                          max={2}
+                          step={0.1}
+                          value={[field.value]}
+                          onValueChange={(vals) => field.onChange(vals[0])}
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        How creative should the AI be? 🎪
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Response Length */}
+                <FormField
+                  control={form.control}
+                  name="max_tokens"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-sm font-medium flex items-center gap-2">
+                        📏 Response Length
+                        <span className="text-xs text-muted-foreground">({field.value} tokens)</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Slider
+                          min={50}
+                          max={selectedModel?.maxTokens || 4000}
+                          step={50}
+                          value={[field.value]}
+                          onValueChange={(vals) => field.onChange(vals[0])}
+                          className="w-full"
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        How long should the response be? 📚
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Focus Level */}
+                {selectedProvider?.params.top_p && (
                   <FormField
                     control={form.control}
-                    name="temperature"
+                    name="top_p"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Temperature: {field.value}</FormLabel>
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-sm font-medium flex items-center gap-2">
+                          🎯 Focus Level
+                          <span className="text-xs text-muted-foreground">({field.value || 'Auto'})</span>
+                        </FormLabel>
                         <FormControl>
                           <Slider
                             min={0}
-                            max={2}
+                            max={1}
                             step={0.1}
-                            value={[field.value]}
-                            onValueChange={(value) => field.onChange(value[0])}
+                            value={[field.value || 1]}
+                            onValueChange={(vals) => field.onChange(vals[0])}
                             className="w-full"
                           />
                         </FormControl>
+                        <FormDescription className="text-xs">
+                          How focused should the response be? 🔍
+                        </FormDescription>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 )}
 
-                {providerConfig.params.top_p && (
+                {/* Variety Level */}
+                {selectedProvider?.params.top_k && (
                   <FormField
                     control={form.control}
-                    name="top_p"
+                    name="top_k"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Top P: {field.value || 'auto'}</FormLabel>
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-sm font-medium flex items-center gap-2">
+                          🌈 Variety Level
+                          <span className="text-xs text-muted-foreground">({field.value || 'Auto'})</span>
+                        </FormLabel>
                         <FormControl>
                           <Slider
-                            min={0}
-                            max={1}
-                            step={0.05}
-                            value={[field.value || 1]}
-                            onValueChange={(value) => field.onChange(value[0])}
+                            min={1}
+                            max={100}
+                            step={1}
+                            value={[field.value || 40]}
+                            onValueChange={(vals) => field.onChange(vals[0])}
                             className="w-full"
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          How varied should the word choices be? 🎨
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Thinking Depth */}
+                {selectedProvider?.params.reasoning_effort && (
+                  <FormField
+                    control={form.control}
+                    name="reasoning_effort"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                              <SelectValue placeholder="How deep should it think?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {thinkingDepthOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription className="text-xs">
+                          How much should the AI think before responding? 🤔
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Detail Level */}
+                {selectedProvider?.params.verbosity && (
+                  <FormField
+                    control={form.control}
+                    name="verbosity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">📝 Detail Level</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="border-2 border-primary/20 rounded-xl">
+                              <SelectValue placeholder="How detailed?" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {detailLevelOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription className="text-xs">
+                          How detailed should the response be? 📚
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+
+              {/* Feature Toggles */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <FormField
+                  control={form.control}
+                  name="structured_output"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">📋 Organized Format</FormLabel>
+                        <FormDescription className="text-xs">
+                          Structure the output nicely
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {selectedProvider?.params.live_search && (
+                  <FormField
+                    control={form.control}
+                    name="live_search"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">🔍 Live Search</FormLabel>
+                          <FormDescription className="text-xs">
+                            Real-time web search
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
                         </FormControl>
                       </FormItem>
@@ -275,109 +574,47 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="max_tokens"
+                  name="enable_parallelization"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Tokens</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-medium">⚡ Multi-step Processing</FormLabel>
+                        <FormDescription className="text-xs">
+                          Enable parallel tasks
+                        </FormDescription>
+                      </div>
                       <FormControl>
-                        <Input
-                          type="number"
-                          min="1"
-                          max={selectedModel?.maxTokens || 8192}
-                          className="bg-background/50 border-border/50"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-
-                {providerConfig.params.reasoning_effort && (
-                  <FormField
-                    control={form.control}
-                    name="reasoning_effort"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Reasoning Effort</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-background/50 border-border/50">
-                              <SelectValue placeholder="Select effort level" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-card border-border/50">
-                            <SelectItem value="low">Low</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="high">High</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {providerConfig.params.verbosity && (
-                  <FormField
-                    control={form.control}
-                    name="verbosity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Verbosity</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="bg-background/50 border-border/50">
-                              <SelectValue placeholder="Select verbosity" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-card border-border/50">
-                            <SelectItem value="concise">Concise</SelectItem>
-                            <SelectItem value="standard">Standard</SelectItem>
-                            <SelectItem value="detailed">Detailed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <div className="flex items-center justify-between">
-                  <FormField
-                    control={form.control}
-                    name="structured_output"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormLabel>Structured Output</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="enable_parallelization"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center space-x-2">
-                        <FormControl>
-                          <Switch checked={field.value} onCheckedChange={field.onChange} />
-                        </FormControl>
-                        <FormLabel>Parallel Tasks</FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
-            )}
+            </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-gradient-primary hover:shadow-glow transition-all duration-300"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Optimizing...' : 'Optimize Prompt'}
-            </Button>
+            <div className="pt-6 border-t border-border/30">
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-lg h-14 rounded-2xl transition-all duration-300" 
+                disabled={isLoading}
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
+                    🏭 Manufacturing Magic...
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-3 h-5 w-5" />
+                    🚀 Start Production!
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
