@@ -147,57 +147,57 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
 
   return (
     <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 sm:pb-4 px-6 py-6 sm:px-6 sm:py-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-success" />
+          <CardTitle className="flex items-center gap-3 sm:gap-2 text-xl sm:text-lg">
+            <CheckCircle className="h-6 w-6 sm:h-5 sm:w-5 text-success" />
             Optimized Prompt
           </CardTitle>
-          <div className="flex gap-1 sm:gap-2">
+          <div className="flex gap-2 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-              className="border-border/50 text-xs sm:text-sm"
+              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
             >
               {copiedSection === "Optimized Prompt" ? (
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
               ) : (
-                <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
               )}
-              <span className="hidden sm:inline ml-1">Copy</span>
+              <span className="ml-2 sm:ml-1">Copy</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={downloadPrompt}
-              className="border-border/50 text-xs sm:text-sm"
+              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
             >
-              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline ml-1">Download</span>
+              <Download className="h-5 w-5 sm:h-4 sm:w-4" />
+              <span className="ml-2 sm:ml-1">Download</span>
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="max-h-[calc(100vh-9rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-4 sm:p-6">
+      <CardContent className="max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-6 sm:p-6">
         <div className="mt-4 space-y-4">
           <div className="relative">
             <Textarea
               value={response.optimizedPrompt || response.optimized_prompt}
               readOnly
-              className="min-h-[400px] bg-background/50 border-border/50 resize-none text-sm leading-relaxed"
+              className="min-h-[500px] sm:min-h-[400px] bg-background/50 border-border/50 resize-none text-base sm:text-sm leading-relaxed p-4 sm:p-3"
             />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-              className="absolute top-1 right-1 sm:top-2 sm:right-2 opacity-70 hover:opacity-100 h-7 w-7 sm:h-9 sm:w-9"
+              className="absolute top-3 right-3 sm:top-2 sm:right-2 opacity-70 hover:opacity-100 h-10 w-10 sm:h-9 sm:w-9"
             >
               {copiedSection === "Optimized Prompt" ? (
-                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
               ) : (
-                <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
               )}
             </Button>
           </div>
