@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      prompt_sessions: {
+        Row: {
+          audience: string | null
+          avoid_list: string | null
+          created_at: string
+          domain_context: string | null
+          enable_parallelization: boolean
+          exemplars: string | null
+          format_requirements: string | null
+          hard_constraints: string | null
+          id: string
+          input_checklist: Json | null
+          live_search: boolean | null
+          max_tokens: number
+          model_id: string
+          optimized_prompt: string | null
+          prohibited: string | null
+          provider: string
+          raw_response: string | null
+          reasoning_effort: string | null
+          structured_output: boolean
+          style: string | null
+          success_criteria: string | null
+          temperature: number
+          thought_process: Json | null
+          title: string | null
+          tone: string | null
+          top_k: number | null
+          top_p: number | null
+          updated_at: string
+          user_id: string | null
+          user_prompt: string
+          verbosity: string | null
+        }
+        Insert: {
+          audience?: string | null
+          avoid_list?: string | null
+          created_at?: string
+          domain_context?: string | null
+          enable_parallelization?: boolean
+          exemplars?: string | null
+          format_requirements?: string | null
+          hard_constraints?: string | null
+          id?: string
+          input_checklist?: Json | null
+          live_search?: boolean | null
+          max_tokens?: number
+          model_id: string
+          optimized_prompt?: string | null
+          prohibited?: string | null
+          provider: string
+          raw_response?: string | null
+          reasoning_effort?: string | null
+          structured_output?: boolean
+          style?: string | null
+          success_criteria?: string | null
+          temperature?: number
+          thought_process?: Json | null
+          title?: string | null
+          tone?: string | null
+          top_k?: number | null
+          top_p?: number | null
+          updated_at?: string
+          user_id?: string | null
+          user_prompt: string
+          verbosity?: string | null
+        }
+        Update: {
+          audience?: string | null
+          avoid_list?: string | null
+          created_at?: string
+          domain_context?: string | null
+          enable_parallelization?: boolean
+          exemplars?: string | null
+          format_requirements?: string | null
+          hard_constraints?: string | null
+          id?: string
+          input_checklist?: Json | null
+          live_search?: boolean | null
+          max_tokens?: number
+          model_id?: string
+          optimized_prompt?: string | null
+          prohibited?: string | null
+          provider?: string
+          raw_response?: string | null
+          reasoning_effort?: string | null
+          structured_output?: boolean
+          style?: string | null
+          success_criteria?: string | null
+          temperature?: number
+          thought_process?: Json | null
+          title?: string | null
+          tone?: string | null
+          top_k?: number | null
+          top_p?: number | null
+          updated_at?: string
+          user_id?: string | null
+          user_prompt?: string
+          verbosity?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
