@@ -10,17 +10,21 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOptimize = async (data: FormData) => {
+    console.log("handleOptimize called with:", data);
     setIsLoading(true);
     setResponse(null);
     
     try {
+      console.log("Calling optimizePrompt...");
       const optimizedResponse = await optimizePrompt(data);
+      console.log("optimizePrompt completed:", optimizedResponse);
       setResponse(optimizedResponse);
     } catch (error) {
       console.error('Error optimizing prompt:', error);
       // Handle error - could show toast here
     } finally {
       setIsLoading(false);
+      console.log("handleOptimize completed");
     }
   };
 

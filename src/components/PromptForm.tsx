@@ -123,7 +123,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       
       <CardContent className="space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit((data) => {
+            console.log("Form submission triggered with data:", data);
+            onSubmit(data);
+          })} className="space-y-8">
             
             {/* Target Model Selection */}
             <div className="space-y-4 p-4 rounded-xl bg-gradient-surface border border-border/50">
