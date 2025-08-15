@@ -29,44 +29,48 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
       return;
     }
 
+    // Always use the fallback method for better compatibility
     try {
-      // Check if clipboard API is available and secure context
-      if (navigator.clipboard && window.isSecureContext) {
-        console.log('Using navigator.clipboard');
-        await navigator.clipboard.writeText(text);
-      } else {
-        console.log('Using fallback method');
-        // Fallback for older browsers or non-HTTPS
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        if (!successful) {
-          throw new Error('execCommand copy failed');
-        }
-      }
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      textArea.style.opacity = '0';
+      textArea.style.pointerEvents = 'none';
+      textArea.setAttribute('readonly', '');
+      document.body.appendChild(textArea);
       
-      console.log('Copy successful');
-      setCopiedSection(section);
-      toast({
-        title: "Copied!",
-        description: `${section} copied to clipboard`,
-      });
-      setTimeout(() => setCopiedSection(null), 2000);
+      // Focus and select the text
+      textArea.focus();
+      textArea.select();
+      textArea.setSelectionRange(0, text.length);
+      
+      // Try to copy
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        console.log('Copy successful using fallback method');
+        setCopiedSection(section);
+        toast({
+          title: "Copied!",
+          description: `${section} copied to clipboard`,
+        });
+        setTimeout(() => setCopiedSection(null), 2000);
+      } else {
+        throw new Error('execCommand copy failed');
+      }
     } catch (err) {
       console.error('Copy failed:', err);
+      // Show a modal with the text to copy manually
+      const copyText = `Please copy this text manually:\n\n${text}`;
+      if (window.confirm('Automatic copy failed. Click OK to see the text in an alert where you can copy it manually.')) {
+        prompt('Copy this text:', text);
+      }
       toast({
-        title: "Error", 
-        description: `Failed to copy: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        title: "Copy Failed", 
+        description: "Please copy the text manually from the dialog",
         variant: "destructive",
       });
     }
