@@ -12,6 +12,7 @@ export const domainContextOptions = [
   { value: 'design', label: '🎨 Design' },
   { value: 'sales', label: '💼 Sales' },
   { value: 'customer-support', label: '🎧 Customer Support' },
+  { value: 'real-estate', label: '🏠 Real Estate' },
   { value: 'other', label: '🔧 Other' }
 ];
 
@@ -27,6 +28,7 @@ export const audienceOptions = [
   { value: 'content-creators', label: '📝 Content Creators' },
   { value: 'general-public', label: '👥 General Public' },
   { value: 'technical-experts', label: '🧠 Technical Experts' },
+  { value: 'real-estate-developers', label: '🏗️ Real Estate Developers' },
   { value: 'beginners', label: '🌱 Beginners' }
 ];
 
