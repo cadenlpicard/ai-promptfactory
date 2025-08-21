@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { OptimizedResponse } from '@/types';
 import { Copy, Download, CheckCircle, AlertCircle, Lightbulb, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ResultsPanelProps {
   response: OptimizedResponse | null;
@@ -16,6 +17,7 @@ interface ResultsPanelProps {
 export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const copyToClipboard = async (text: string, section: string) => {
     console.log('Attempting to copy:', { text: text?.substring(0, 50), section, hasText: !!text });
@@ -147,57 +149,57 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
 
   return (
     <Card className="h-full bg-gradient-surface border-border/50 shadow-card">
-      <CardHeader className="pb-4 sm:pb-4 px-6 py-6 sm:px-6 sm:py-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 sm:gap-2 text-xl sm:text-lg">
-            <CheckCircle className="h-6 w-6 sm:h-5 sm:w-5 text-success" />
-            Optimized Prompt
+      <CardHeader className="pb-3 sm:pb-4 px-4 py-4 sm:px-6 sm:py-6">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success flex-shrink-0" />
+            <span className="truncate">{isMobile ? 'Results' : 'Optimized Prompt'}</span>
           </CardTitle>
-          <div className="flex gap-2 sm:gap-2">
+          <div className="flex gap-1 sm:gap-2 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
+              className="border-border/50 text-xs sm:text-sm h-9 sm:h-12 px-3 sm:px-4 touch-target"
             >
               {copiedSection === "Optimized Prompt" ? (
-                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
-                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
-              <span className="ml-2 sm:ml-1">Copy</span>
+              {!isMobile && <span className="ml-1 sm:ml-2">Copy</span>}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={downloadPrompt}
-              className="border-border/50 text-base sm:text-sm h-12 sm:h-9 px-4 sm:px-3"
+              className="border-border/50 text-xs sm:text-sm h-9 sm:h-12 px-3 sm:px-4 touch-target"
             >
-              <Download className="h-5 w-5 sm:h-4 sm:w-4" />
-              <span className="ml-2 sm:ml-1">Download</span>
+              <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+              {!isMobile && <span className="ml-1 sm:ml-2">Download</span>}
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto p-6 sm:p-6">
+      <CardContent className="max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-6 mobile-scroll">
         <div className="mt-4 space-y-4">
           <div className="relative">
             <Textarea
               value={response.optimizedPrompt || response.optimized_prompt}
               readOnly
-              className="min-h-[500px] sm:min-h-[400px] bg-background/50 border-border/50 resize-none text-base sm:text-sm leading-relaxed p-4 sm:p-3"
+              className="min-h-[300px] sm:min-h-[500px] bg-background/50 border-border/50 resize-none text-sm sm:text-base leading-relaxed p-3 sm:p-4"
             />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-              className="absolute top-3 right-3 sm:top-2 sm:right-2 opacity-70 hover:opacity-100 h-10 w-10 sm:h-9 sm:w-9"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-70 hover:opacity-100 h-8 w-8 sm:h-10 sm:w-10 touch-target"
             >
               {copiedSection === "Optimized Prompt" ? (
-                <CheckCircle className="h-5 w-5 sm:h-4 sm:w-4" />
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
-                <Copy className="h-5 w-5 sm:h-4 sm:w-4" />
+                <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </Button>
           </div>
