@@ -421,7 +421,29 @@ function generateConstraints(input: ComposeInput): string {
 }
 
 function generateUserIntent(input: ComposeInput): string {
-  return `**Your Task:**\n${input.user_prompt}`;
+  let optimizedPrompt = input.user_prompt;
+  
+  // Optimize the prompt based on domain, use case, and task context
+  if (input.domain || input.use_case || input.task) {
+    const context = [];
+    
+    if (input.domain) {
+      context.push(`within the ${input.domain} domain`);
+    }
+    
+    if (input.use_case && input.task) {
+      context.push(`specifically for ${input.use_case} - ${input.task}`);
+    } else if (input.use_case) {
+      context.push(`for ${input.use_case} purposes`);
+    }
+    
+    // Add contextual enhancement to the prompt
+    if (context.length > 0) {
+      optimizedPrompt = `${input.user_prompt} ${context.join(' ')}. Consider the domain-specific requirements and best practices when formulating your response.`;
+    }
+  }
+  
+  return `**Your Task:**\n${optimizedPrompt}`;
 }
 
 function composeSection(sections: ComposeOutput['composed_sections']): string {
