@@ -198,9 +198,9 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             <SelectValue placeholder="Select use case..." />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="">None (General)</SelectItem>
-                          {USE_CASES.map((useCase) => (
+                         <SelectContent>
+                           <SelectItem value="none">None (General)</SelectItem>
+                           {USE_CASES.map((useCase) => (
                             <SelectItem key={useCase.id} value={useCase.id}>
                               {useCase.name}
                             </SelectItem>
@@ -232,9 +232,9 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             <SelectValue placeholder={selectedUseCase ? "Select task..." : "Select use case first"} />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="">None (General)</SelectItem>
-                          {tasks.map((task) => (
+                         <SelectContent>
+                           <SelectItem value="none">None (General)</SelectItem>
+                           {tasks.map((task) => (
                             <SelectItem key={task.id} value={task.id}>
                               {task.name}
                             </SelectItem>
