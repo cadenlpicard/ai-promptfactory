@@ -9,13 +9,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FormData, Provider, ModelConfig } from '@/types';
 import { getAllModels, getProviderConfig, getModelConfig } from '@/lib/providerRegistry';
 import { domainContextOptions, audienceOptions, toneOptions, styleOptions, thinkingDepthOptions, detailLevelOptions } from '@/lib/dropdownOptions';
-import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp } from 'lucide-react';
+import { USE_CASES, DOMAINS, getTasksForUseCase, getFieldsFor } from '@/config/tasksConfig';
+import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp, Layers } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const formSchema = z.object({
   targetModel: z.string().min(1, 'Please select a target model'),
@@ -32,6 +34,13 @@ const formSchema = z.object({
   success_criteria: z.string().optional(),
   exemplars: z.string().optional(),
   avoid_list: z.string().optional(),
+  
+  // Dynamic use case fields
+  use_case: z.string().optional(),
+  domain: z.string().optional(),
+  task: z.string().optional(),
+  dynamic_fields: z.record(z.any()).optional(),
+  
   temperature: z.number().min(0).max(2),
   creativity: z.number().min(0).max(2).optional(),
   top_p: z.number().min(0).max(1).optional(),
@@ -81,6 +90,12 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   const [specsOpen, setSpecsOpen] = useState(!isMobile);
   const [settingsOpen, setSettingsOpen] = useState(!isMobile);
   
+  // Dynamic use case state
+  const [selectedUseCase, setSelectedUseCase] = useState<string | undefined>();
+  const [selectedTask, setSelectedTask] = useState<string | undefined>();
+  const tasks = getTasksForUseCase(selectedUseCase);
+  const dynamicFields = getFieldsFor(selectedUseCase, selectedTask);
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,6 +103,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       model_id: 'gpt-5', // Set default to prevent validation issues
       provider: 'openai',
       user_prompt: '',
+      domain: 'general',
       temperature: 0.7,
       creativity: 0.7,
       max_tokens: 512,
@@ -96,8 +112,24 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       enable_parallelization: false,
       focusLevel: 'Standard',
       thinkingDepth: 'Standard',
+      dynamic_fields: {},
     },
   });
+
+  // Reset dynamic fields when use case or task changes
+  useEffect(() => {
+    const defaults: Record<string, any> = {};
+    dynamicFields.forEach(field => {
+      if (field.type === 'checkbox') {
+        defaults[field.id] = field.default ?? false;
+      } else if (field.type === 'number') {
+        defaults[field.id] = field.default ?? field.min ?? 0;
+      } else {
+        defaults[field.id] = field.default ?? '';
+      }
+    });
+    form.setValue('dynamic_fields', defaults);
+  }, [selectedUseCase, selectedTask, dynamicFields, form]);
 
   const selectedModelId = form.watch('model_id');
   const selectedModel = getModelConfig(selectedModelId);
@@ -135,6 +167,272 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
             onSubmit(data);
           })} className="space-y-4 sm:space-y-8">
             
+            {/* Dynamic Use Cases Section */}
+            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                  <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold">🔧 Use Case & Task</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                {/* Use Case Selection */}
+                <FormField
+                  control={form.control}
+                  name="use_case"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">📋 Use Case</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedUseCase(value);
+                          setSelectedTask(undefined);
+                          form.setValue('task', '');
+                        }} 
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                            <SelectValue placeholder="Select use case..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None (General)</SelectItem>
+                          {USE_CASES.map((useCase) => (
+                            <SelectItem key={useCase.id} value={useCase.id}>
+                              {useCase.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Task Selection */}
+                <FormField
+                  control={form.control}
+                  name="task"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">⚡ Task</FormLabel>
+                      <Select 
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setSelectedTask(value);
+                        }} 
+                        value={field.value}
+                        disabled={!selectedUseCase}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                            <SelectValue placeholder={selectedUseCase ? "Select task..." : "Select use case first"} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None (General)</SelectItem>
+                          {tasks.map((task) => (
+                            <SelectItem key={task.id} value={task.id}>
+                              {task.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Domain Selection */}
+                <FormField
+                  control={form.control}
+                  name="domain"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">🏢 Domain</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                            <SelectValue placeholder="Select domain..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DOMAINS.map((domain) => (
+                            <SelectItem key={domain.id} value={domain.id}>
+                              {domain.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Dynamic Fields */}
+              {dynamicFields.length > 0 && (
+                <div className="space-y-4 pt-4 border-t border-border/20">
+                  <h4 className="text-base font-medium text-foreground">📝 Task-Specific Details</h4>
+                  <div className="grid gap-4">
+                    {dynamicFields.map((field) => (
+                      <div key={field.id}>
+                        {field.type === 'text' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  {field.label} {field.required && <span className="text-destructive">*</span>}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder={field.placeholder}
+                                    className="border-2 border-primary/20 rounded-xl h-12"
+                                    {...formField}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {field.type === 'textarea' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  {field.label} {field.required && <span className="text-destructive">*</span>}
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder={field.placeholder}
+                                    className="border-2 border-primary/20 rounded-xl min-h-[80px]"
+                                    {...formField}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {field.type === 'number' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  {field.label} {field.required && <span className="text-destructive">*</span>}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    min={field.min}
+                                    max={field.max}
+                                    placeholder={field.placeholder}
+                                    className="border-2 border-primary/20 rounded-xl h-12"
+                                    {...formField}
+                                    onChange={(e) => formField.onChange(Number(e.target.value))}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {field.type === 'checkbox' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={formField.value}
+                                    onCheckedChange={formField.onChange}
+                                  />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                  <FormLabel className="text-sm font-medium">
+                                    {field.label} {field.required && <span className="text-destructive">*</span>}
+                                  </FormLabel>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {field.type === 'select' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  {field.label} {field.required && <span className="text-destructive">*</span>}
+                                </FormLabel>
+                                <Select onValueChange={formField.onChange} value={formField.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                                      <SelectValue placeholder={field.placeholder || "Select option..."} />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {field.options?.map((option) => (
+                                      <SelectItem key={option} value={option}>
+                                        {option}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+
+                        {field.type === 'multiselect' && (
+                          <FormField
+                            control={form.control}
+                            name={`dynamic_fields.${field.id}`}
+                            render={({ field: formField }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  {field.label} {field.required && <span className="text-destructive">*</span>}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder={field.placeholder || "Enter comma-separated values..."}
+                                    className="border-2 border-primary/20 rounded-xl h-12"
+                                    {...formField}
+                                  />
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                  Enter multiple values separated by commas
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Target Model Selection */}
             <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3 sm:gap-4">

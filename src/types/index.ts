@@ -47,6 +47,12 @@ export interface FormData {
   exemplars?: string;
   avoid_list?: string;
   
+  // Dynamic use case fields
+  use_case?: string;
+  domain?: string;
+  task?: string;
+  dynamic_fields?: Record<string, any>;
+  
   // Model parameters
   temperature: number;
   creativity?: number; // Maps to temperature for prompt generation
@@ -72,6 +78,7 @@ export interface OptimizedResponse {
   input_checklist: string[];
   inputChecklist?: string; // New field for single string
   raw_response?: string;
+  meta_prompt?: string; // New field for composed meta-prompt
 }
 
 export interface PromptSession {

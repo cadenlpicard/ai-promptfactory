@@ -23,7 +23,8 @@ export async function optimizePrompt(form: FormData): Promise<OptimizedResponse>
       thought_process: data.thought_process || [],
       briefThoughtProcess: data.briefThoughtProcess || '',
       input_checklist: data.input_checklist || [],
-      inputChecklist: data.inputChecklist || ''
+      inputChecklist: data.inputChecklist || '',
+      meta_prompt: data.meta_prompt // Include composed meta-prompt for preview
     };
 
     // Save to database (non-blocking)

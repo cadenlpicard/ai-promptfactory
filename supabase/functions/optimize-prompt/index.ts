@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { composeMetaPrompt, buildLegacyMetaPrompt } from './composeMetaPrompt.ts';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -19,10 +20,17 @@ interface FormData {
   hard_constraints?: string;
   prohibited?: string;
   success_criteria?: string;
+  exemplars?: string;
   temperature?: number;
   max_tokens?: number;
   focusLevel?: string;
   thinkingDepth?: string;
+  
+  // Dynamic use case fields
+  use_case?: string;
+  domain?: string;
+  task?: string;
+  dynamic_fields?: Record<string, any>;
 }
 
 serve(async (req) => {
@@ -43,7 +51,20 @@ serve(async (req) => {
     const formData: FormData = await req.json();
     console.log('Received form data:', JSON.stringify(formData, null, 2));
     
-    const metaPrompt = buildMetaPrompt(formData);
+    // Use new composer if dynamic fields are present, otherwise use legacy
+    let metaPrompt: string;
+    let composedMetaPrompt: string | undefined;
+    
+    if (formData.use_case || formData.domain || formData.task || formData.dynamic_fields) {
+      console.log('Using dynamic meta-prompt composer');
+      const composed = composeMetaPrompt(formData);
+      metaPrompt = composed.meta_prompt;
+      composedMetaPrompt = metaPrompt;
+    } else {
+      console.log('Using legacy meta-prompt builder');
+      metaPrompt = buildLegacyMetaPrompt(formData);
+    }
+    
     console.log('Built meta prompt');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -78,6 +99,11 @@ serve(async (req) => {
     const rawResponse = data.choices?.[0]?.message?.content?.trim() || "";
     const parsed = parseOptimizedResponse(rawResponse);
     
+    // Include composed meta-prompt in response for debugging/preview
+    if (composedMetaPrompt) {
+      parsed.meta_prompt = composedMetaPrompt;
+    }
+    
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -90,6 +116,7 @@ serve(async (req) => {
   }
 });
 
+// Keep legacy function for backward compatibility
 function buildMetaPrompt(formData: FormData): string {
   const getCreativityLevel = (temp: number) => {
     if (temp <= 0.3) return "Low (focused, deterministic)";
