@@ -17,9 +17,14 @@ export const providerRegistry: Record<Provider, ProviderConfig> = {
   },
   gemini: {
     models: [
-      { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', provider: 'gemini', maxTokens: 8192 },
+      { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', provider: 'gemini', maxTokens: 16384 },
+      { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'gemini', maxTokens: 8192 },
       { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'gemini', maxTokens: 8192 },
       { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'gemini', maxTokens: 8192 },
+      { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash 8B', provider: 'gemini', maxTokens: 8192 },
+      { id: 'gemini-experimental', name: 'Gemini Experimental', provider: 'gemini', maxTokens: 8192 },
+      { id: 'gemini-thinking-exp-1219', name: 'Gemini Thinking Experimental', provider: 'gemini', maxTokens: 8192 },
+      { id: 'learnlm-1.5-pro-experimental', name: 'LearnLM 1.5 Pro Experimental', provider: 'gemini', maxTokens: 8192 },
     ],
     params: { 
       temperature: true, 
