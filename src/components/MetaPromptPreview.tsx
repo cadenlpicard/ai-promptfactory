@@ -92,7 +92,7 @@ export function MetaPromptPreview({ metaPrompt, isVisible = true }: MetaPromptPr
                   Copy
                 </Button>
               </div>
-              <pre className="text-xs whitespace-pre-wrap font-mono text-foreground bg-background rounded border p-3 max-h-96 overflow-y-auto">
+              <pre className="text-xs whitespace-pre-wrap font-mono text-foreground bg-background rounded border p-3">
                 {metaPrompt}
               </pre>
             </div>
