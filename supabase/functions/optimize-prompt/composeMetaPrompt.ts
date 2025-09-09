@@ -417,6 +417,17 @@ function generateConstraints(input: ComposeInput): string {
     constraints.push(`**Response Parameters:** ${modelConstraints.join(', ')}`);
   }
   
+  // Add quality control instructions
+  constraints.push(`**Quality Control Process:**
+1. **Ask Clarifying Questions:** If any aspect of the request is unclear or could be interpreted multiple ways, ask specific follow-up questions before proceeding with your response.
+2. **Verify Your Understanding:** Before providing your final response, briefly restate what you understand the task to be and confirm this matches the user's intent.
+3. **Review for Accuracy:** After generating your response, review it to ensure:
+   - All key requirements have been addressed
+   - Domain-specific best practices are followed
+   - The response is appropriate for the target audience
+   - No critical information is missing or incorrect
+4. **Self-Check:** Ask yourself: "Does this response fully and accurately address what was requested?" If not, revise accordingly.`);
+  
   return constraints.length > 0 ? constraints.join('\n\n') : '';
 }
 
