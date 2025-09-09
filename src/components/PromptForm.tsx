@@ -539,54 +539,6 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <FormField
                       control={form.control}
-                      name="domain_context"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">🏢 Domain Context</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                <SelectValue placeholder="Choose your domain..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {domainContextOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="audience"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">👥 Target Audience</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                <SelectValue placeholder="Who's your audience?" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {audienceOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
                       name="tone"
                       render={({ field }) => (
                         <FormItem>
