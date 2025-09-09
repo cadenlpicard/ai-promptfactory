@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { OptimizedResponse } from '@/types';
-import { Copy, Download, CheckCircle, AlertCircle, Lightbulb, FileText } from 'lucide-react';
+import { Copy, CheckCircle, AlertCircle, Lightbulb, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -153,91 +152,53 @@ export function ResultsPanel({ response, isLoading }: ResultsPanelProps) {
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
             <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success flex-shrink-0" />
-            <span className="truncate">{isMobile ? 'Results' : 'Optimized Prompt'}</span>
+            <span className="truncate">{isMobile ? 'Meta Prompt' : 'Meta Prompt'}</span>
           </CardTitle>
           <div className="flex gap-1 sm:gap-2 flex-shrink-0">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
+              onClick={() => copyToClipboard(response.meta_prompt || "", "Meta Prompt")}
               className="border-border/50 text-xs sm:text-sm h-9 sm:h-12 px-3 sm:px-4 touch-target"
             >
-              {copiedSection === "Optimized Prompt" ? (
+              {copiedSection === "Meta Prompt" ? (
                 <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
                 <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
               {!isMobile && <span className="ml-1 sm:ml-2">Copy</span>}
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={downloadPrompt}
-              className="border-border/50 text-xs sm:text-sm h-9 sm:h-12 px-3 sm:px-4 touch-target"
-            >
-              <Download className="h-4 w-4 sm:h-5 sm:w-5" />
-              {!isMobile && <span className="ml-1 sm:ml-2">Download</span>}
-            </Button>
           </div>
         </div>
       </CardHeader>
       
       <CardContent className="max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-6 mobile-scroll">
-        <Tabs defaultValue="optimized" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="optimized" className="text-xs sm:text-sm">Optimized Prompt</TabsTrigger>
-            <TabsTrigger value="meta" className="text-xs sm:text-sm">Meta Prompt</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="optimized" className="mt-4">
-            <div className="relative">
-              <Textarea
-                value={response.optimizedPrompt || response.optimized_prompt}
-                readOnly
-                className="min-h-[300px] sm:min-h-[500px] bg-background/50 border-border/50 resize-none text-sm sm:text-base leading-relaxed p-3 sm:p-4"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(response.optimizedPrompt || response.optimized_prompt, "Optimized Prompt")}
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-70 hover:opacity-100 h-8 w-8 sm:h-10 sm:w-10 touch-target"
-              >
-                {copiedSection === "Optimized Prompt" ? (
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                ) : (
-                  <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
-                )}
-              </Button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="meta" className="mt-4">
-            <div className="relative">
-              <Textarea
-                value={response.meta_prompt || "No meta prompt available"}
-                readOnly
-                className="min-h-[300px] sm:min-h-[500px] bg-background/50 border-border/50 resize-none text-sm sm:text-base leading-relaxed p-3 sm:p-4 font-mono"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(response.meta_prompt || "", "Meta Prompt")}
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-70 hover:opacity-100 h-8 w-8 sm:h-10 sm:w-10 touch-target"
-              >
-                {copiedSection === "Meta Prompt" ? (
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                ) : (
-                  <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
-                )}
-              </Button>
-            </div>
-            <div className="mt-3 p-3 bg-muted/30 rounded-lg">
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                💡 This meta prompt contains the role, specifications, and context. Copy this to use as a system message or initial prompt in other AI tools.
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <div className="mt-4 space-y-4">
+          <div className="relative">
+            <Textarea
+              value={response.meta_prompt || "No meta prompt available"}
+              readOnly
+              className="min-h-[300px] sm:min-h-[500px] bg-background/50 border-border/50 resize-none text-sm sm:text-base leading-relaxed p-3 sm:p-4 font-mono"
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyToClipboard(response.meta_prompt || "", "Meta Prompt")}
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 opacity-70 hover:opacity-100 h-8 w-8 sm:h-10 sm:w-10 touch-target"
+            >
+              {copiedSection === "Meta Prompt" ? (
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              ) : (
+                <Copy className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+            </Button>
+          </div>
+          <div className="p-3 bg-muted/30 rounded-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              💡 This meta prompt contains the complete role, specifications, and context. Copy this to use as a system message or initial prompt in other AI tools.
+            </p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
