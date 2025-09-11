@@ -125,8 +125,8 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
       creativity: 0.7,
       max_tokens: 512,
       responseLengthTokens: 512,
-      structured_output: false,
-      enable_parallelization: false,
+      structured_output: true,
+      enable_parallelization: true,
       focusLevel: 'Standard',
       thinkingDepth: 'Standard',
       dynamic_fields: {},
@@ -323,6 +323,46 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
         } else {
           console.log('Invalid task:', desiredTask, 'Available:', availableTasks);
         }
+      }
+      
+      // Smart response length mapping based on use case/task
+      if (!userOverrides.has('responseLengthTokens')) {
+        const getSmartResponseLength = (useCase?: string, task?: string): number => {
+          // Executive Summary tasks - concise
+          if (task === 'executive-summary') return 400;
+          
+          // Email tasks - brief
+          if (task === 'email-reply' || task === 'cold-email') return 300;
+          
+          // Tutorial/Documentation tasks - detailed
+          if (task === 'technical-tutorial' || task === 'documentation') return 1200;
+          
+          // Market Analysis - comprehensive  
+          if (task === 'market-analysis-post') return 1000;
+          
+          // Code Review tasks - focused
+          if (task === 'code-review' || task === 'bug-fix') return 700;
+          
+          // Research tasks - thorough
+          if (useCase === 'research' || task === 'research-report') return 1200;
+          
+          // Data Analysis - detailed insights
+          if (useCase === 'data-analysis') return 1000;
+          
+          // Creative Writing - standard
+          if (useCase === 'creative-writing') return 800;
+          
+          // Blog posts - standard to detailed
+          if (task === 'blog-post' || task === 'article') return 900;
+          
+          // Default - standard
+          return 600;
+        };
+        
+        const smartLength = getSmartResponseLength(desiredUseCase, desiredTask);
+        console.log('Setting smart response length to:', smartLength);
+        form.setValue('responseLengthTokens', smartLength, { shouldDirty: true, shouldValidate: true });
+        form.setValue('max_tokens', smartLength, { shouldDirty: true, shouldValidate: true });
       }
       
       if (desiredDomain && !userOverrides.has('domain')) {
@@ -1197,28 +1237,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                   </div>
 
                   {/* Feature Toggles */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-6">
-                    <FormField
-                      control={form.control}
-                      name="structured_output"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-sm font-medium">📋 Organized Format</FormLabel>
-                            <FormDescription className="text-xs">
-                              Structure the output nicely
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                               checked={!!field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
                     {selectedProvider?.params.live_search && (
                       <FormField
                         control={form.control}
@@ -1241,27 +1260,6 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         )}
                       />
                     )}
-
-                    <FormField
-                      control={form.control}
-                      name="enable_parallelization"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-sm font-medium">⚡ Multi-step Processing</FormLabel>
-                            <FormDescription className="text-xs">
-                              Enable parallel tasks
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={!!field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
                   </div>
                 </CollapsibleContent>
               </div>
