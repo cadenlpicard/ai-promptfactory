@@ -17,7 +17,7 @@ import { domainContextOptions, audienceOptions, toneOptions, styleOptions, think
 import { USE_CASES, DOMAINS, getTasksForUseCase, getFieldsFor } from '@/config/tasksConfig';
 import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp, Layers, Wand2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { analyzePrompt } from '@/lib/promptAnalyzer';
 import { useToast } from '@/hooks/use-toast';
 
@@ -101,8 +101,8 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   // Dynamic use case state
   const [selectedUseCase, setSelectedUseCase] = useState<string | undefined>();
   const [selectedTask, setSelectedTask] = useState<string | undefined>();
-  const tasks = getTasksForUseCase(selectedUseCase);
-  const dynamicFields = getFieldsFor(selectedUseCase, selectedTask);
+const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCase]);
+  const dynamicFields = useMemo(() => getFieldsFor(selectedUseCase, selectedTask), [selectedUseCase, selectedTask]);
   
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
