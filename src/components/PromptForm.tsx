@@ -186,40 +186,101 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       console.log('Available use cases:', useCaseOptions);
       console.log('Available domains:', domainOptions);
       
+      // Normalize and map AI suggestions to internal IDs
+      const normalize = (s?: string) => (s ?? '').toLowerCase().replace(/[_\s]+/g, '-');
+      const useCaseMap: Record<string, string> = {
+        'content-creation': 'write-blog',
+        'content_creation': 'write-blog',
+        'blogging': 'write-blog',
+        'email': 'email-reply',
+        'communications': 'email-reply',
+        'research': 'research',
+        'data-analysis': 'data-analysis',
+        'data_analysis': 'data-analysis',
+        'code-review': 'code-review',
+        'code_review': 'code-review',
+        'creative-writing': 'creative-writing',
+        'technical-documentation': 'technical-documentation',
+        'project-planning': 'project-planning',
+        // Sometimes the model reports a "presentation" use case; map to writing
+        'presentation': 'write-blog',
+      };
+      const domainMap: Record<string, string> = {
+        'business': 'marketing',
+        'sales': 'marketing',
+        'content': 'marketing',
+        'software': 'software-engineering',
+        'general': 'general',
+      };
+      const audienceMap: Record<string, string> = {
+        'business-executives': 'executives',
+        'executives': 'executives',
+        'general-public': 'general-public',
+        'developers': 'developers',
+      };
+      const desiredUseCase = analysis.use_case ? (useCaseMap[normalize(analysis.use_case)] || analysis.use_case) : undefined;
+      const desiredTask = (() => {
+        let t = analysis.task;
+        if (desiredUseCase === 'write-blog') {
+          const tKey = normalize(analysis.task);
+          if (tKey === 'presentation' || tKey === 'slide-deck' || tKey === 'slides') return 'executive-summary';
+        }
+        return t;
+      })();
+      const desiredDomain = analysis.domain ? (domainMap[normalize(analysis.domain)] || analysis.domain) : undefined;
+      const desiredAudience = analysis.audience ? (audienceMap[normalize(analysis.audience)] || analysis.audience) : undefined;
+      const desiredReasoning = (() => {
+        const k = normalize(analysis.thinkingDepth);
+        if (!k) return undefined;
+        if (k === 'standard' || k === 'medium') return 'medium';
+        if (k === 'quick' || k === 'low') return 'low';
+        if (k === 'deep' || k === 'high') return 'high';
+        return undefined;
+      })();
+      const desiredTopP = (() => {
+        const k = normalize(analysis.focusLevel);
+        if (!k) return undefined;
+        if (k === 'laser-focused') return 0.2;
+        if (k === 'focused') return 0.5;
+        if (k === 'balanced' || k === 'standard') return 0.8;
+        if (k === 'less-focused') return 1.0;
+        return undefined;
+      })();
+      
       // Auto-populate form fields with AI suggestions (validate against available options)
-      if (analysis.use_case && !userOverrides.has('use_case')) {
-        if (useCaseOptions.includes(analysis.use_case)) {
-          console.log('Setting use_case to:', analysis.use_case);
-          form.setValue('use_case', analysis.use_case);
-          setSelectedUseCase(analysis.use_case);
+      if (desiredUseCase && !userOverrides.has('use_case')) {
+        if (useCaseOptions.includes(desiredUseCase)) {
+          console.log('Setting use_case to:', desiredUseCase);
+          form.setValue('use_case', desiredUseCase);
+          setSelectedUseCase(desiredUseCase);
         } else {
-          console.log('Invalid use_case:', analysis.use_case, 'Available:', useCaseOptions);
+          console.log('Invalid use_case:', desiredUseCase, 'Available:', useCaseOptions);
         }
       }
       
-      if (analysis.task && !userOverrides.has('task')) {
-        const availableTasks = getTasksForUseCase(analysis.use_case).map(t => t.id);
-        if (availableTasks.includes(analysis.task)) {
-          console.log('Setting task to:', analysis.task);
-          form.setValue('task', analysis.task);
-          setSelectedTask(analysis.task);
+      if (desiredTask && !userOverrides.has('task')) {
+        const availableTasks = getTasksForUseCase(desiredUseCase).map(t => t.id);
+        if (availableTasks.includes(desiredTask)) {
+          console.log('Setting task to:', desiredTask);
+          form.setValue('task', desiredTask);
+          setSelectedTask(desiredTask);
         } else {
-          console.log('Invalid task:', analysis.task, 'Available:', availableTasks);
+          console.log('Invalid task:', desiredTask, 'Available:', availableTasks);
         }
       }
       
-      if (analysis.domain && !userOverrides.has('domain')) {
-        if (domainOptions.includes(analysis.domain)) {
-          console.log('Setting domain to:', analysis.domain);
-          form.setValue('domain', analysis.domain);
+      if (desiredDomain && !userOverrides.has('domain')) {
+        if (domainOptions.includes(desiredDomain)) {
+          console.log('Setting domain to:', desiredDomain);
+          form.setValue('domain', desiredDomain);
         } else {
-          console.log('Invalid domain:', analysis.domain, 'Available:', domainOptions);
+          console.log('Invalid domain:', desiredDomain, 'Available:', domainOptions);
         }
       }
       
-      if (analysis.audience && !userOverrides.has('audience')) {
-        console.log('Setting audience to:', analysis.audience);
-        form.setValue('audience', analysis.audience);
+      if (desiredAudience && !userOverrides.has('audience')) {
+        console.log('Setting audience to:', desiredAudience);
+        form.setValue('audience', desiredAudience);
       }
       
       if (analysis.tone && !userOverrides.has('tone')) {
@@ -244,14 +305,15 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         form.setValue('max_tokens', analysis.responseLengthTokens);
       }
       
-      if (analysis.focusLevel && !userOverrides.has('focusLevel')) {
-        console.log('Setting focusLevel to:', analysis.focusLevel);
-        form.setValue('focusLevel', analysis.focusLevel);
+      // Map focus/thinking to provider parameters when possible
+      if (desiredTopP !== undefined && !userOverrides.has('top_p')) {
+        console.log('Setting top_p to:', desiredTopP);
+        form.setValue('top_p', desiredTopP);
       }
       
-      if (analysis.thinkingDepth && !userOverrides.has('thinkingDepth')) {
-        console.log('Setting thinkingDepth to:', analysis.thinkingDepth);
-        form.setValue('thinkingDepth', analysis.thinkingDepth);
+      if (desiredReasoning && !userOverrides.has('reasoning_effort')) {
+        console.log('Setting reasoning_effort to:', desiredReasoning);
+        form.setValue('reasoning_effort', desiredReasoning);
       }
       
       if (analysis.format_requirements && !userOverrides.has('format_requirements')) {
@@ -736,7 +798,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           <Select onValueChange={(value) => {
                             field.onChange(value);
                             markFieldAsUserOverride('tone');
-                          }} defaultValue={field.value}>
+                          }} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Pick your tone..." />
@@ -763,7 +825,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           <Select onValueChange={(value) => {
                             field.onChange(value);
                             markFieldAsUserOverride('style');
-                          }} defaultValue={field.value}>
+                           }} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Choose your style..." />
@@ -1020,7 +1082,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             <Select onValueChange={(value) => {
                               field.onChange(value);
                               markFieldAsUserOverride('thinkingDepth');
-                            }} defaultValue={field.value}>
+                            }} value={field.value}>
                               <FormControl>
                                 <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                   <SelectValue placeholder="How deep should it think?" />
@@ -1051,7 +1113,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-sm font-medium">📝 Detail Level</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                   <SelectValue placeholder="How detailed?" />
@@ -1090,7 +1152,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           </div>
                           <FormControl>
                             <Switch
-                              checked={field.value}
+                               checked={!!field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
@@ -1112,7 +1174,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             </div>
                             <FormControl>
                               <Switch
-                                checked={field.value}
+                                 checked={!!field.value}
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
@@ -1134,7 +1196,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           </div>
                           <FormControl>
                             <Switch
-                              checked={field.value}
+                              checked={!!field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
