@@ -251,7 +251,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       if (desiredUseCase && !userOverrides.has('use_case')) {
         if (useCaseOptions.includes(desiredUseCase)) {
           console.log('Setting use_case to:', desiredUseCase);
-          form.setValue('use_case', desiredUseCase);
+          form.setValue('use_case', desiredUseCase, { shouldDirty: true, shouldValidate: true });
           setSelectedUseCase(desiredUseCase);
         } else {
           console.log('Invalid use_case:', desiredUseCase, 'Available:', useCaseOptions);
@@ -262,7 +262,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         const availableTasks = getTasksForUseCase(desiredUseCase).map(t => t.id);
         if (availableTasks.includes(desiredTask)) {
           console.log('Setting task to:', desiredTask);
-          form.setValue('task', desiredTask);
+          form.setValue('task', desiredTask, { shouldDirty: true, shouldValidate: true });
           setSelectedTask(desiredTask);
         } else {
           console.log('Invalid task:', desiredTask, 'Available:', availableTasks);
@@ -272,7 +272,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       if (desiredDomain && !userOverrides.has('domain')) {
         if (domainOptions.includes(desiredDomain)) {
           console.log('Setting domain to:', desiredDomain);
-          form.setValue('domain', desiredDomain);
+          form.setValue('domain', desiredDomain, { shouldDirty: true, shouldValidate: true });
         } else {
           console.log('Invalid domain:', desiredDomain, 'Available:', domainOptions);
         }
@@ -280,50 +280,50 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       
       if (desiredAudience && !userOverrides.has('audience')) {
         console.log('Setting audience to:', desiredAudience);
-        form.setValue('audience', desiredAudience);
+        form.setValue('audience', desiredAudience, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.tone && !userOverrides.has('tone')) {
         console.log('Setting tone to:', analysis.tone);
-        form.setValue('tone', analysis.tone);
+        form.setValue('tone', analysis.tone, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.style && !userOverrides.has('style')) {
         console.log('Setting style to:', analysis.style);
-        form.setValue('style', analysis.style);
+        form.setValue('style', analysis.style, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.creativity !== undefined && !userOverrides.has('creativity')) {
         console.log('Setting creativity to:', analysis.creativity);
-        form.setValue('creativity', analysis.creativity);
-        form.setValue('temperature', analysis.creativity);
+        form.setValue('creativity', analysis.creativity, { shouldDirty: true, shouldValidate: true });
+        form.setValue('temperature', analysis.creativity, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.responseLengthTokens && !userOverrides.has('responseLengthTokens')) {
         console.log('Setting responseLengthTokens to:', analysis.responseLengthTokens);
-        form.setValue('responseLengthTokens', analysis.responseLengthTokens);
-        form.setValue('max_tokens', analysis.responseLengthTokens);
+        form.setValue('responseLengthTokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
+        form.setValue('max_tokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
       }
       
       // Map focus/thinking to provider parameters when possible
       if (desiredTopP !== undefined && !userOverrides.has('top_p')) {
         console.log('Setting top_p to:', desiredTopP);
-        form.setValue('top_p', desiredTopP);
+        form.setValue('top_p', desiredTopP, { shouldDirty: true, shouldValidate: true });
       }
       
       if (desiredReasoning && !userOverrides.has('reasoning_effort')) {
         console.log('Setting reasoning_effort to:', desiredReasoning);
-        form.setValue('reasoning_effort', desiredReasoning);
+        form.setValue('reasoning_effort', desiredReasoning, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.format_requirements && !userOverrides.has('format_requirements')) {
         console.log('Setting format_requirements to:', analysis.format_requirements);
-        form.setValue('format_requirements', analysis.format_requirements);
+        form.setValue('format_requirements', analysis.format_requirements, { shouldDirty: true, shouldValidate: true });
       }
       
       if (analysis.hard_constraints && !userOverrides.has('hard_constraints')) {
         console.log('Setting hard_constraints to:', analysis.hard_constraints);
-        form.setValue('hard_constraints', analysis.hard_constraints);
+        form.setValue('hard_constraints', analysis.hard_constraints, { shouldDirty: true, shouldValidate: true });
       }
       
       // Force form to re-render with new values
