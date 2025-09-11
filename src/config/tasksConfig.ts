@@ -966,6 +966,244 @@ export const USE_CASES: UseCaseDefinition[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'code-creation',
+    name: 'Code Creation & Development',
+    description: 'Generate new code, architectures, and development solutions',
+    tasks: [
+      {
+        id: 'full-stack-app',
+        name: 'Full Stack Application',
+        description: 'Generate complete application code with frontend, backend, and database',
+        fields: [
+          {
+            id: 'framework_frontend',
+            label: 'Frontend Framework',
+            type: 'select',
+            required: true,
+            options: ['React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Vanilla JS']
+          },
+          {
+            id: 'framework_backend',
+            label: 'Backend Framework',
+            type: 'select',
+            required: true,
+            options: ['Node.js/Express', 'Python/Django', 'Python/FastAPI', 'Ruby on Rails', 'PHP/Laravel', 'Java/Spring', 'C#/.NET']
+          },
+          {
+            id: 'database_type',
+            label: 'Database Type',
+            type: 'select',
+            options: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Redis', 'Firebase', 'Supabase']
+          },
+          {
+            id: 'authentication_needs',
+            label: 'Authentication Requirements',
+            type: 'multiselect',
+            options: ['User Registration/Login', 'OAuth (Google/GitHub)', 'Role-based Access', 'JWT Tokens', 'Session Management']
+          },
+          {
+            id: 'deployment_target',
+            label: 'Deployment Target',
+            type: 'select',
+            options: ['Vercel', 'Netlify', 'AWS', 'Google Cloud', 'Docker', 'Traditional Hosting']
+          }
+        ]
+      },
+      {
+        id: 'api-development',
+        name: 'API Development',
+        description: 'Create REST/GraphQL APIs with proper structure and documentation',
+        fields: [
+          {
+            id: 'api_type',
+            label: 'API Type',
+            type: 'select',
+            required: true,
+            options: ['REST API', 'GraphQL', 'WebSocket', 'gRPC', 'Webhook']
+          },
+          {
+            id: 'authentication_method',
+            label: 'Authentication Method',
+            type: 'select',
+            options: ['JWT', 'API Keys', 'OAuth 2.0', 'Basic Auth', 'No Authentication']
+          },
+          {
+            id: 'data_models',
+            label: 'Data Models Focus',
+            type: 'multiselect',
+            options: ['User Management', 'Content Management', 'E-commerce', 'Analytics', 'File Management', 'Custom Domain']
+          },
+          {
+            id: 'endpoint_specifications',
+            label: 'Endpoint Specifications',
+            type: 'textarea',
+            placeholder: 'Describe the main endpoints needed (e.g., CRUD operations, specific business logic)'
+          }
+        ]
+      },
+      {
+        id: 'database-schema',
+        name: 'Database Schema Design',
+        description: 'Generate database schemas with migrations and seed data',
+        fields: [
+          {
+            id: 'database_type',
+            label: 'Database Type',
+            type: 'select',
+            required: true,
+            options: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Redis', 'Cassandra']
+          },
+          {
+            id: 'relationships_complexity',
+            label: 'Relationship Complexity',
+            type: 'select',
+            options: ['Simple (1-3 tables)', 'Moderate (4-10 tables)', 'Complex (10+ tables)', 'Enterprise Scale']
+          },
+          {
+            id: 'indexing_strategy',
+            label: 'Indexing Strategy',
+            type: 'multiselect',
+            options: ['Primary Keys', 'Foreign Keys', 'Composite Indexes', 'Full-text Search', 'Performance Optimization']
+          },
+          {
+            id: 'data_volume',
+            label: 'Expected Data Volume',
+            type: 'select',
+            options: ['Small (<1M records)', 'Medium (1M-100M)', 'Large (100M-1B)', 'Enterprise (1B+)']
+          }
+        ]
+      },
+      {
+        id: 'component-library',
+        name: 'Component Library Creation',
+        description: 'Build reusable UI components and design systems',
+        fields: [
+          {
+            id: 'framework',
+            label: 'Frontend Framework',
+            type: 'select',
+            required: true,
+            options: ['React', 'Vue.js', 'Angular', 'Svelte', 'Web Components', 'Storybook']
+          },
+          {
+            id: 'styling_approach',
+            label: 'Styling Approach',
+            type: 'select',
+            options: ['Tailwind CSS', 'Styled Components', 'CSS Modules', 'SCSS/Sass', 'CSS-in-JS', 'Vanilla CSS']
+          },
+          {
+            id: 'component_types',
+            label: 'Component Types',
+            type: 'multiselect',
+            options: ['Forms & Inputs', 'Navigation', 'Data Display', 'Feedback', 'Layout', 'Media', 'Overlays']
+          },
+          {
+            id: 'accessibility_requirements',
+            label: 'Accessibility Requirements',
+            type: 'multiselect',
+            options: ['WCAG 2.1 AA', 'Keyboard Navigation', 'Screen Reader Support', 'High Contrast', 'Focus Management']
+          }
+        ]
+      },
+      {
+        id: 'algorithm-implementation',
+        name: 'Algorithm Implementation',
+        description: 'Generate optimized algorithms and data structures',
+        fields: [
+          {
+            id: 'algorithm_type',
+            label: 'Algorithm Type',
+            type: 'select',
+            required: true,
+            options: ['Sorting', 'Searching', 'Graph Algorithms', 'Dynamic Programming', 'Machine Learning', 'Optimization', 'Cryptography']
+          },
+          {
+            id: 'performance_requirements',
+            label: 'Performance Requirements',
+            type: 'select',
+            options: ['Basic Functionality', 'Optimized Performance', 'Memory Efficient', 'Parallel Processing', 'Real-time Processing']
+          },
+          {
+            id: 'language_preference',
+            label: 'Programming Language',
+            type: 'select',
+            options: ['Python', 'JavaScript', 'Java', 'C++', 'Go', 'Rust', 'TypeScript']
+          },
+          {
+            id: 'constraints',
+            label: 'Constraints & Requirements',
+            type: 'textarea',
+            placeholder: 'Specific constraints, input/output format, edge cases to handle'
+          }
+        ]
+      },
+      {
+        id: 'testing-suite',
+        name: 'Testing Suite Generation',
+        description: 'Create comprehensive test suites (unit, integration, e2e)',
+        fields: [
+          {
+            id: 'testing_framework',
+            label: 'Testing Framework',
+            type: 'select',
+            required: true,
+            options: ['Jest', 'Vitest', 'Cypress', 'Playwright', 'Mocha/Chai', 'Jasmine', 'PyTest']
+          },
+          {
+            id: 'coverage_requirements',
+            label: 'Coverage Requirements',
+            type: 'select',
+            options: ['Basic (60%)', 'Good (80%)', 'Excellent (90%)', 'Comprehensive (95%+)']
+          },
+          {
+            id: 'test_types',
+            label: 'Test Types',
+            type: 'multiselect',
+            options: ['Unit Tests', 'Integration Tests', 'E2E Tests', 'API Tests', 'Performance Tests', 'Security Tests']
+          },
+          {
+            id: 'mock_strategies',
+            label: 'Mocking Strategy',
+            type: 'multiselect',
+            options: ['Database Mocking', 'API Mocking', 'External Service Mocking', 'File System Mocking', 'Time/Date Mocking']
+          }
+        ]
+      },
+      {
+        id: 'devops-pipeline',
+        name: 'DevOps & CI/CD Pipeline',
+        description: 'Generate deployment and automation scripts',
+        fields: [
+          {
+            id: 'platform',
+            label: 'Platform',
+            type: 'select',
+            required: true,
+            options: ['GitHub Actions', 'GitLab CI', 'Jenkins', 'CircleCI', 'Azure DevOps', 'AWS CodePipeline']
+          },
+          {
+            id: 'deployment_strategy',
+            label: 'Deployment Strategy',
+            type: 'select',
+            options: ['Blue-Green', 'Rolling Updates', 'Canary', 'Feature Flags', 'Direct Deployment']
+          },
+          {
+            id: 'monitoring_needs',
+            label: 'Monitoring & Observability',
+            type: 'multiselect',
+            options: ['Application Metrics', 'Error Tracking', 'Performance Monitoring', 'Logging', 'Health Checks', 'Alerting']
+          },
+          {
+            id: 'scaling_requirements',
+            label: 'Scaling Requirements',
+            type: 'select',
+            options: ['Single Instance', 'Load Balanced', 'Auto Scaling', 'Microservices', 'Container Orchestration']
+          }
+        ]
+      }
+    ]
   }
 ];
 
