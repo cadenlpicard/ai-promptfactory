@@ -140,11 +140,16 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         defaults[field.id] = field.default ?? false;
       } else if (field.type === 'number') {
         defaults[field.id] = field.default ?? field.min ?? 0;
+      } else if (field.type === 'select') {
+        const first = Array.isArray(field.options) ? field.options[0] : '';
+        defaults[field.id] = field.default ?? first ?? '';
+      } else if (field.type === 'multiselect') {
+        defaults[field.id] = field.default ?? [];
       } else {
         defaults[field.id] = field.default ?? '';
       }
     });
-    form.setValue('dynamic_fields', defaults);
+    form.setValue('dynamic_fields', defaults, { shouldDirty: true, shouldValidate: true });
   }, [selectedUseCase, selectedTask, dynamicFields, form]);
 
   const selectedModelId = form.watch('model_id');
@@ -248,7 +253,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       })();
       
       // Auto-populate form fields with AI suggestions (validate against available options)
-      if (desiredUseCase && !userOverrides.has('use_case')) {
+      if (desiredUseCase) {
         if (useCaseOptions.includes(desiredUseCase)) {
           console.log('Setting use_case to:', desiredUseCase);
           form.setValue('use_case', desiredUseCase, { shouldDirty: true, shouldValidate: true });
@@ -258,7 +263,7 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
         }
       }
       
-      if (desiredTask && !userOverrides.has('task')) {
+      if (desiredTask) {
         const availableTasks = getTasksForUseCase(desiredUseCase).map(t => t.id);
         if (availableTasks.includes(desiredTask)) {
           console.log('Setting task to:', desiredTask);
