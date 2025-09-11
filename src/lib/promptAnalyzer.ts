@@ -24,12 +24,12 @@ export async function analyzePrompt(userPrompt: string): Promise<PromptAnalysis>
   } catch (error) {
     console.error('Error analyzing prompt:', error);
     
-    // Return fallback analysis
+    // Return fallback analysis with broader domain support
     return {
-      use_case: 'content_creation',
-      task: 'general_writing',
+      use_case: 'write-blog',
+      task: 'executive-summary',
       domain: 'general',
-      audience: 'general audience',
+      audience: 'general-public',
       tone: 'professional',
       style: 'clear',
       creativity: 0.7,

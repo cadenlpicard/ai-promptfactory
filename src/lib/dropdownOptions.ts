@@ -13,6 +13,14 @@ export const domainContextOptions = [
   { value: 'sales', label: '💼 Sales' },
   { value: 'customer-support', label: '🎧 Customer Support' },
   { value: 'real-estate', label: '🏠 Real Estate' },
+  { value: 'non-profit', label: '🏛️ Non-profit Organizations' },
+  { value: 'government', label: '🏛️ Government & Public Sector' },
+  { value: 'media', label: '📰 Media & Journalism' },
+  { value: 'consulting', label: '🤝 Consulting & Advisory' },
+  { value: 'insurance', label: '🛡️ Insurance & Risk Management' },
+  { value: 'energy', label: '⚡ Energy & Utilities' },
+  { value: 'transportation', label: '🚚 Transportation & Logistics' },
+  { value: 'hr', label: '👥 Human Resources' },
   { value: 'other', label: '🔧 Other' }
 ];
 
@@ -29,6 +37,12 @@ export const audienceOptions = [
   { value: 'general-public', label: '👥 General Public' },
   { value: 'technical-experts', label: '🧠 Technical Experts' },
   { value: 'real-estate-developers', label: '🏗️ Real Estate Developers' },
+  { value: 'non-profit-donors', label: '💝 Non-profit Donors & Volunteers' },
+  { value: 'government-officials', label: '🏛️ Government Officials & Citizens' },
+  { value: 'board-members', label: '👔 Board Members & Trustees' },
+  { value: 'regulatory-bodies', label: '📋 Regulatory Bodies' },
+  { value: 'community-stakeholders', label: '🏘️ Community Stakeholders' },
+  { value: 'media-professionals', label: '📺 Media Professionals' },
   { value: 'beginners', label: '🌱 Beginners' }
 ];
 

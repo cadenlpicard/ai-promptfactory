@@ -131,6 +131,54 @@ export const DOMAINS: DomainDefinition[] = [
     name: 'Telecommunications',
     description: 'Telecom infrastructure, network engineering, and communications',
     keywords: ['network', 'infrastructure', '5G', 'fiber optic', 'bandwidth', 'latency', 'protocols', 'telecommunications']
+  },
+  {
+    id: 'non-profit',
+    name: 'Non-profit Organizations',
+    description: 'Fundraising, program management, impact measurement, and social causes',
+    keywords: ['fundraising', 'grants', 'donations', 'volunteers', 'impact', 'social cause', 'charity', 'community', 'advocacy', 'mission']
+  },
+  {
+    id: 'government',
+    name: 'Government & Public Sector',
+    description: 'Policy analysis, public communication, compliance, and civic services',
+    keywords: ['policy', 'public service', 'governance', 'regulations', 'compliance', 'civic', 'municipal', 'federal', 'state', 'citizens']
+  },
+  {
+    id: 'media',
+    name: 'Media & Journalism',
+    description: 'Content creation, fact-checking, editorial planning, and news reporting',
+    keywords: ['journalism', 'news', 'reporting', 'editorial', 'media', 'broadcasting', 'publishing', 'fact-check', 'investigation']
+  },
+  {
+    id: 'consulting',
+    name: 'Consulting & Advisory',
+    description: 'Client analysis, proposal writing, strategic recommendations, and advisory services',
+    keywords: ['consulting', 'advisory', 'strategy', 'recommendations', 'client analysis', 'business solutions', 'expertise', 'guidance']
+  },
+  {
+    id: 'insurance',
+    name: 'Insurance & Risk Management',
+    description: 'Risk assessment, claims processing, policy analysis, and actuarial work',
+    keywords: ['insurance', 'risk', 'claims', 'policies', 'actuarial', 'underwriting', 'coverage', 'premiums', 'liability']
+  },
+  {
+    id: 'energy',
+    name: 'Energy & Utilities',
+    description: 'Sustainability reporting, infrastructure planning, renewable energy, and utility management',
+    keywords: ['energy', 'utilities', 'renewable', 'sustainability', 'power', 'grid', 'solar', 'wind', 'infrastructure', 'carbon']
+  },
+  {
+    id: 'transportation',
+    name: 'Transportation & Logistics',
+    description: 'Supply chain optimization, route planning, fleet management, and logistics',
+    keywords: ['logistics', 'supply chain', 'transportation', 'shipping', 'fleet', 'route', 'distribution', 'warehousing', 'delivery']
+  },
+  {
+    id: 'hr',
+    name: 'Human Resources',
+    description: 'Talent acquisition, performance management, policy development, and employee relations',
+    keywords: ['HR', 'recruitment', 'talent', 'performance', 'employee', 'hiring', 'benefits', 'compensation', 'training', 'culture']
   }
 ];
 
@@ -604,6 +652,316 @@ export const USE_CASES: UseCaseDefinition[] = [
             label: 'Authentication Type',
             type: 'select',
             options: ['API Key', 'OAuth', 'JWT', 'Basic Auth', 'Bearer Token']
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'grant-writing',
+    name: 'Grant Writing & Fundraising',
+    description: 'Write compelling grant proposals and fundraising materials',
+    tasks: [
+      {
+        id: 'grant-proposal',
+        name: 'Grant Proposal Writing',
+        description: 'Comprehensive grant proposal for funding organizations',
+        fields: [
+          {
+            id: 'grant_type',
+            label: 'Grant Type',
+            type: 'select',
+            required: true,
+            options: ['Federal Grant', 'Foundation Grant', 'Corporate Grant', 'State/Local Grant', 'Research Grant']
+          },
+          {
+            id: 'funding_amount',
+            label: 'Funding Amount Requested',
+            type: 'text',
+            placeholder: 'e.g., $50,000, $250K',
+            required: true
+          },
+          {
+            id: 'project_duration',
+            label: 'Project Duration',
+            type: 'select',
+            options: ['6 months', '1 year', '2 years', '3 years', 'Multi-year']
+          },
+          {
+            id: 'target_population',
+            label: 'Target Population',
+            type: 'textarea',
+            placeholder: 'Describe who will benefit from this project'
+          },
+          {
+            id: 'include_budget',
+            label: 'Include Budget Breakdown',
+            type: 'checkbox',
+            default: true
+          }
+        ]
+      },
+      {
+        id: 'impact-report',
+        name: 'Impact Measurement Report',
+        description: 'Document program outcomes and social impact',
+        fields: [
+          {
+            id: 'measurement_period',
+            label: 'Measurement Period',
+            type: 'select',
+            options: ['Quarterly', 'Semi-annual', 'Annual', 'Project Completion']
+          },
+          {
+            id: 'success_metrics',
+            label: 'Key Success Metrics',
+            type: 'multiselect',
+            options: ['Lives Impacted', 'Services Delivered', 'Community Reach', 'Behavior Change', 'Economic Impact', 'Environmental Impact']
+          },
+          {
+            id: 'stakeholder_audience',
+            label: 'Primary Audience',
+            type: 'select',
+            options: ['Donors', 'Board Members', 'Funders', 'Community', 'Government', 'Partners']
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'policy-analysis',
+    name: 'Policy Analysis & Public Communication',
+    description: 'Analyze policies and create public-facing communications',
+    tasks: [
+      {
+        id: 'policy-brief',
+        name: 'Policy Briefing Document',
+        description: 'Comprehensive policy analysis and recommendations',
+        fields: [
+          {
+            id: 'policy_area',
+            label: 'Policy Area',
+            type: 'select',
+            required: true,
+            options: ['Healthcare', 'Education', 'Environmental', 'Economic', 'Social Services', 'Transportation', 'Housing', 'Public Safety']
+          },
+          {
+            id: 'stakeholder_level',
+            label: 'Government Level',
+            type: 'select',
+            options: ['Federal', 'State', 'County', 'Municipal', 'Regional']
+          },
+          {
+            id: 'analysis_focus',
+            label: 'Analysis Focus',
+            type: 'multiselect',
+            options: ['Current Impact', 'Implementation Challenges', 'Cost-Benefit', 'Stakeholder Effects', 'Alternative Options']
+          },
+          {
+            id: 'include_recommendations',
+            label: 'Include Policy Recommendations',
+            type: 'checkbox',
+            default: true
+          }
+        ]
+      },
+      {
+        id: 'public-consultation',
+        name: 'Public Consultation Response',
+        description: 'Structured response to public consultation processes',
+        fields: [
+          {
+            id: 'consultation_type',
+            label: 'Consultation Type',
+            type: 'select',
+            options: ['Regulatory Change', 'New Policy', 'Budget Allocation', 'Infrastructure Project', 'Service Delivery']
+          },
+          {
+            id: 'organization_type',
+            label: 'Responding As',
+            type: 'select',
+            options: ['Individual Citizen', 'Non-profit Organization', 'Business', 'Professional Association', 'Community Group']
+          },
+          {
+            id: 'key_concerns',
+            label: 'Key Areas of Concern',
+            type: 'textarea',
+            placeholder: 'List main issues or support points'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'strategic-consulting',
+    name: 'Strategic Consulting & Advisory',
+    description: 'Provide strategic analysis and recommendations for clients',
+    tasks: [
+      {
+        id: 'client-assessment',
+        name: 'Client Needs Assessment',
+        description: 'Comprehensive analysis of client situation and needs',
+        fields: [
+          {
+            id: 'client_industry',
+            label: 'Client Industry',
+            type: 'select',
+            required: true,
+            options: ['Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail', 'Professional Services', 'Non-profit', 'Government']
+          },
+          {
+            id: 'company_size',
+            label: 'Company Size',
+            type: 'select',
+            options: ['Startup', 'Small Business', 'Mid-market', 'Enterprise', 'Fortune 500']
+          },
+          {
+            id: 'assessment_areas',
+            label: 'Assessment Focus Areas',
+            type: 'multiselect',
+            options: ['Strategy', 'Operations', 'Technology', 'Finance', 'HR', 'Marketing', 'Risk Management', 'Growth Planning']
+          },
+          {
+            id: 'timeline',
+            label: 'Project Timeline',
+            type: 'select',
+            options: ['2-4 weeks', '1-2 months', '3-6 months', '6+ months']
+          }
+        ]
+      },
+      {
+        id: 'strategic-roadmap',
+        name: 'Strategic Implementation Roadmap',
+        description: 'Detailed implementation plan with milestones and timelines',
+        fields: [
+          {
+            id: 'roadmap_horizon',
+            label: 'Planning Horizon',
+            type: 'select',
+            options: ['6 months', '1 year', '18 months', '2-3 years', '5+ years']
+          },
+          {
+            id: 'priority_level',
+            label: 'Initiative Priority',
+            type: 'select',
+            options: ['Critical/Urgent', 'High Priority', 'Medium Priority', 'Long-term Strategic']
+          },
+          {
+            id: 'resource_requirements',
+            label: 'Resource Planning Focus',
+            type: 'multiselect',
+            options: ['Budget', 'Personnel', 'Technology', 'Training', 'External Partners', 'Infrastructure']
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'crisis-communication',
+    name: 'Crisis Communication & PR',
+    description: 'Manage communications during crisis situations',
+    tasks: [
+      {
+        id: 'crisis-response',
+        name: 'Crisis Response Statement',
+        description: 'Immediate public response to crisis situations',
+        fields: [
+          {
+            id: 'crisis_type',
+            label: 'Crisis Type',
+            type: 'select',
+            required: true,
+            options: ['Data Breach', 'Product Recall', 'Financial Issues', 'Leadership Crisis', 'Natural Disaster', 'Legal Issues', 'PR Crisis']
+          },
+          {
+            id: 'severity_level',
+            label: 'Crisis Severity',
+            type: 'select',
+            options: ['Low Impact', 'Moderate Impact', 'High Impact', 'Critical/Severe']
+          },
+          {
+            id: 'primary_audience',
+            label: 'Primary Audience',
+            type: 'multiselect',
+            options: ['Customers', 'Employees', 'Investors', 'Media', 'Regulators', 'Community', 'Partners']
+          },
+          {
+            id: 'response_tone',
+            label: 'Response Tone',
+            type: 'select',
+            options: ['Apologetic', 'Explanatory', 'Reassuring', 'Factual', 'Empathetic']
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'training-development',
+    name: 'Training & Development',
+    description: 'Create training materials and development programs',
+    tasks: [
+      {
+        id: 'training-curriculum',
+        name: 'Training Curriculum Design',
+        description: 'Comprehensive training program development',
+        fields: [
+          {
+            id: 'training_type',
+            label: 'Training Type',
+            type: 'select',
+            required: true,
+            options: ['Technical Skills', 'Soft Skills', 'Leadership', 'Compliance', 'Safety', 'Customer Service', 'Sales']
+          },
+          {
+            id: 'delivery_method',
+            label: 'Delivery Method',
+            type: 'multiselect',
+            options: ['In-person', 'Virtual/Online', 'Hybrid', 'Self-paced', 'Mentoring', 'Workshop']
+          },
+          {
+            id: 'skill_level',
+            label: 'Target Skill Level',
+            type: 'select',
+            options: ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Mixed Levels']
+          },
+          {
+            id: 'duration',
+            label: 'Program Duration',
+            type: 'select',
+            options: ['1-2 hours', 'Half day', 'Full day', 'Multi-day', 'Weekly series', 'Monthly program']
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'compliance-risk',
+    name: 'Compliance & Risk Management',
+    description: 'Develop compliance frameworks and risk assessments',
+    tasks: [
+      {
+        id: 'compliance-framework',
+        name: 'Compliance Framework Development',
+        description: 'Create comprehensive compliance management system',
+        fields: [
+          {
+            id: 'regulatory_area',
+            label: 'Regulatory Focus',
+            type: 'multiselect',
+            required: true,
+            options: ['Financial Services', 'Healthcare', 'Data Privacy', 'Environmental', 'Employment Law', 'Industry-specific']
+          },
+          {
+            id: 'framework_scope',
+            label: 'Framework Scope',
+            type: 'select',
+            options: ['Department-level', 'Organization-wide', 'Multi-entity', 'Cross-border']
+          },
+          {
+            id: 'risk_tolerance',
+            label: 'Risk Tolerance Level',
+            type: 'select',
+            options: ['Very Conservative', 'Conservative', 'Moderate', 'Aggressive']
           }
         ]
       }
