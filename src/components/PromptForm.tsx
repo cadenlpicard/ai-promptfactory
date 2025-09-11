@@ -61,6 +61,7 @@ const formSchema = z.object({
 interface PromptFormProps {
   onSubmit: (data: FormData) => void;
   isLoading?: boolean;
+  onAnalyzeStart?: () => void;
 }
 
 // Helper functions for representative labels
@@ -87,7 +88,7 @@ const getResponseLengthLabel = (value: number): string => {
   return "Comprehensive";
 };
 
-export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
+export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormProps) {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [specsOpen, setSpecsOpen] = useState(!isMobile);
@@ -177,6 +178,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
       return;
     }
 
+    onAnalyzeStart?.();
     setIsAnalyzing(true);
     
     try {
@@ -197,17 +199,24 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
         'content-creation': 'write-blog',
         'content_creation': 'write-blog',
         'blogging': 'write-blog',
+        'write': 'write-blog',
+        'writing': 'write-blog',
         'email': 'email-reply',
         'communications': 'email-reply',
+        'communication': 'email-reply',
         'research': 'research',
         'data-analysis': 'data-analysis',
         'data_analysis': 'data-analysis',
+        'analytics': 'data-analysis',
         'code-review': 'code-review',
         'code_review': 'code-review',
+        'coding': 'code-review',
+        'software-development': 'code-review',
+        'dev': 'code-review',
         'creative-writing': 'creative-writing',
         'technical-documentation': 'technical-documentation',
         'project-planning': 'project-planning',
-        // Sometimes the model reports a "presentation" use case; map to writing
+        // Sometimes the model reports a "presentation" use case; map to executive summary writing
         'presentation': 'write-blog',
       };
       const domainMap: Record<string, string> = {
@@ -215,6 +224,9 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
         'sales': 'marketing',
         'content': 'marketing',
         'software': 'software-engineering',
+        'technology': 'software-engineering',
+        'tech': 'software-engineering',
+        'it': 'software-engineering',
         'general': 'general',
       };
       const audienceMap: Record<string, string> = {
@@ -264,11 +276,50 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
       }
       
       if (desiredTask) {
-        const availableTasks = getTasksForUseCase(desiredUseCase).map(t => t.id);
-        if (availableTasks.includes(desiredTask)) {
-          console.log('Setting task to:', desiredTask);
-          form.setValue('task', desiredTask, { shouldDirty: true, shouldValidate: true });
-          setSelectedTask(desiredTask);
+        const taskDefs = getTasksForUseCase(desiredUseCase);
+        const availableTasks = taskDefs.map(t => t.id);
+        let taskToSet = desiredTask;
+
+        const norm = (s: string | undefined) => (s ?? '').toLowerCase().replace(/[_\s]+/g, '-');
+        const desiredNorm = norm(analysis.task);
+
+        if (!availableTasks.includes(taskToSet) && analysis.task) {
+          // Try by id match (normalized)
+          const byId = availableTasks.find(id => norm(id) === desiredNorm);
+          if (byId) taskToSet = byId;
+
+          // Try by task name exact
+          if (!byId) {
+            const byName = taskDefs.find(t => norm(t.name) === desiredNorm);
+            if (byName) taskToSet = byName.id;
+          }
+
+          // Try partial match
+          if (!availableTasks.includes(taskToSet)) {
+            const partial = taskDefs.find(t => norm(t.name).includes(desiredNorm) || desiredNorm.includes(norm(t.name)));
+            if (partial) taskToSet = partial.id;
+          }
+
+          // Synonyms
+          if (!availableTasks.includes(taskToSet)) {
+            const synonyms: Record<string, string> = {
+              'summary': 'executive-summary',
+              'summarize': 'executive-summary',
+              'slides': 'executive-summary',
+              'slide-deck': 'executive-summary',
+              'presentation': 'executive-summary',
+              'market-analysis': 'market-analysis-post',
+              'tutorial': 'technical-tutorial',
+            };
+            const syn = synonyms[desiredNorm];
+            if (syn && availableTasks.includes(syn)) taskToSet = syn;
+          }
+        }
+
+        if (availableTasks.includes(taskToSet)) {
+          console.log('Setting task to:', taskToSet);
+          form.setValue('task', taskToSet, { shouldDirty: true, shouldValidate: true });
+          setSelectedTask(taskToSet);
         } else {
           console.log('Invalid task:', desiredTask, 'Available:', availableTasks);
         }
@@ -427,6 +478,9 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                     </>
                   )}
                 </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Note: The Meta Prompt updates after you click “Start Production”. Analyze only pre-fills the form.
+                </p>
               </div>
 
               {aiSuggestions && (

@@ -66,7 +66,7 @@ const Index = () => {
         }`}>
           {/* Form Panel - Full width on mobile */}
           <div className="flex flex-col order-1 lg:order-1">
-            <PromptForm onSubmit={handleOptimize} isLoading={isLoading} />
+            <PromptForm onSubmit={handleOptimize} isLoading={isLoading} onAnalyzeStart={() => setResponse(null)} />
           </div>
           
           {/* Results Panel - Full width on mobile, only show if response exists or loading on mobile */}
