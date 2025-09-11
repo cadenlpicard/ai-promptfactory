@@ -108,10 +108,18 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       targetModel: 'gpt-5',
-      model_id: 'gpt-5', // Set default to prevent validation issues
+      model_id: 'gpt-5',
       provider: 'openai',
       user_prompt: '',
+      domain_context: '',
+      audience: '',
+      tone: '',
+      style: '',
+      format_requirements: '',
+      hard_constraints: '',
+      use_case: '',
       domain: 'general',
+      task: '',
       temperature: 0.7,
       creativity: 0.7,
       max_tokens: 512,
@@ -170,47 +178,94 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
       const analysis = await analyzePrompt(userPrompt);
       setAiSuggestions(analysis);
       
-      // Auto-populate form fields with AI suggestions
+      // Get available options for validation
+      const useCaseOptions = USE_CASES.map(uc => uc.id);
+      const domainOptions = DOMAINS.map(d => d.id);
+      
+      console.log('Analysis received:', analysis);
+      console.log('Available use cases:', useCaseOptions);
+      console.log('Available domains:', domainOptions);
+      
+      // Auto-populate form fields with AI suggestions (validate against available options)
       if (analysis.use_case && !userOverrides.has('use_case')) {
-        form.setValue('use_case', analysis.use_case);
-        setSelectedUseCase(analysis.use_case);
+        if (useCaseOptions.includes(analysis.use_case)) {
+          console.log('Setting use_case to:', analysis.use_case);
+          form.setValue('use_case', analysis.use_case);
+          setSelectedUseCase(analysis.use_case);
+        } else {
+          console.log('Invalid use_case:', analysis.use_case, 'Available:', useCaseOptions);
+        }
       }
+      
       if (analysis.task && !userOverrides.has('task')) {
-        form.setValue('task', analysis.task);
-        setSelectedTask(analysis.task);
+        const availableTasks = getTasksForUseCase(analysis.use_case).map(t => t.id);
+        if (availableTasks.includes(analysis.task)) {
+          console.log('Setting task to:', analysis.task);
+          form.setValue('task', analysis.task);
+          setSelectedTask(analysis.task);
+        } else {
+          console.log('Invalid task:', analysis.task, 'Available:', availableTasks);
+        }
       }
+      
       if (analysis.domain && !userOverrides.has('domain')) {
-        form.setValue('domain', analysis.domain);
+        if (domainOptions.includes(analysis.domain)) {
+          console.log('Setting domain to:', analysis.domain);
+          form.setValue('domain', analysis.domain);
+        } else {
+          console.log('Invalid domain:', analysis.domain, 'Available:', domainOptions);
+        }
       }
+      
       if (analysis.audience && !userOverrides.has('audience')) {
+        console.log('Setting audience to:', analysis.audience);
         form.setValue('audience', analysis.audience);
       }
+      
       if (analysis.tone && !userOverrides.has('tone')) {
+        console.log('Setting tone to:', analysis.tone);
         form.setValue('tone', analysis.tone);
       }
+      
       if (analysis.style && !userOverrides.has('style')) {
+        console.log('Setting style to:', analysis.style);
         form.setValue('style', analysis.style);
       }
-      if (analysis.creativity && !userOverrides.has('creativity')) {
+      
+      if (analysis.creativity !== undefined && !userOverrides.has('creativity')) {
+        console.log('Setting creativity to:', analysis.creativity);
         form.setValue('creativity', analysis.creativity);
         form.setValue('temperature', analysis.creativity);
       }
+      
       if (analysis.responseLengthTokens && !userOverrides.has('responseLengthTokens')) {
+        console.log('Setting responseLengthTokens to:', analysis.responseLengthTokens);
         form.setValue('responseLengthTokens', analysis.responseLengthTokens);
         form.setValue('max_tokens', analysis.responseLengthTokens);
       }
+      
       if (analysis.focusLevel && !userOverrides.has('focusLevel')) {
+        console.log('Setting focusLevel to:', analysis.focusLevel);
         form.setValue('focusLevel', analysis.focusLevel);
       }
+      
       if (analysis.thinkingDepth && !userOverrides.has('thinkingDepth')) {
+        console.log('Setting thinkingDepth to:', analysis.thinkingDepth);
         form.setValue('thinkingDepth', analysis.thinkingDepth);
       }
+      
       if (analysis.format_requirements && !userOverrides.has('format_requirements')) {
+        console.log('Setting format_requirements to:', analysis.format_requirements);
         form.setValue('format_requirements', analysis.format_requirements);
       }
+      
       if (analysis.hard_constraints && !userOverrides.has('hard_constraints')) {
+        console.log('Setting hard_constraints to:', analysis.hard_constraints);
         form.setValue('hard_constraints', analysis.hard_constraints);
       }
+      
+      // Force form to re-render with new values
+      form.trigger();
 
       toast({
         title: "Prompt analyzed successfully",
