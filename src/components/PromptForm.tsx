@@ -11,13 +11,15 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { FormData, Provider, ModelConfig } from '@/types';
+import { FormData, Provider, ModelConfig, PromptAnalysis } from '@/types';
 import { getAllModels, getProviderConfig, getModelConfig } from '@/lib/providerRegistry';
 import { domainContextOptions, audienceOptions, toneOptions, styleOptions, thinkingDepthOptions, detailLevelOptions } from '@/lib/dropdownOptions';
 import { USE_CASES, DOMAINS, getTasksForUseCase, getFieldsFor } from '@/config/tasksConfig';
-import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp, Layers } from 'lucide-react';
+import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp, Layers, Wand2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState, useEffect } from 'react';
+import { analyzePrompt } from '@/lib/promptAnalyzer';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   targetModel: z.string().min(1, 'Please select a target model'),
@@ -87,8 +89,14 @@ const getResponseLengthLabel = (value: number): string => {
 
 export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
   const [specsOpen, setSpecsOpen] = useState(!isMobile);
   const [settingsOpen, setSettingsOpen] = useState(!isMobile);
+  
+  // Analysis state
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<PromptAnalysis | null>(null);
+  const [userOverrides, setUserOverrides] = useState<Set<string>>(new Set());
   
   // Dynamic use case state
   const [selectedUseCase, setSelectedUseCase] = useState<string | undefined>();
@@ -144,6 +152,87 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
     }
   };
 
+  const handleAnalyzePrompt = async () => {
+    const userPrompt = form.getValues('user_prompt');
+    
+    if (!userPrompt || userPrompt.trim().length < 10) {
+      toast({
+        title: "Prompt too short",
+        description: "Please enter at least 10 characters to analyze your prompt.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    
+    try {
+      const analysis = await analyzePrompt(userPrompt);
+      setAiSuggestions(analysis);
+      
+      // Auto-populate form fields with AI suggestions
+      if (analysis.use_case && !userOverrides.has('use_case')) {
+        form.setValue('use_case', analysis.use_case);
+        setSelectedUseCase(analysis.use_case);
+      }
+      if (analysis.task && !userOverrides.has('task')) {
+        form.setValue('task', analysis.task);
+        setSelectedTask(analysis.task);
+      }
+      if (analysis.domain && !userOverrides.has('domain')) {
+        form.setValue('domain', analysis.domain);
+      }
+      if (analysis.audience && !userOverrides.has('audience')) {
+        form.setValue('audience', analysis.audience);
+      }
+      if (analysis.tone && !userOverrides.has('tone')) {
+        form.setValue('tone', analysis.tone);
+      }
+      if (analysis.style && !userOverrides.has('style')) {
+        form.setValue('style', analysis.style);
+      }
+      if (analysis.creativity && !userOverrides.has('creativity')) {
+        form.setValue('creativity', analysis.creativity);
+        form.setValue('temperature', analysis.creativity);
+      }
+      if (analysis.responseLengthTokens && !userOverrides.has('responseLengthTokens')) {
+        form.setValue('responseLengthTokens', analysis.responseLengthTokens);
+        form.setValue('max_tokens', analysis.responseLengthTokens);
+      }
+      if (analysis.focusLevel && !userOverrides.has('focusLevel')) {
+        form.setValue('focusLevel', analysis.focusLevel);
+      }
+      if (analysis.thinkingDepth && !userOverrides.has('thinkingDepth')) {
+        form.setValue('thinkingDepth', analysis.thinkingDepth);
+      }
+      if (analysis.format_requirements && !userOverrides.has('format_requirements')) {
+        form.setValue('format_requirements', analysis.format_requirements);
+      }
+      if (analysis.hard_constraints && !userOverrides.has('hard_constraints')) {
+        form.setValue('hard_constraints', analysis.hard_constraints);
+      }
+
+      toast({
+        title: "Prompt analyzed successfully",
+        description: "Your form has been auto-populated with AI suggestions. You can review and adjust as needed."
+      });
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Unable to analyze your prompt. You can still configure the form manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const markFieldAsUserOverride = (fieldName: string) => {
+    setUserOverrides(prev => new Set([...prev, fieldName]));
+  };
+
   return (
     <Card className="h-full border-2 border-primary/20 shadow-card hover:shadow-fun transition-all duration-300">
       <CardHeader className="pb-3 sm:pb-4 bg-gradient-subtle rounded-t-lg px-4 py-4 sm:px-6 sm:py-6">
@@ -167,6 +256,67 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
             onSubmit(data);
           })} className="space-y-4 sm:space-y-8">
             
+            {/* Raw Material Section - Now First */}
+            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Factory className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold">🛠️ Raw Material</h3>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="user_prompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Your Raw Prompt *</FormLabel>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      Enter your draft prompt here. We'll analyze it and suggest optimal settings.
+                    </FormDescription>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter your prompt ideas, goals, or draft content here..."
+                        className="border-2 border-primary/20 rounded-xl min-h-[120px] resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <Button
+                  type="button"
+                  onClick={handleAnalyzePrompt}
+                  disabled={isAnalyzing || !form.watch('user_prompt')?.trim() || form.watch('user_prompt')?.trim().length < 10}
+                  className="flex-1 bg-gradient-primary hover:opacity-90 text-white border-0 shadow-glow h-12 rounded-xl"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      Analyze & Pre-populate
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {aiSuggestions && (
+                <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
+                  <p className="text-xs text-muted-foreground">
+                    ✨ AI analysis complete! Fields below are auto-populated with suggestions. 
+                    You can review and adjust any values as needed.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Dynamic Use Cases Section */}
             <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3 sm:gap-4">
@@ -174,6 +324,11 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold">🔧 Use Case & Task</h3>
+                {aiSuggestions && (
+                  <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">
+                    AI Suggested
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -190,7 +345,8 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                           setSelectedUseCase(value);
                           setSelectedTask(undefined);
                           form.setValue('task', '');
-                        }} 
+                          markFieldAsUserOverride('use_case');
+                        }}
                         value={field.value}
                       >
                         <FormControl>
@@ -223,7 +379,8 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         onValueChange={(value) => {
                           field.onChange(value);
                           setSelectedTask(value);
-                        }} 
+                          markFieldAsUserOverride('task');
+                        }}
                         value={field.value}
                         disabled={!selectedUseCase}
                       >
@@ -253,7 +410,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">🏢 Domain</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                       <Select onValueChange={(value) => {
+                         field.onChange(value);
+                         markFieldAsUserOverride('domain');
+                       }} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                             <SelectValue placeholder="Select domain..." />
@@ -478,36 +638,6 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
               />
             </div>
 
-            {/* Raw Material Input */}
-            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold">✨ Raw Material</h3>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="user_prompt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base sm:text-lg font-medium">🎯 Your Raw Prompt</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe what you want the AI to do... We'll turn it into gold! ✨"
-                        className="min-h-[120px] sm:min-h-[150px] resize-none border-2 border-primary/20 focus:border-primary/40 rounded-xl text-sm sm:text-base p-3 sm:p-4"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-sm sm:text-base">
-                      Don't worry about perfection - that's our job! 🏭
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             {/* Manufacturing Specs */}
             <Collapsible open={specsOpen} onOpenChange={setSpecsOpen}>
@@ -522,6 +652,11 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         <Target className="h-4 w-4 text-accent" />
                       </div>
                       <h3 className="text-lg font-semibold">🎯 Manufacturing Specs</h3>
+                      {aiSuggestions && (
+                        <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">
+                          AI Suggested
+                        </div>
+                      )}
                     </div>
                     {isMobile && (
                       <div className="flex-shrink-0">
@@ -543,7 +678,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium">🎭 Tone</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            markFieldAsUserOverride('tone');
+                          }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Pick your tone..." />
@@ -567,7 +705,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium">✍️ Style</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            markFieldAsUserOverride('style');
+                          }} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Choose your style..." />
@@ -599,7 +740,11 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                             <Input 
                               placeholder="e.g., Use bullet points, Include examples..."
                               className="border-2 border-primary/20 rounded-xl h-12"
-                              {...field} 
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                markFieldAsUserOverride('format_requirements');
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -618,7 +763,11 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                               <Input 
                                 placeholder="Must include..."
                                 className="border-2 border-primary/20 rounded-xl h-12"
-                                {...field} 
+                                {...field}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  markFieldAsUserOverride('hard_constraints');
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -754,14 +903,17 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                                </span>
                              </FormLabel>
                             <FormControl>
-                              <Slider
-                                min={0}
-                                max={1}
-                                step={0.1}
-                                value={[field.value || 1]}
-                                onValueChange={(vals) => field.onChange(vals[0])}
-                                className="w-full"
-                              />
+                               <Slider
+                                 min={0}
+                                 max={1}
+                                 step={0.1}
+                                 value={[field.value || 1]}
+                                 onValueChange={(vals) => {
+                                   field.onChange(vals[0]);
+                                   markFieldAsUserOverride('focusLevel');
+                                 }}
+                                 className="w-full"
+                               />
                             </FormControl>
                             <FormDescription className="text-xs">
                               How focused should the response be? 🔍
@@ -810,7 +962,10 @@ export function PromptForm({ onSubmit, isLoading }: PromptFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={(value) => {
+                              field.onChange(value);
+                              markFieldAsUserOverride('thinkingDepth');
+                            }} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                   <SelectValue placeholder="How deep should it think?" />

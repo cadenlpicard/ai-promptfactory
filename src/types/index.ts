@@ -81,6 +81,22 @@ export interface OptimizedResponse {
   meta_prompt?: string; // New field for composed meta-prompt
 }
 
+export interface PromptAnalysis {
+  use_case?: string;
+  task?: string;
+  domain?: string;
+  audience?: string;
+  tone?: string;
+  style?: string;
+  creativity?: number;
+  responseLengthTokens?: number;
+  focusLevel?: string;
+  thinkingDepth?: string;
+  format_requirements?: string;
+  hard_constraints?: string;
+  confidence_scores?: Record<string, number>;
+}
+
 export interface PromptSession {
   id: string;
   timestamp: number;

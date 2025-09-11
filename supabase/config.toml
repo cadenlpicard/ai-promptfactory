@@ -35,3 +35,6 @@ security_update_password_require_reauthentication = true
 
 [functions.optimize-prompt]
 verify_jwt = false
+
+[functions.analyze-prompt]
+verify_jwt = false
