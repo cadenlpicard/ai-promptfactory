@@ -208,7 +208,7 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
         'communications': 'content-comms',
         'communication': 'content-comms',
         'press': 'content-comms',
-        'presentation': 'content-comms', // presentation drafts map to content
+        'presentation': 'content-comms',
         // Research & knowledge
         'research': 'research-knowledge',
         'knowledge': 'research-knowledge',
@@ -258,7 +258,7 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
         healthcare: 'healthcare',
         legal: 'legal',
         government: 'government',
-        non-profit: 'non-profit',
+        'non-profit': 'non-profit',
       };
 
       // ---- Task mapping / synonyms by use case
@@ -423,13 +423,13 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
         const smartLength = (() => {
           switch (taskToSet) {
             // Content & Comms
-            case 'generate-content': return 900;         // blog/email/press/landing
-            case 'transform-content': return 600;        // summaries/rewrites
-            case 'outreach-sequences': return 450;       // short multi-step
+            case 'generate-content': return 900;
+            case 'transform-content': return 600;
+            case 'outreach-sequences': return 450;
             // Research & Knowledge
             case 'literature-review': return 1100;
-            case 'compare-options': return 800;          // table/scorecard length
-            case 'extract-structure': return 300;        // JSON/CSV concise
+            case 'compare-options': return 800;
+            case 'extract-structure': return 300;
             // Data & Analytics
             case 'exploratory-analysis': return 900;
             case 'sql-assistant': return 500;
@@ -441,22 +441,21 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
             // Operations & Projects
             case 'project-charter': return 800;
             case 'work-breakdown': return 750;
-            case 'process-design': return 900;
-            // Strategy
-            case 'assessment': return 900;
-            case 'strategic-roadmap': return 1000;
-            // Compliance / Legal / Policy
-            case 'policy-brief': return 800;
-            case 'doc-review': return 700;
+            case 'process-design': return 850;
+            // Strategy & Consulting
+            case 'assessment': return 950;
+            case 'strategic-roadmap': return 1200;
+            // Compliance & Legal & Policy
+            case 'policy-brief': return 750;
+            case 'doc-review': return 600;
             // Growth
-            case 'campaign-kit': return 850;
-            case 'grant-proposal': return 1100;
-            case 'sales-assets': return 700;
+            case 'campaign-kit': return 800;
+            case 'grant-proposal': return 1200;
+            case 'sales-assets': return 600;
             default: return 600;
           }
         })();
         form.setValue('responseLengthTokens', smartLength, { shouldDirty: true, shouldValidate: true });
-        form.setValue('max_tokens', smartLength, { shouldDirty: true, shouldValidate: true });
       }
 
       if (desiredDomain && !userOverrides.has('domain')) {
@@ -473,11 +472,9 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
       }
       if (analysis.creativity !== undefined && !userOverrides.has('creativity')) {
         form.setValue('creativity', analysis.creativity, { shouldDirty: true, shouldValidate: true });
-        form.setValue('temperature', analysis.creativity, { shouldDirty: true, shouldValidate: true });
       }
       if (analysis.responseLengthTokens && !userOverrides.has('responseLengthTokens')) {
         form.setValue('responseLengthTokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
-        form.setValue('max_tokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
       }
       if (desiredTopP !== undefined && !userOverrides.has('top_p')) {
         form.setValue('top_p', desiredTopP, { shouldDirty: true, shouldValidate: true });
@@ -507,34 +504,30 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
   return (
     <Card className="h-full border-2 border-primary/20 shadow-card hover:shadow-fun transition-all duration-300">
       <CardHeader className="pb-3 sm:pb-4 bg-gradient-subtle rounded-t-lg px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow flex-shrink-0">
-            <Factory className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-full bg-primary/10">
+            <Factory className="h-6 w-6 text-primary" />
           </div>
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-lg sm:text-2xl">🏭 Factory Controls</CardTitle>
-            <CardDescription className="text-sm sm:text-base text-muted-foreground">
-              Configure your prompt manufacturing settings
-            </CardDescription>
+          <div>
+            <CardTitle className="text-xl sm:text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">Prompt Factory</CardTitle>
+            <CardDescription className="text-sm sm:text-base">Engineer your perfect prompt with AI assistance</CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4 sm:space-y-6 max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-6">
+      <CardContent className="p-4 sm:p-6 space-y-6">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((data) => {
               onSubmit(data);
             })}
-            className="space-y-4 sm:space-y-8"
+            className="space-y-6"
           >
             {/* Raw Material */}
-            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Factory className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold">🛠️ Raw Material</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Layers className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">📝 Raw Material</h3>
               </div>
 
               <FormField
@@ -542,14 +535,11 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
                 name="user_prompt"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">Your Raw Prompt *</FormLabel>
-                    <FormDescription className="text-xs text-muted-foreground">
-                      Enter your draft prompt here. We'll analyze it and suggest optimal settings.
-                    </FormDescription>
+                    <FormLabel className="text-sm font-medium">What you want the AI to do</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter your prompt ideas, goals, or draft content here..."
-                        className="border-2 border-primary/20 rounded-xl min-h-[120px] resize-none"
+                        placeholder="Describe what you want the AI to help you with..."
+                        className="min-h-[120px] border-2 border-primary/20 rounded-xl resize-none text-base"
                         {...field}
                       />
                     </FormControl>
@@ -558,338 +548,323 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
                 )}
               />
 
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <Button
-                  type="button"
-                  onClick={handleAnalyzePrompt}
-                  disabled={isAnalyzing || !form.watch('user_prompt')?.trim() || form.watch('user_prompt')?.trim().length < 10}
-                  className="flex-1 bg-gradient-primary hover:opacity-90 text-white border-0 shadow-glow h-12 rounded-xl"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      Analyze & Pre-populate
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Note: The Meta Prompt updates after you click “Start Production”. Analyze only pre-fills the form.
-                </p>
-              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleAnalyzePrompt}
+                disabled={isAnalyzing || !form.watch('user_prompt')?.trim() || form.watch('user_prompt')?.trim().length < 10}
+                className="w-full sm:w-auto"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                    🧠 Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    🔍 Analyze & Auto-Fill
+                  </>
+                )}
+              </Button>
 
               {aiSuggestions && (
-                <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
-                  <p className="text-xs text-muted-foreground">
-                    ✨ AI analysis complete! Fields below are auto-populated with suggestions. You can review and adjust as needed.
-                  </p>
+                <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
+                  <p className="text-sm text-accent-foreground">✨ Analysis complete! Fields have been auto-populated based on your prompt.</p>
                 </div>
               )}
             </div>
 
             {/* Use Case & Task */}
-            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold">🔧 Use Case & Task</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
                 {aiSuggestions && <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">AI Suggested</div>}
+                <Target className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">🎯 Purpose & Task</h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                {/* Use Case */}
-                <FormField
-                  control={form.control}
-                  name="use_case"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">📋 Use Case</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedUseCase(value === 'none' ? undefined : value);
-                          setSelectedTask(undefined);
-                          form.setValue('task', '');
-                          markFieldAsUserOverride('use_case');
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                            <SelectValue placeholder="Select use case..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None (General)</SelectItem>
-                          {USE_CASES.map((useCase) => (
-                            <SelectItem key={useCase.id} value={useCase.id}>
-                              {useCase.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Use Case */}
+              <FormField
+                control={form.control}
+                name="use_case"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Use Case</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedUseCase(value);
+                        setSelectedTask(undefined);
+                        form.setValue('task', '', { shouldDirty: true, shouldValidate: true });
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                          <SelectValue placeholder="What type of work?" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {USE_CASES.map((useCase) => (
+                          <SelectItem key={useCase.id} value={useCase.id}>
+                            {useCase.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Task */}
-                <FormField
-                  control={form.control}
-                  name="task"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">⚡ Task</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setSelectedTask(value === 'none' ? undefined : value);
-                          markFieldAsUserOverride('task');
-                        }}
-                        value={field.value}
-                        disabled={!selectedUseCase}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                            <SelectValue placeholder={selectedUseCase ? 'Select task...' : 'Select use case first'} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None (General)</SelectItem>
-                          {tasks.map((task) => (
-                            <SelectItem key={task.id} value={task.id}>
-                              {task.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Task */}
+              <FormField
+                control={form.control}
+                name="task"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Specific Task</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedTask(value);
+                      }}
+                      value={field.value}
+                      disabled={!selectedUseCase}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                          <SelectValue placeholder="Select a specific task..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tasks.map((task) => (
+                          <SelectItem key={task.id} value={task.id}>
+                            {task.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Domain */}
-                <FormField
-                  control={form.control}
-                  name="domain"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium">🏢 Domain</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          markFieldAsUserOverride('domain');
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                            <SelectValue placeholder="Select domain..." />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {DOMAINS.map((domain) => (
-                            <SelectItem key={domain.id} value={domain.id}>
-                              {domain.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Dynamic Fields */}
-              {dynamicFields.length > 0 && (
-                <div className="space-y-4 pt-4 border-t border-border/20">
-                  <h4 className="text-base font-medium text-foreground">📝 Task-Specific Details</h4>
-                  <div className="grid gap-4">
-                    {dynamicFields.map((field) => (
-                      <div key={field.id}>
-                        {field.type === 'text' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  {field.label} {field.required && <span className="text-destructive">*</span>}
-                                </FormLabel>
-                                <FormControl>
-                                  <Input placeholder={field.placeholder} className="border-2 border-primary/20 rounded-xl h-12" {...formField} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-
-                        {field.type === 'textarea' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  {field.label} {field.required && <span className="text-destructive">*</span>}
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea placeholder={field.placeholder} className="border-2 border-primary/20 rounded-xl min-h-[80px]" {...formField} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-
-                        {field.type === 'number' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  {field.label} {field.required && <span className="text-destructive">*</span>}
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    min={field.min}
-                                    max={field.max}
-                                    placeholder={field.placeholder}
-                                    className="border-2 border-primary/20 rounded-xl h-12"
-                                    {...formField}
-                                    onChange={(e) => formField.onChange(Number(e.target.value))}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-
-                        {field.type === 'checkbox' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox checked={formField.value} onCheckedChange={formField.onChange} />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel className="text-sm font-medium">
-                                    {field.label} {field.required && <span className="text-destructive">*</span>}
-                                  </FormLabel>
-                                </div>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-
-                        {field.type === 'select' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  {field.label} {field.required && <span className="text-destructive">*</span>}
-                                </FormLabel>
-                                <Select onValueChange={formField.onChange} value={formField.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                      <SelectValue placeholder={field.placeholder || 'Select option...'} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {field.options?.map((option) => (
-                                      <SelectItem key={option} value={option}>
-                                        {option}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-
-                        {field.type === 'multiselect' && (
-                          <FormField
-                            control={form.control}
-                            name={`dynamic_fields.${field.id}`}
-                            render={({ field: formField }) => (
-                              <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  {field.label} {field.required && <span className="text-destructive">*</span>}
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    placeholder={field.placeholder || 'Enter comma-separated values...'}
-                                    className="border-2 border-primary/20 rounded-xl h-12"
-                                    {...formField}
-                                  />
-                                </FormControl>
-                                <FormDescription className="text-xs">Enter multiple values separated by commas</FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Domain */}
+              <FormField
+                control={form.control}
+                name="domain"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Domain/Industry</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        markFieldAsUserOverride('domain');
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                          <SelectValue placeholder="Select domain..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DOMAINS.map((domain) => (
+                          <SelectItem key={domain.id} value={domain.id}>
+                            {domain.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
+            {/* Dynamic Fields */}
+            {dynamicFields.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">🔧 Task-Specific Configuration</h3>
+                {dynamicFields.map((field) => (
+                  <div key={field.id}>
+                    {field.type === 'text' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              {field.label} {field.required && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              <Input placeholder={field.placeholder} {...formField} className="border-2 border-primary/20 rounded-xl h-12" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {field.type === 'textarea' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              {field.label} {field.required && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea placeholder={field.placeholder} {...formField} className="border-2 border-primary/20 rounded-xl resize-none" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {field.type === 'number' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              {field.label} {field.required && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={field.min}
+                                max={field.max}
+                                placeholder={field.placeholder}
+                                className="border-2 border-primary/20 rounded-xl h-12"
+                                {...formField}
+                                onChange={(e) => formField.onChange(Number(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {field.type === 'checkbox' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox checked={formField.value} onCheckedChange={formField.onChange} />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel className="text-sm font-medium">
+                                {field.label} {field.required && <span className="text-destructive">*</span>}
+                              </FormLabel>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {field.type === 'select' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              {field.label} {field.required && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <Select onValueChange={formField.onChange} value={formField.value}>
+                              <FormControl>
+                                <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                                  <SelectValue placeholder={field.placeholder} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {field.options?.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {field.type === 'multiselect' && (
+                      <FormField
+                        control={form.control}
+                        name={`dynamic_fields.${field.id}`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              {field.label} {field.required && <span className="text-destructive">*</span>}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={field.placeholder || 'Enter comma-separated values...'}
+                                className="border-2 border-primary/20 rounded-xl h-12"
+                                {...formField}
+                                value={Array.isArray(formField.value) ? formField.value.join(', ') : formField.value}
+                                onChange={(e) => formField.onChange(e.target.value.split(',').map((s) => s.trim()))}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Target Model */}
-            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold">🎯 Target Model</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">🎯 Target Model</h3>
               </div>
 
               <FormField
                 control={form.control}
-                name="targetModel"
+                name="model_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base sm:text-lg font-medium">Optimize For</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <FormLabel className="text-sm font-medium">AI Model</FormLabel>
+                    <Select onValueChange={handleModelChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12 sm:h-14 text-sm sm:text-base">
-                          <SelectValue placeholder="Choose target model..." />
+                        <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                          <SelectValue placeholder="Choose your AI model" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="gpt-5">GPT-5 (OpenAI)</SelectItem>
-                        <SelectItem value="gpt-4o">GPT-4o (OpenAI)</SelectItem>
-                        <SelectItem value="claude-sonnet-4">Claude Sonnet 4</SelectItem>
-                        <SelectItem value="claude-opus-4">Claude Opus 4</SelectItem>
-                        <SelectItem value="gemini-1.5-pro">Gemini 1.5 Pro</SelectItem>
-                        <SelectItem value="gemini-1.5-flash">Gemini 1.5 Flash</SelectItem>
-                        <SelectItem value="llama-3.1-405b-instruct">Llama 3.1 405B Instruct</SelectItem>
-                        <SelectItem value="llama-3.1-70b-instruct">Llama 3.1 70B Instruct</SelectItem>
-                        <SelectItem value="llama-3.1-8b-instruct">Llama 3.1 8B Instruct</SelectItem>
-                        <SelectItem value="mistral-large-2">Mistral Large 2</SelectItem>
-                        <SelectItem value="command-r-plus">Cohere Command R+</SelectItem>
-                        <SelectItem value="grok-4">xAI Grok 4</SelectItem>
+                        {Object.entries({
+                          'gpt-5': 'GPT-5',
+                          'gpt-4o': 'GPT-4o',
+                          'gpt-4o-mini': 'GPT-4o Mini',
+                          'claude-3-5-sonnet': 'Claude 3.5 Sonnet',
+                          'claude-3-5-haiku': 'Claude 3.5 Haiku',
+                          'gemini-2.0-flash': 'Gemini 2.0 Flash',
+                          'grok-3-beta': 'Grok 3 Beta',
+                          'llama-3.3-70b': 'Llama 3.3 70B',
+                        }).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription className="text-sm sm:text-base">We'll optimize your prompt for this model's best practices</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -898,385 +873,387 @@ export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormPr
 
             {/* Manufacturing Specs */}
             <Collapsible open={specsOpen} onOpenChange={setSpecsOpen}>
-              <div className="space-y-4 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-                <CollapsibleTrigger asChild>
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg p-2 -m-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                        <Target className="h-4 w-4 text-accent" />
-                      </div>
-                      <h3 className="text-lg font-semibold">🎯 Manufacturing Specs</h3>
-                      {aiSuggestions && <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">AI Suggested</div>}
-                    </div>
-                    {isMobile && <div className="flex-shrink-0">{specsOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}</div>}
-                  </button>
-                </CollapsibleTrigger>
-
-                <CollapsibleContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <FormField
-                      control={form.control}
-                      name="tone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">🎭 Tone</FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              markFieldAsUserOverride('tone');
-                            }}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                <SelectValue placeholder="Pick your tone..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {toneOptions.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="style"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">✍️ Style</FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              markFieldAsUserOverride('style');
-                            }}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                <SelectValue placeholder="Choose your style..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {styleOptions.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                  {opt.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="flex items-center justify-between w-full p-0 hover:bg-transparent">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">⚙️ Manufacturing Specs</h3>
                   </div>
+                  {specsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
 
-                  <div className="grid grid-cols-1 gap-4 mt-4">
-                    <FormField
-                      control={form.control}
-                      name="format_requirements"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">📋 Format Requirements</FormLabel>
+              <CollapsibleContent className="space-y-6 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Tone */}
+                  <FormField
+                    control={form.control}
+                    name="tone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">🎵 Tone</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            markFieldAsUserOverride('tone');
+                          }}
+                          value={field.value}
+                        >
                           <FormControl>
-                            <Input
-                              placeholder="e.g., Bullet points, include examples…"
-                              className="border-2 border-primary/20 rounded-xl h-12"
-                              {...field}
-                              onChange={(e) => {
-                                field.onChange(e);
-                                markFieldAsUserOverride('format_requirements');
-                              }}
-                            />
+                            <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                              <SelectValue placeholder="How should it sound?" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                          <SelectContent>
+                            {toneOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <FormField
-                        control={form.control}
-                        name="hard_constraints"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">⚠️ Hard Constraints</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Must include…"
-                                className="border-2 border-primary/20 rounded-xl h-12"
-                                {...field}
-                                onChange={(e) => {
-                                  field.onChange(e);
-                                  markFieldAsUserOverride('hard_constraints');
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  {/* Style */}
+                  <FormField
+                    control={form.control}
+                    name="style"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">✍️ Writing Style</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            markFieldAsUserOverride('style');
+                          }}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                              <SelectValue placeholder="Pick a style..." />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {styleOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                      <FormField
-                        control={form.control}
-                        name="prohibited"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">🚫 Prohibited Content</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Don't mention…" className="border-2 border-primary/20 rounded-xl h-12" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </div>
+                <div className="space-y-4">
+                  {/* Additional specifications */}
+                  <FormField
+                    control={form.control}
+                    name="format_requirements"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">📋 Format Requirements</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="e.g., Use bullet points, include a summary, format as JSON..."
+                            className="border-2 border-primary/20 rounded-xl resize-none"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              markFieldAsUserOverride('format_requirements');
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="hard_constraints"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium">🚫 Hard Constraints</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="e.g., Must be under 500 words, avoid technical jargon, include citations..."
+                            className="border-2 border-primary/20 rounded-xl resize-none"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              markFieldAsUserOverride('hard_constraints');
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CollapsibleContent>
             </Collapsible>
 
-            {/* Factory Settings */}
+            {/* Settings */}
             <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
-              <div className="space-y-4 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
-                <CollapsibleTrigger asChild>
-                  <button
-                    type="button"
-                    className="w-full flex items-center justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg p-2 -m-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-                        <Sliders className="h-4 w-4 text-success" />
-                      </div>
-                      <h3 className="text-lg font-semibold">⚙️ Factory Settings</h3>
-                    </div>
-                    {isMobile && <div className="flex-shrink-0">{settingsOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}</div>}
-                  </button>
-                </CollapsibleTrigger>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="flex items-center justify-between w-full p-0 hover:bg-transparent">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold">⚙️ Advanced Settings</h3>
+                  </div>
+                  {settingsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
 
-                <CollapsibleContent className="space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Creativity */}
+              <CollapsibleContent className="space-y-6 mt-4">
+                <div className="space-y-6">
+                  {/* Response Length */}
+                  <FormField
+                    control={form.control}
+                    name="responseLengthTokens"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium flex items-center justify-between">
+                          <span>📏 Response Length</span>
+                          <span className="text-xs text-muted-foreground">{getResponseLengthLabel(field.value || 512)}</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Slider
+                            min={50}
+                            max={2000}
+                            step={50}
+                            value={[field.value || 512]}
+                            onValueChange={(vals) => {
+                              field.onChange(vals[0]);
+                              markFieldAsUserOverride('responseLengthTokens');
+                            }}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>Brief (50)</span>
+                          <span>Comprehensive (2000)</span>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Creativity */}
+                  <FormField
+                    control={form.control}
+                    name="creativity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium flex items-center justify-between">
+                          <span>🎨 Creativity</span>
+                          <span className="text-xs text-muted-foreground">{getCreativityLabel(field.value || 0.7)}</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Slider
+                            min={0}
+                            max={2}
+                            step={0.1}
+                            value={[field.value || 0.7]}
+                            onValueChange={(vals) => {
+                              field.onChange(vals[0]);
+                              markFieldAsUserOverride('creativity');
+                            }}
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>Rule Follower (0)</span>
+                          <span>Creative Genius (2)</span>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Provider-specific parameters */}
+                  {selectedProvider?.params.top_p && (
                     <FormField
                       control={form.control}
-                      name="creativity"
+                      name="top_p"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel className="text-sm font-medium flex items-center gap-2">
-                            🎨 Creativity Level
-                            <span className="text-xs text-muted-foreground">({field.value || 0.7} - {getCreativityLabel(field.value || 0.7)})</span>
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium flex items-center justify-between">
+                            <span>🎯 Focus Level</span>
+                            <span className="text-xs text-muted-foreground">{getFocusLabel(field.value || 0.8)}</span>
                           </FormLabel>
                           <FormControl>
                             <Slider
-                              min={0}
-                              max={2}
+                              min={0.1}
+                              max={1.0}
                               step={0.1}
-                              value={[field.value || 0.7]}
+                              value={[field.value || 0.8]}
                               onValueChange={(vals) => {
                                 field.onChange(vals[0]);
-                                form.setValue('temperature', vals[0]);
+                                markFieldAsUserOverride('top_p');
                               }}
                               className="w-full"
                             />
                           </FormControl>
-                          <FormDescription className="text-xs">How creative should the final model be?</FormDescription>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>Laser Focused (0.1)</span>
+                            <span>Less Focused (1.0)</span>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                  )}
 
-                    {/* Response length */}
+                  {selectedProvider?.params.top_k && (
                     <FormField
                       control={form.control}
-                      name="max_tokens"
+                      name="top_k"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel className="text-sm font-medium flex items-center gap-2">
-                            📏 Response Length
-                            <span className="text-xs text-muted-foreground">
-                              ({field.value} tokens - {getResponseLengthLabel(field.value)})
-                            </span>
-                          </FormLabel>
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Top K</FormLabel>
                           <FormControl>
                             <Slider
-                              min={50}
-                              max={selectedModel?.maxTokens || 4000}
-                              step={50}
-                              value={[field.value]}
+                              min={1}
+                              max={100}
+                              step={1}
+                              value={[field.value || 40]}
                               onValueChange={(vals) => field.onChange(vals[0])}
                               className="w-full"
                             />
                           </FormControl>
-                          <FormDescription className="text-xs">How long should the response be?</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                  )}
 
-                    {/* Focus (top_p) */}
-                    {selectedProvider?.params.top_p && (
-                      <FormField
-                        control={form.control}
-                        name="top_p"
-                        render={({ field }) => (
-                          <FormItem className="space-y-3">
-                            <FormLabel className="text-sm font-medium flex items-center gap-2">
-                              🎯 Focus Level
-                              <span className="text-xs text-muted-foreground">({field.value || 1.0} - {getFocusLabel(field.value || 1.0)})</span>
-                            </FormLabel>
+                  {selectedProvider?.params.reasoning_effort && (
+                    <FormField
+                      control={form.control}
+                      name="reasoning_effort"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              markFieldAsUserOverride('reasoning_effort');
+                            }}
+                            value={field.value}
+                          >
                             <FormControl>
-                              <Slider
-                                min={0}
-                                max={1}
-                                step={0.1}
-                                value={[field.value || 1]}
-                                onValueChange={(vals) => {
-                                  field.onChange(vals[0]);
-                                  markFieldAsUserOverride('focusLevel');
-                                }}
-                                className="w-full"
-                              />
+                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                                <SelectValue placeholder="How deep should it think?" />
+                              </SelectTrigger>
                             </FormControl>
-                            <FormDescription className="text-xs">How focused should the response be?</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                            <SelectContent>
+                              {thinkingDepthOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
-                    {/* Variety (top_k) */}
-                    {selectedProvider?.params.top_k && (
-                      <FormField
-                        control={form.control}
-                        name="top_k"
-                        render={({ field }) => (
-                          <FormItem className="space-y-3">
-                            <FormLabel className="text-sm font-medium flex items-center gap-2">
-                              🌈 Variety Level
-                              <span className="text-xs text-muted-foreground">({field.value || 'Auto'})</span>
-                            </FormLabel>
+                  {selectedProvider?.params.verbosity && (
+                    <FormField
+                      control={form.control}
+                      name="verbosity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">📝 Detail Level</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <Slider
-                                min={1}
-                                max={100}
-                                step={1}
-                                value={[field.value || 40]}
-                                onValueChange={(vals) => field.onChange(vals[0])}
-                                className="w-full"
-                              />
+                              <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
+                                <SelectValue placeholder="How detailed?" />
+                              </SelectTrigger>
                             </FormControl>
-                            <FormDescription className="text-xs">How varied should the word choices be?</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                            <SelectContent>
+                              {detailLevelOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-xs">How detailed should the response be?</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
 
-                    {/* Reasoning effort */}
-                    {selectedProvider?.params.reasoning_effort && (
-                      <FormField
-                        control={form.control}
-                        name="reasoning_effort"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                markFieldAsUserOverride('thinkingDepth');
-                              }}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                  <SelectValue placeholder="How deep should it think?" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {thinkingDepthOptions.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription className="text-xs">How much should the AI think before responding?</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+                {/* Feature toggles */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
+                  {selectedProvider?.params.live_search && (
+                    <FormField
+                      control={form.control}
+                      name="live_search"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-sm font-medium">🔍 Live Search</FormLabel>
+                            <FormDescription className="text-xs">Access real-time information</FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
-                    {/* Verbosity */}
-                    {selectedProvider?.params.verbosity && (
-                      <FormField
-                        control={form.control}
-                        name="verbosity"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">📝 Detail Level</FormLabel>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                  <SelectValue placeholder="How detailed?" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {detailLevelOptions.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription className="text-xs">How detailed should the response be?</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  <FormField
+                    control={form.control}
+                    name="structured_output"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">📊 Structured Output</FormLabel>
+                          <FormDescription className="text-xs">Format output consistently</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
                     )}
-                  </div>
+                  />
 
-                  {/* Feature toggles */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
-                    {selectedProvider?.params.live_search && (
-                      <FormField
-                        control={form.control}
-                        name="live_search"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-sm font-medium">🔍 Live Search</FormLabel>
-                              <FormDescription className="text-xs">Real-time web search</FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch checked={!!field.value} onCheckedChange={field.onChange} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                  <FormField
+                    control={form.control}
+                    name="enable_parallelization"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/20 p-3">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-medium">⚡ Parallel Processing</FormLabel>
+                          <FormDescription className="text-xs">Faster processing when possible</FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                      </FormItem>
                     )}
-                  </div>
-                </CollapsibleContent>
-              </div>
+                  />
+                </div>
+              </CollapsibleContent>
             </Collapsible>
 
-            {/* Submit */}
-            <div className="pt-6 sm:pt-8 border-t border-border/30">
-              <Button
-                type="submit"
-                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-lg sm:text-xl h-12 sm:h-16 rounded-xl sm:rounded-2xl transition-all duration-300"
-                disabled={isLoading}
-                size="lg"
-              >
+            {/* Submit Button */}
+            <div className="pt-4">
+              <Button type="submit" size="lg" disabled={isLoading} className="w-full h-14 text-lg font-semibold">
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-white mr-2" />

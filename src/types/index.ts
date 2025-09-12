@@ -103,3 +103,35 @@ export interface PromptSession {
   form: FormData;
   response?: OptimizedResponse;
 }
+
+export interface DynamicField {
+  id: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'select' | 'multiselect' | 'checkbox';
+  required?: boolean;
+  placeholder?: string;
+  options?: string[];
+  default?: any;
+  min?: number;
+  max?: number;
+}
+
+export interface TaskDefinition {
+  id: string;
+  name: string;
+  description: string;
+  fields: DynamicField[];
+}
+
+export interface UseCaseDefinition {
+  id: string;
+  name: string;
+  description: string;
+  tasks: TaskDefinition[];
+}
+
+export interface DomainDefinition {
+  id: string;
+  name: string;
+  description: string;
+}

@@ -1,3 +1,5 @@
+import { DynamicField, UseCaseDefinition, TaskDefinition, DomainDefinition } from '@/types';
+
 // ====== SHARED FIELDS (DRY helpers you can spread into tasks) ======
 const FMT_TONE_LANG: DynamicField[] = [
   { id: 'tone', label: 'Tone', type: 'select', options: ['Neutral','Professional','Friendly','Persuasive','Executive','Academic','Technical'] },
@@ -337,4 +339,35 @@ export const USE_CASES: UseCaseDefinition[] = [
   }
 ];
 
-// (Helper functions from your original file remain unchanged)
+// ====== DOMAINS ======
+export const DOMAINS: DomainDefinition[] = [
+  { id: 'general', name: 'General', description: 'General purpose tasks' },
+  { id: 'software-engineering', name: 'Software Engineering', description: 'Software development and engineering' },
+  { id: 'marketing', name: 'Marketing & Sales', description: 'Marketing, sales, and customer engagement' },
+  { id: 'finance', name: 'Finance', description: 'Financial analysis and management' },
+  { id: 'healthcare', name: 'Healthcare', description: 'Healthcare and medical' },
+  { id: 'legal', name: 'Legal', description: 'Legal and compliance' },
+  { id: 'education', name: 'Education', description: 'Educational content and training' },
+  { id: 'non-profit', name: 'Non-profit', description: 'Non-profit organizations' },
+  { id: 'government', name: 'Government', description: 'Government and public sector' },
+  { id: 'media', name: 'Media & Publishing', description: 'Media, publishing, and content creation' },
+  { id: 'consulting', name: 'Consulting', description: 'Consulting and advisory services' },
+  { id: 'insurance', name: 'Insurance', description: 'Insurance and risk management' },
+  { id: 'energy', name: 'Energy', description: 'Energy and utilities' },
+  { id: 'transportation', name: 'Transportation', description: 'Transportation and logistics' },
+  { id: 'hr', name: 'Human Resources', description: 'Human resources and talent management' }
+];
+
+// ====== HELPER FUNCTIONS ======
+export function getTasksForUseCase(useCaseId: string): TaskDefinition[] {
+  const useCase = USE_CASES.find(uc => uc.id === useCaseId);
+  return useCase ? useCase.tasks : [];
+}
+
+export function getFieldsFor(useCaseId: string, taskId: string): DynamicField[] {
+  const useCase = USE_CASES.find(uc => uc.id === useCaseId);
+  if (!useCase) return [];
+  
+  const task = useCase.tasks.find(t => t.id === taskId);
+  return task ? task.fields : [];
+}
