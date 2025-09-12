@@ -1,4 +1,5 @@
 import { DynamicField, UseCaseDefinition, TaskDefinition, DomainDefinition } from '@/types';
+// Configuration for tasks and domains
 
 // ====== SHARED FIELDS (DRY helpers you can spread into tasks) ======
 const FMT_TONE_LANG: DynamicField[] = [
