@@ -1,1239 +1,340 @@
-// Dynamic Use Cases, Tasks & Domains Configuration
-// Config-driven approach for maximum flexibility and scalability
-
-export interface DynamicField {
-  id: string;
-  label: string;
-  type: 'text' | 'textarea' | 'number' | 'checkbox' | 'select' | 'multiselect';
-  placeholder?: string;
-  required?: boolean;
-  options?: string[]; // For select/multiselect
-  min?: number; // For number
-  max?: number; // For number
-  default?: any;
-}
-
-export interface TaskDefinition {
-  id: string;
-  name: string;
-  description: string;
-  fields: DynamicField[];
-}
-
-export interface UseCaseDefinition {
-  id: string;
-  name: string;
-  description: string;
-  tasks: TaskDefinition[];
-}
-
-export interface DomainDefinition {
-  id: string;
-  name: string;
-  description: string;
-  keywords: string[];
-}
-
-// ===== DOMAINS =====
-export const DOMAINS: DomainDefinition[] = [
-  {
-    id: 'general',
-    name: 'General',
-    description: 'General purpose assistance',
-    keywords: ['general', 'universal', 'common']
-  },
-  {
-    id: 'real-estate',
-    name: 'Real Estate',
-    description: 'Property development, investment, and real estate markets',
-    keywords: ['property', 'development', 'investment', 'residential', 'commercial', 'market analysis', 'valuation', 'zoning', 'ROI', 'cap rate']
-  },
-  {
-    id: 'real-estate-developers',
-    name: 'Real Estate Developers',
-    description: 'Property development, construction, and project management',
-    keywords: ['development', 'construction', 'project management', 'permits', 'zoning', 'financing', 'feasibility', 'timeline', 'contractors']
-  },
-  {
-    id: 'software-engineering',
-    name: 'Software Engineering',
-    description: 'Software development, programming, and technical architecture',
-    keywords: ['coding', 'development', 'architecture', 'debugging', 'testing', 'deployment', 'API', 'database', 'framework']
-  },
-  {
-    id: 'marketing',
-    name: 'Marketing & Sales',
-    description: 'Digital marketing, content strategy, and sales optimization',
-    keywords: ['campaigns', 'content', 'SEO', 'conversion', 'funnel', 'analytics', 'branding', 'social media', 'ROI']
-  },
-  {
-    id: 'finance',
-    name: 'Finance & Banking',
-    description: 'Financial analysis, investment, and banking operations',
-    keywords: ['analysis', 'investment', 'risk', 'portfolio', 'compliance', 'regulations', 'derivatives', 'valuation', 'credit']
-  },
-  {
-    id: 'healthcare',
-    name: 'Healthcare & Medical',
-    description: 'Medical research, patient care, and healthcare administration',
-    keywords: ['patient care', 'diagnosis', 'treatment', 'research', 'clinical trials', 'regulations', 'medical devices', 'pharmaceuticals']
-  },
-  {
-    id: 'education',
-    name: 'Education & Training',
-    description: 'Educational content, curriculum design, and training programs',
-    keywords: ['curriculum', 'learning', 'assessment', 'pedagogy', 'e-learning', 'training', 'certification', 'academic']
-  },
-  {
-    id: 'legal',
-    name: 'Legal Services',
-    description: 'Legal research, contract analysis, and compliance',
-    keywords: ['contracts', 'compliance', 'litigation', 'intellectual property', 'regulations', 'legal research', 'due diligence']
-  },
-  {
-    id: 'manufacturing',
-    name: 'Manufacturing & Supply Chain',
-    description: 'Production processes, quality control, and supply chain management',
-    keywords: ['production', 'quality control', 'supply chain', 'logistics', 'inventory', 'lean manufacturing', 'automation']
-  },
-  {
-    id: 'agriculture',
-    name: 'Agriculture & Food',
-    description: 'Farming, food production, and agricultural technology',
-    keywords: ['farming', 'crops', 'livestock', 'sustainability', 'precision agriculture', 'food safety', 'organic', 'biotechnology']
-  },
-  {
-    id: 'adtech',
-    name: 'AdTech & Real-time Bidding',
-    description: 'Advertising technology, programmatic advertising, and RTB',
-    keywords: ['programmatic', 'RTB', 'DSP', 'SSP', 'ad exchange', 'targeting', 'optimization', 'attribution', 'fraud detection']
-  },
-  {
-    id: 'gaming',
-    name: 'Gaming & Entertainment',
-    description: 'Game development, entertainment industry, and media production',
-    keywords: ['game design', 'mechanics', 'monetization', 'player engagement', 'graphics', 'narrative', 'streaming', 'esports']
-  },
-  {
-    id: 'aerospace',
-    name: 'Aerospace & Defense',
-    description: 'Aerospace engineering, defense systems, and space technology',
-    keywords: ['aerospace', 'defense', 'satellites', 'propulsion', 'avionics', 'systems engineering', 'security clearance']
-  },
-  {
-    id: 'biotech',
-    name: 'Biotech R&D',
-    description: 'Biotechnology research, drug development, and life sciences',
-    keywords: ['biotechnology', 'drug development', 'clinical trials', 'genomics', 'proteomics', 'regulatory approval', 'research']
-  },
-  {
-    id: 'telecommunications',
-    name: 'Telecommunications',
-    description: 'Telecom infrastructure, network engineering, and communications',
-    keywords: ['network', 'infrastructure', '5G', 'fiber optic', 'bandwidth', 'latency', 'protocols', 'telecommunications']
-  },
-  {
-    id: 'non-profit',
-    name: 'Non-profit Organizations',
-    description: 'Fundraising, program management, impact measurement, and social causes',
-    keywords: ['fundraising', 'grants', 'donations', 'volunteers', 'impact', 'social cause', 'charity', 'community', 'advocacy', 'mission']
-  },
-  {
-    id: 'government',
-    name: 'Government & Public Sector',
-    description: 'Policy analysis, public communication, compliance, and civic services',
-    keywords: ['policy', 'public service', 'governance', 'regulations', 'compliance', 'civic', 'municipal', 'federal', 'state', 'citizens']
-  },
-  {
-    id: 'media',
-    name: 'Media & Journalism',
-    description: 'Content creation, fact-checking, editorial planning, and news reporting',
-    keywords: ['journalism', 'news', 'reporting', 'editorial', 'media', 'broadcasting', 'publishing', 'fact-check', 'investigation']
-  },
-  {
-    id: 'consulting',
-    name: 'Consulting & Advisory',
-    description: 'Client analysis, proposal writing, strategic recommendations, and advisory services',
-    keywords: ['consulting', 'advisory', 'strategy', 'recommendations', 'client analysis', 'business solutions', 'expertise', 'guidance']
-  },
-  {
-    id: 'insurance',
-    name: 'Insurance & Risk Management',
-    description: 'Risk assessment, claims processing, policy analysis, and actuarial work',
-    keywords: ['insurance', 'risk', 'claims', 'policies', 'actuarial', 'underwriting', 'coverage', 'premiums', 'liability']
-  },
-  {
-    id: 'energy',
-    name: 'Energy & Utilities',
-    description: 'Sustainability reporting, infrastructure planning, renewable energy, and utility management',
-    keywords: ['energy', 'utilities', 'renewable', 'sustainability', 'power', 'grid', 'solar', 'wind', 'infrastructure', 'carbon']
-  },
-  {
-    id: 'transportation',
-    name: 'Transportation & Logistics',
-    description: 'Supply chain optimization, route planning, fleet management, and logistics',
-    keywords: ['logistics', 'supply chain', 'transportation', 'shipping', 'fleet', 'route', 'distribution', 'warehousing', 'delivery']
-  },
-  {
-    id: 'hr',
-    name: 'Human Resources',
-    description: 'Talent acquisition, performance management, policy development, and employee relations',
-    keywords: ['HR', 'recruitment', 'talent', 'performance', 'employee', 'hiring', 'benefits', 'compensation', 'training', 'culture']
-  }
+// ====== SHARED FIELDS (DRY helpers you can spread into tasks) ======
+const FMT_TONE_LANG: DynamicField[] = [
+  { id: 'tone', label: 'Tone', type: 'select', options: ['Neutral','Professional','Friendly','Persuasive','Executive','Academic','Technical'] },
+  { id: 'audience', label: 'Audience', type: 'text', placeholder: 'e.g., executives, engineers, customers' },
+  { id: 'language', label: 'Language', type: 'select', options: ['English','Spanish','French','German','Portuguese','Italian','Japanese','Korean','Chinese'], default: 'English' },
+  { id: 'writing_length', label: 'Target Length', type: 'select', options: ['Short','Medium','Long','One-page','2-3 pages'] }
 ];
 
-// ===== USE CASES =====
+const FMT_OUTPUT: DynamicField[] = [
+  { id: 'output_format', label: 'Output Format', type: 'select', options: ['Markdown','Plain text','HTML','JSON','CSV','PowerPoint outline','Email draft'], default: 'Markdown' },
+  { id: 'include_citations', label: 'Include Citations/Links', type: 'checkbox', default: false },
+  { id: 'structured_schema', label: 'Structured Schema (JSON key list)', type: 'textarea', placeholder: 'List of fields to include in JSON output' }
+];
+
+const SOURCE_FIELDS: DynamicField[] = [
+  { id: 'input_text', label: 'Input Text', type: 'textarea', placeholder: 'Paste content or notes here' },
+  { id: 'input_urls', label: 'Reference URLs (comma-sep)', type: 'text', placeholder: 'https://… , https://…' },
+  { id: 'file_hint', label: 'File Hints', type: 'text', placeholder: 'Describe uploaded files or data sources' }
+];
+
+const PRIVACY_FIELDS: DynamicField[] = [
+  { id: 'contains_sensitive', label: 'Contains Sensitive Data', type: 'checkbox', default: false },
+  { id: 'redact_pii', label: 'Redact PII', type: 'checkbox', default: true }
+];
+
+const REVIEW_FLAGS: DynamicField[] = [
+  { id: 'add_critique', label: 'Add Critique/Issues List', type: 'checkbox', default: true },
+  { id: 'add_rewrite', label: 'Provide Improved Rewrite', type: 'checkbox', default: true }
+];
+
+const PLANNING_FIELDS: DynamicField[] = [
+  { id: 'time_horizon', label: 'Time Horizon', type: 'select', options: ['Now/Next','Quarter','6–12 months','1–3 years'] },
+  { id: 'constraints', label: 'Constraints', type: 'textarea', placeholder: 'Budget, headcount, regs, deadlines, tech limits' },
+  { id: 'success_metrics', label: 'Success Metrics', type: 'textarea', placeholder: 'KPIs, acceptance criteria' }
+];
+
+const DATA_FIELDS: DynamicField[] = [
+  { id: 'data_shape', label: 'Data Shape', type: 'select', options: ['Table','CSV','JSON','Free text','Mixed/Unstructured'], default: 'Table' },
+  { id: 'analysis_focus', label: 'Analysis Focus', type: 'multiselect', options: ['Descriptive','Diagnostic','Predictive','Prescriptive','Anomaly detection','Segmentation'] },
+  { id: 'visuals', label: 'Include Visuals', type: 'multiselect', options: ['Table','Chart suggestions','SQL examples','Python snippets'] }
+];
+
+const ENG_STACK_FIELDS: DynamicField[] = [
+  { id: 'language_preference', label: 'Programming Language', type: 'select', options: ['Python','JavaScript/TypeScript','Go','Java','C#','.NET','SQL','Other'] },
+  { id: 'frameworks', label: 'Frameworks/Libs', type: 'text', placeholder: 'e.g., React, FastAPI, Django, Node, dbt' },
+  { id: 'env_target', label: 'Target Env', type: 'select', options: ['Local','Docker','Kubernetes','Serverless','Edge','Mobile'] }
+];
+
+// ====== 8 HIGH-LEVEL USE CASES ======
 export const USE_CASES: UseCaseDefinition[] = [
+  // 1) Research & Knowledge Work
   {
-    id: 'code-review',
-    name: 'Code Review & Analysis',
-    description: 'Analyze code for quality, security, and best practices',
+    id: 'research-knowledge',
+    name: 'Research & Knowledge',
+    description: 'Search, synthesize, compare, and summarize information across domains.',
     tasks: [
       {
-        id: 'security-audit',
-        name: 'Security Audit',
-        description: 'Comprehensive security analysis of code',
+        id: 'literature-review',
+        name: 'Literature/Market Review',
+        description: 'Synthesize sources into an objective brief with citations.',
         fields: [
-          {
-            id: 'code_language',
-            label: 'Programming Language',
-            type: 'select',
-            required: true,
-            options: ['JavaScript', 'Python', 'Java', 'C#', 'Go', 'Rust', 'TypeScript', 'PHP', 'Ruby', 'C++']
-          },
-          {
-            id: 'security_focus',
-            label: 'Security Focus Areas',
-            type: 'multiselect',
-            placeholder: 'e.g., SQL injection, XSS, authentication',
-            options: ['SQL Injection', 'XSS', 'Authentication', 'Authorization', 'Input Validation', 'Cryptography', 'API Security']
-          },
-          {
-            id: 'compliance_standards',
-            label: 'Compliance Standards',
-            type: 'multiselect',
-            placeholder: 'e.g., OWASP, SOC2, PCI-DSS',
-            options: ['OWASP', 'SOC2', 'PCI-DSS', 'HIPAA', 'GDPR', 'ISO 27001']
-          },
-          {
-            id: 'include_recommendations',
-            label: 'Include Fix Recommendations',
-            type: 'checkbox',
-            default: true
-          }
+          ...SOURCE_FIELDS,
+          { id: 'scope', label: 'Scope', type: 'select', options: ['Snapshot','Last 6 months','Last 12 months','All-time'] },
+          { id: 'depth', label: 'Depth', type: 'select', options: ['Executive summary','Detailed brief','Deep dive'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT, ...PRIVACY_FIELDS
         ]
       },
       {
-        id: 'performance-review',
-        name: 'Performance Review',
-        description: 'Analyze code for performance bottlenecks and optimizations',
+        id: 'compare-options',
+        name: 'Compare Options',
+        description: 'Side-by-side evaluation (vendors, products, policies, strategies).',
         fields: [
-          {
-            id: 'performance_metrics',
-            label: 'Performance Metrics',
-            type: 'multiselect',
-            options: ['Speed', 'Memory Usage', 'CPU Usage', 'Network I/O', 'Database Queries', 'Caching']
-          },
-          {
-            id: 'target_environment',
-            label: 'Target Environment',
-            type: 'select',
-            options: ['Development', 'Staging', 'Production', 'Mobile', 'Edge Computing']
-          },
-          {
-            id: 'scale_requirements',
-            label: 'Scale Requirements',
-            type: 'text',
-            placeholder: 'e.g., 1M users, 10K requests/sec'
-          }
+          { id: 'options', label: 'Options to Compare (comma-sep)', type: 'textarea', required: true },
+          { id: 'criteria', label: 'Decision Criteria', type: 'textarea', placeholder: 'Price, features, risk, timeline…' },
+          { id: 'scorecard', label: 'Return Scorecard', type: 'checkbox', default: true },
+          ...FMT_OUTPUT, ...REVIEW_FLAGS
         ]
       },
       {
-        id: 'api-contract-review',
-        name: 'API Contract Review',
-        description: 'Review API design, contracts, and documentation',
+        id: 'extract-structure',
+        name: 'Extract & Structure',
+        description: 'Pull entities/facts and return as structured data.',
         fields: [
-          {
-            id: 'api_type',
-            label: 'API Type',
-            type: 'select',
-            options: ['REST', 'GraphQL', 'gRPC', 'WebSocket', 'Webhook']
-          },
-          {
-            id: 'review_areas',
-            label: 'Review Areas',
-            type: 'multiselect',
-            options: ['Design Patterns', 'Documentation', 'Error Handling', 'Versioning', 'Security', 'Performance']
-          }
+          ...SOURCE_FIELDS,
+          { id: 'entity_schema', label: 'Entities/Fields to Extract', type: 'textarea', required: true, placeholder: 'name, date, amount, risk_level…' },
+          ...FMT_OUTPUT, ...PRIVACY_FIELDS
         ]
       }
     ]
   },
+
+  // 2) Content & Communication
   {
-    id: 'write-blog',
-    name: 'Content Creation & Blogging',
-    description: 'Create engaging blog posts and content',
+    id: 'content-comms',
+    name: 'Content & Communication',
+    description: 'Generate, rewrite, translate, and tailor content for audiences and channels.',
     tasks: [
       {
-        id: 'market-analysis-post',
-        name: 'Market Analysis Post',
-        description: 'Deep-dive market analysis article',
+        id: 'generate-content',
+        name: 'Create Content',
+        description: 'Blog posts, emails, briefs, social posts, landing copy.',
         fields: [
-          {
-            id: 'market_focus',
-            label: 'Market Focus',
-            type: 'select',
-            required: true,
-            options: ['Residential', 'Commercial', 'Industrial', 'Mixed-Use', 'Luxury', 'Affordable Housing']
-          },
-          {
-            id: 'price_range',
-            label: 'Price Range',
-            type: 'text',
-            placeholder: 'e.g., $300K-$500K, $1M+',
-            required: true
-          },
-          {
-            id: 'geographic_area',
-            label: 'Geographic Area',
-            type: 'text',
-            placeholder: 'e.g., Austin, TX or nationwide',
-            required: true
-          },
-          {
-            id: 'target_buyers',
-            label: 'Include Target Buyer Analysis',
-            type: 'checkbox',
-            default: true
-          },
-          {
-            id: 'include_trends',
-            label: 'Include Market Trends',
-            type: 'checkbox',
-            default: true
-          },
-          {
-            id: 'data_sources',
-            label: 'Data Sources to Reference',
-            type: 'multiselect',
-            options: ['MLS Data', 'Census Data', 'Market Reports', 'Industry Surveys', 'Economic Indicators']
-          }
+          ...SOURCE_FIELDS,
+          { id: 'content_type', label: 'Content Type', type: 'select', options: ['Email','Blog post','Executive summary','Press release','Social post','FAQ','One-pager'] },
+          { id: 'channel', label: 'Channel', type: 'select', options: ['Email','Web','LinkedIn','X/Twitter','Deck'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
         ]
       },
       {
-        id: 'executive-summary',
-        name: 'Executive Summary',
-        description: 'Concise executive-level summary document',
+        id: 'transform-content',
+        name: 'Transform/Rewrite',
+        description: 'Rewrite, summarize, expand, translate, or change style.',
         fields: [
-          {
-            id: 'summary_type',
-            label: 'Summary Type',
-            type: 'select',
-            options: ['Business Plan', 'Market Research', 'Project Status', 'Financial Report', 'Strategic Initiative']
-          },
-          {
-            id: 'target_audience',
-            label: 'Target Audience',
-            type: 'select',
-            options: ['Board Members', 'Investors', 'C-Suite', 'Department Heads', 'External Partners']
-          },
-          {
-            id: 'key_metrics',
-            label: 'Key Metrics to Highlight',
-            type: 'textarea',
-            placeholder: 'List the most important metrics and KPIs'
-          }
+          ...SOURCE_FIELDS,
+          { id: 'transform_ops', label: 'Operations', type: 'multiselect', options: ['Summarize','Expand','Simplify','Translate','Change tone','Make bullet points','Explain like I’m 5'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT, ...REVIEW_FLAGS
         ]
       },
       {
-        id: 'technical-tutorial',
-        name: 'Technical Tutorial',
-        description: 'Step-by-step technical tutorial or guide',
+        id: 'outreach-sequences',
+        name: 'Outreach Sequences',
+        description: 'Multi-touch campaigns (sales, recruiting, fundraising).',
         fields: [
-          {
-            id: 'skill_level',
-            label: 'Target Skill Level',
-            type: 'select',
-            options: ['Beginner', 'Intermediate', 'Advanced', 'Expert']
-          },
-          {
-            id: 'tutorial_format',
-            label: 'Tutorial Format',
-            type: 'select',
-            options: ['Step-by-step', 'Code-along', 'Conceptual', 'Problem-solving', 'Reference Guide']
-          },
-          {
-            id: 'include_code',
-            label: 'Include Code Examples',
-            type: 'checkbox',
-            default: true
-          }
+          { id: 'persona', label: 'Target Persona', type: 'text', placeholder: 'e.g., VP Eng in fintech' },
+          { id: 'sequence_length', label: 'Steps', type: 'select', options: ['3','5','7'] },
+          { id: 'cadence_days', label: 'Cadence (days)', type: 'number', min: 1, max: 60, default: 4 },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
         ]
       }
     ]
   },
+
+  // 3) Data, Analytics & BI
   {
-    id: 'email-reply',
-    name: 'Email & Communication',
-    description: 'Craft professional emails and responses',
+    id: 'data-analytics',
+    name: 'Data, Analytics & BI',
+    description: 'Analyze, visualize, model and recommend actions on data.',
     tasks: [
       {
-        id: 'client-proposal',
-        name: 'Client Proposal Response',
-        description: 'Respond to client proposals and RFPs',
+        id: 'exploratory-analysis',
+        name: 'Exploratory Analysis',
+        description: 'Describe trends, anomalies, segments; suggest visuals.',
+        fields: [ ...DATA_FIELDS, ...SOURCE_FIELDS, ...FMT_OUTPUT ]
+      },
+      {
+        id: 'sql-assistant',
+        name: 'SQL Assistant',
+        description: 'Generate/critique SQL from business questions or schemas.',
         fields: [
-          {
-            id: 'proposal_type',
-            label: 'Proposal Type',
-            type: 'select',
-            options: ['New Project', 'Contract Renewal', 'Service Expansion', 'Partnership', 'Consulting']
-          },
-          {
-            id: 'response_timeline',
-            label: 'Response Timeline',
-            type: 'text',
-            placeholder: 'e.g., 2 weeks, by end of month'
-          },
-          {
-            id: 'budget_range',
-            label: 'Budget Range',
-            type: 'text',
-            placeholder: 'e.g., $50K-$100K, TBD'
-          },
-          {
-            id: 'key_stakeholders',
-            label: 'Key Stakeholders',
-            type: 'text',
-            placeholder: 'Who should be included in communications?'
-          }
+          { id: 'db_flavor', label: 'DB Flavor', type: 'select', options: ['Postgres','Snowflake','BigQuery','MySQL','SQL Server','Redshift'] },
+          { id: 'schema', label: 'Schema/Tables', type: 'textarea', placeholder: 'DDL, table names, columns' },
+          { id: 'question', label: 'Business Question', type: 'textarea', required: true },
+          { id: 'return_explain', label: 'Explain Query', type: 'checkbox', default: true },
+          ...FMT_OUTPUT
         ]
       },
       {
-        id: 'follow-up-nudge',
-        name: 'Follow-up Nudge',
-        description: 'Polite follow-up email for pending responses',
+        id: 'financial-modeling',
+        name: 'Financial Modeling',
+        description: 'KPIs, variance, ROI, scenario/sensitivity analysis.',
         fields: [
-          {
-            id: 'days_since_last_contact',
-            label: 'Days Since Last Contact',
-            type: 'number',
-            min: 1,
-            max: 365,
-            default: 7
-          },
-          {
-            id: 'urgency_level',
-            label: 'Urgency Level',
-            type: 'select',
-            options: ['Low', 'Medium', 'High', 'Critical']
-          },
-          {
-            id: 'relationship_type',
-            label: 'Relationship Type',
-            type: 'select',
-            options: ['New Contact', 'Existing Client', 'Partner', 'Vendor', 'Internal Team']
-          }
+          { id: 'model_goal', label: 'Goal', type: 'select', options: ['Revenue','Cost','Cash flow','Unit economics','ROI','Forecast'] },
+          { id: 'assumptions', label: 'Key Assumptions', type: 'textarea' },
+          { id: 'scenarios', label: 'Scenarios', type: 'multiselect', options: ['Base','Best','Worst','Custom'] },
+          ...FMT_OUTPUT
         ]
       }
     ]
   },
+
+  // 4) Software & Automation Engineering
   {
-    id: 'research',
-    name: 'Research & Analysis',
-    description: 'Conduct comprehensive research and analysis',
+    id: 'software-automation',
+    name: 'Software & Automation',
+    description: 'Generate, review, test, document, and ship software and automations.',
     tasks: [
       {
-        id: 'market-research',
-        name: 'Market Research',
-        description: 'Comprehensive market analysis and research',
+        id: 'code-generate',
+        name: 'Code Generation',
+        description: 'Create new modules, microservices, scripts, or UI components.',
+        fields: [ ...ENG_STACK_FIELDS, { id: 'requirements', label: 'Requirements', type: 'textarea', required: true }, ...REVIEW_FLAGS, ...FMT_OUTPUT ]
+      },
+      {
+        id: 'code-review',
+        name: 'Code Review',
+        description: 'Quality, security, performance critique + fixes.',
         fields: [
-          {
-            id: 'research_scope',
-            label: 'Research Scope',
-            type: 'select',
-            options: ['Local Market', 'National Market', 'Global Market', 'Niche Segment', 'Competitive Analysis']
-          },
-          {
-            id: 'time_horizon',
-            label: 'Time Horizon',
-            type: 'select',
-            options: ['Current State', '6 Months', '1 Year', '3 Years', '5+ Years']
-          },
-          {
-            id: 'research_methodology',
-            label: 'Research Methodology',
-            type: 'multiselect',
-            options: ['Primary Research', 'Secondary Research', 'Surveys', 'Interviews', 'Data Analysis', 'Trend Analysis']
-          }
+          { id: 'security_focus', label: 'Security Focus', type: 'multiselect', options: ['OWASP Top 10','AuthN/AuthZ','Secrets','Crypto','Input validation'] },
+          { id: 'perf_focus', label: 'Performance Focus', type: 'multiselect', options: ['Latency','CPU','Memory','I/O','DB queries','Caching'] },
+          ...SOURCE_FIELDS, ...REVIEW_FLAGS, ...FMT_OUTPUT
         ]
       },
       {
-        id: 'competitive-landscape',
-        name: 'Competitive Landscape',
-        description: 'Analyze competitive environment and positioning',
+        id: 'ci-cd-devops',
+        name: 'CI/CD & DevOps',
+        description: 'Pipelines, IaC, deployment strategies, observability.',
         fields: [
-          {
-            id: 'competitor_count',
-            label: 'Number of Key Competitors',
-            type: 'number',
-            min: 1,
-            max: 20,
-            default: 5
-          },
-          {
-            id: 'analysis_dimensions',
-            label: 'Analysis Dimensions',
-            type: 'multiselect',
-            options: ['Pricing', 'Features', 'Market Share', 'Customer Satisfaction', 'Financial Performance', 'Growth Strategy']
-          },
-          {
-            id: 'competitive_advantage',
-            label: 'Our Competitive Advantages',
-            type: 'textarea',
-            placeholder: 'List your key differentiators'
-          }
+          { id: 'platform', label: 'Platform', type: 'select', options: ['GitHub Actions','GitLab CI','Jenkins','CircleCI','Azure DevOps','AWS CodePipeline'] },
+          { id: 'deploy_strategy', label: 'Deployment Strategy', type: 'select', options: ['Blue-Green','Rolling','Canary','Feature flags'] },
+          { id: 'infra_as_code', label: 'IaC', type: 'select', options: ['Terraform','Pulumi','CloudFormation','None'] },
+          ...FMT_OUTPUT
         ]
       }
     ]
   },
+
+  // 5) Operations, Projects & Processes
   {
-    id: 'data-analysis',
-    name: 'Data Analysis & Insights',
-    description: 'Analyze data and generate actionable insights',
-    tasks: [
-      {
-        id: 'financial-analysis',
-        name: 'Financial Analysis',
-        description: 'Comprehensive financial data analysis',
-        fields: [
-          {
-            id: 'analysis_type',
-            label: 'Analysis Type',
-            type: 'select',
-            options: ['Revenue Analysis', 'Cost Analysis', 'Profitability', 'Cash Flow', 'ROI Analysis', 'Budget Variance']
-          },
-          {
-            id: 'time_period',
-            label: 'Time Period',
-            type: 'select',
-            options: ['Monthly', 'Quarterly', 'Yearly', 'YTD', 'Custom Range']
-          },
-          {
-            id: 'key_metrics',
-            label: 'Key Metrics',
-            type: 'multiselect',
-            options: ['Revenue', 'Expenses', 'Profit Margin', 'EBITDA', 'Cash Flow', 'ROI', 'Growth Rate']
-          }
-        ]
-      },
-      {
-        id: 'dbt-model-proposal',
-        name: 'DBT Model Proposal',
-        description: 'Propose data transformation models and architecture',
-        fields: [
-          {
-            id: 'model_type',
-            label: 'Model Type',
-            type: 'select',
-            options: ['Staging', 'Intermediate', 'Mart', 'Snapshot', 'Analysis']
-          },
-          {
-            id: 'data_sources',
-            label: 'Data Sources',
-            type: 'textarea',
-            placeholder: 'List the source tables and systems'
-          },
-          {
-            id: 'business_logic',
-            label: 'Key Business Logic',
-            type: 'textarea',
-            placeholder: 'Describe the main transformations needed'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'project-planning',
-    name: 'Project Planning & Management',
-    description: 'Plan and manage projects effectively',
+    id: 'operations-projects',
+    name: 'Operations & Project Management',
+    description: 'Draft charters, break down work, estimate, and track execution.',
     tasks: [
       {
         id: 'project-charter',
         name: 'Project Charter',
-        description: 'Create comprehensive project charter document',
-        fields: [
-          {
-            id: 'project_type',
-            label: 'Project Type',
-            type: 'select',
-            options: ['Software Development', 'Marketing Campaign', 'Process Improvement', 'Research', 'Construction']
-          },
-          {
-            id: 'project_duration',
-            label: 'Expected Duration',
-            type: 'select',
-            options: ['< 1 month', '1-3 months', '3-6 months', '6-12 months', '> 1 year']
-          },
-          {
-            id: 'team_size',
-            label: 'Team Size',
-            type: 'number',
-            min: 1,
-            max: 100,
-            default: 5
-          },
-          {
-            id: 'budget_range',
-            label: 'Budget Range',
-            type: 'text',
-            placeholder: 'e.g., $50K-$100K'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'creative-writing',
-    name: 'Creative Writing & Storytelling',
-    description: 'Create compelling narratives and creative content',
-    tasks: [
+        description: 'Goals, scope, risks, stakeholders, RACI.',
+        fields: [ { id: 'project_type', label: 'Project Type', type: 'select', options: ['Software','Marketing','Process','Research','Construction','Event'] }, ...PLANNING_FIELDS, ...FMT_OUTPUT ]
+      },
       {
-        id: 'brand-story',
-        name: 'Brand Story',
-        description: 'Craft compelling brand narrative',
+        id: 'work-breakdown',
+        name: 'Work Breakdown (WBS)',
+        description: 'Milestones, tasks, estimates, dependencies.',
         fields: [
-          {
-            id: 'brand_personality',
-            label: 'Brand Personality',
-            type: 'multiselect',
-            options: ['Professional', 'Innovative', 'Trustworthy', 'Bold', 'Friendly', 'Luxury', 'Sustainable']
-          },
-          {
-            id: 'origin_story',
-            label: 'Include Origin Story',
-            type: 'checkbox',
-            default: true
-          },
-          {
-            id: 'target_emotions',
-            label: 'Target Emotions',
-            type: 'multiselect',
-            options: ['Trust', 'Excitement', 'Confidence', 'Aspiration', 'Security', 'Innovation']
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'technical-documentation',
-    name: 'Technical Documentation',
-    description: 'Create clear technical documentation',
-    tasks: [
-      {
-        id: 'api-documentation',
-        name: 'API Documentation',
-        description: 'Comprehensive API documentation',
-        fields: [
-          {
-            id: 'api_type',
-            label: 'API Type',
-            type: 'select',
-            options: ['REST', 'GraphQL', 'gRPC', 'WebSocket']
-          },
-          {
-            id: 'include_examples',
-            label: 'Include Code Examples',
-            type: 'checkbox',
-            default: true
-          },
-          {
-            id: 'authentication_type',
-            label: 'Authentication Type',
-            type: 'select',
-            options: ['API Key', 'OAuth', 'JWT', 'Basic Auth', 'Bearer Token']
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'grant-writing',
-    name: 'Grant Writing & Fundraising',
-    description: 'Write compelling grant proposals and fundraising materials',
-    tasks: [
-      {
-        id: 'grant-proposal',
-        name: 'Grant Proposal Writing',
-        description: 'Comprehensive grant proposal for funding organizations',
-        fields: [
-          {
-            id: 'grant_type',
-            label: 'Grant Type',
-            type: 'select',
-            required: true,
-            options: ['Federal Grant', 'Foundation Grant', 'Corporate Grant', 'State/Local Grant', 'Research Grant']
-          },
-          {
-            id: 'funding_amount',
-            label: 'Funding Amount Requested',
-            type: 'text',
-            placeholder: 'e.g., $50,000, $250K',
-            required: true
-          },
-          {
-            id: 'project_duration',
-            label: 'Project Duration',
-            type: 'select',
-            options: ['6 months', '1 year', '2 years', '3 years', 'Multi-year']
-          },
-          {
-            id: 'target_population',
-            label: 'Target Population',
-            type: 'textarea',
-            placeholder: 'Describe who will benefit from this project'
-          },
-          {
-            id: 'include_budget',
-            label: 'Include Budget Breakdown',
-            type: 'checkbox',
-            default: true
-          }
+          { id: 'granularity', label: 'Granularity', type: 'select', options: ['Epics','Stories','Tasks'] },
+          { id: 'estimation_mode', label: 'Estimation Mode', type: 'select', options: ['t-shirt','story points','hours/days'] },
+          ...FMT_OUTPUT
         ]
       },
       {
-        id: 'impact-report',
-        name: 'Impact Measurement Report',
-        description: 'Document program outcomes and social impact',
+        id: 'process-design',
+        name: 'Process Design',
+        description: 'Document current vs. future state; SOPs and playbooks.',
         fields: [
-          {
-            id: 'measurement_period',
-            label: 'Measurement Period',
-            type: 'select',
-            options: ['Quarterly', 'Semi-annual', 'Annual', 'Project Completion']
-          },
-          {
-            id: 'success_metrics',
-            label: 'Key Success Metrics',
-            type: 'multiselect',
-            options: ['Lives Impacted', 'Services Delivered', 'Community Reach', 'Behavior Change', 'Economic Impact', 'Environmental Impact']
-          },
-          {
-            id: 'stakeholder_audience',
-            label: 'Primary Audience',
-            type: 'select',
-            options: ['Donors', 'Board Members', 'Funders', 'Community', 'Government', 'Partners']
-          }
+          { id: 'process_area', label: 'Process Area', type: 'text', placeholder: 'e.g., onboarding, incident response' },
+          { id: 'include_risks', label: 'Include Risks & Controls', type: 'checkbox', default: true },
+          ...FMT_OUTPUT
         ]
       }
     ]
   },
+
+  // 6) Strategy, Consulting & Decision Support
   {
-    id: 'policy-analysis',
-    name: 'Policy Analysis & Public Communication',
-    description: 'Analyze policies and create public-facing communications',
+    id: 'strategy-consulting',
+    name: 'Strategy & Consulting',
+    description: 'Assess situations, build roadmaps, and recommend actions.',
     tasks: [
       {
-        id: 'policy-brief',
-        name: 'Policy Briefing Document',
-        description: 'Comprehensive policy analysis and recommendations',
+        id: 'assessment',
+        name: 'Situation/Needs Assessment',
+        description: 'Diagnostic across functions; gap analysis.',
         fields: [
-          {
-            id: 'policy_area',
-            label: 'Policy Area',
-            type: 'select',
-            required: true,
-            options: ['Healthcare', 'Education', 'Environmental', 'Economic', 'Social Services', 'Transportation', 'Housing', 'Public Safety']
-          },
-          {
-            id: 'stakeholder_level',
-            label: 'Government Level',
-            type: 'select',
-            options: ['Federal', 'State', 'County', 'Municipal', 'Regional']
-          },
-          {
-            id: 'analysis_focus',
-            label: 'Analysis Focus',
-            type: 'multiselect',
-            options: ['Current Impact', 'Implementation Challenges', 'Cost-Benefit', 'Stakeholder Effects', 'Alternative Options']
-          },
-          {
-            id: 'include_recommendations',
-            label: 'Include Policy Recommendations',
-            type: 'checkbox',
-            default: true
-          }
-        ]
-      },
-      {
-        id: 'public-consultation',
-        name: 'Public Consultation Response',
-        description: 'Structured response to public consultation processes',
-        fields: [
-          {
-            id: 'consultation_type',
-            label: 'Consultation Type',
-            type: 'select',
-            options: ['Regulatory Change', 'New Policy', 'Budget Allocation', 'Infrastructure Project', 'Service Delivery']
-          },
-          {
-            id: 'organization_type',
-            label: 'Responding As',
-            type: 'select',
-            options: ['Individual Citizen', 'Non-profit Organization', 'Business', 'Professional Association', 'Community Group']
-          },
-          {
-            id: 'key_concerns',
-            label: 'Key Areas of Concern',
-            type: 'textarea',
-            placeholder: 'List main issues or support points'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'strategic-consulting',
-    name: 'Strategic Consulting & Advisory',
-    description: 'Provide strategic analysis and recommendations for clients',
-    tasks: [
-      {
-        id: 'client-assessment',
-        name: 'Client Needs Assessment',
-        description: 'Comprehensive analysis of client situation and needs',
-        fields: [
-          {
-            id: 'client_industry',
-            label: 'Client Industry',
-            type: 'select',
-            required: true,
-            options: ['Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail', 'Professional Services', 'Non-profit', 'Government']
-          },
-          {
-            id: 'company_size',
-            label: 'Company Size',
-            type: 'select',
-            options: ['Startup', 'Small Business', 'Mid-market', 'Enterprise', 'Fortune 500']
-          },
-          {
-            id: 'assessment_areas',
-            label: 'Assessment Focus Areas',
-            type: 'multiselect',
-            options: ['Strategy', 'Operations', 'Technology', 'Finance', 'HR', 'Marketing', 'Risk Management', 'Growth Planning']
-          },
-          {
-            id: 'timeline',
-            label: 'Project Timeline',
-            type: 'select',
-            options: ['2-4 weeks', '1-2 months', '3-6 months', '6+ months']
-          }
+          { id: 'industry', label: 'Industry', type: 'select', options: ['Technology','Healthcare','Finance','Manufacturing','Retail','Public Sector','Non-profit'] },
+          { id: 'company_size', label: 'Company Size', type: 'select', options: ['Startup','SMB','Mid-market','Enterprise'] },
+          { id: 'focus_areas', label: 'Focus Areas', type: 'multiselect', options: ['Strategy','Ops','Tech','Finance','HR','Marketing','Risk'] },
+          ...FMT_OUTPUT
         ]
       },
       {
         id: 'strategic-roadmap',
-        name: 'Strategic Implementation Roadmap',
-        description: 'Detailed implementation plan with milestones and timelines',
+        name: 'Strategic Roadmap',
+        description: 'Phased plan with milestones and investments.',
+        fields: [ ...PLANNING_FIELDS, { id: 'priorities', label: 'Priority Buckets', type: 'multiselect', options: ['Critical','High','Medium','Long-term'] }, ...FMT_OUTPUT ]
+      }
+    ]
+  },
+
+  // 7) Compliance, Legal & Policy
+  {
+    id: 'compliance-legal-policy',
+    name: 'Compliance, Legal & Policy',
+    description: 'Draft, analyze, and summarize policies, controls, and legal docs (non-advisory).',
+    tasks: [
+      {
+        id: 'policy-brief',
+        name: 'Policy Brief',
+        description: 'Summarize policy and impacts with recommendations.',
         fields: [
-          {
-            id: 'roadmap_horizon',
-            label: 'Planning Horizon',
-            type: 'select',
-            options: ['6 months', '1 year', '18 months', '2-3 years', '5+ years']
-          },
-          {
-            id: 'priority_level',
-            label: 'Initiative Priority',
-            type: 'select',
-            options: ['Critical/Urgent', 'High Priority', 'Medium Priority', 'Long-term Strategic']
-          },
-          {
-            id: 'resource_requirements',
-            label: 'Resource Planning Focus',
-            type: 'multiselect',
-            options: ['Budget', 'Personnel', 'Technology', 'Training', 'External Partners', 'Infrastructure']
-          }
+          { id: 'policy_area', label: 'Policy Area', type: 'select', options: ['Privacy','Security','Healthcare','Finance','Environmental','Employment','Public Safety'] },
+          { id: 'gov_level', label: 'Level', type: 'select', options: ['Org','Municipal','State','Federal','International'] },
+          ...FMT_OUTPUT, ...PRIVACY_FIELDS
+        ]
+      },
+      {
+        id: 'doc-review',
+        name: 'Document Review',
+        description: 'Flag risks/clauses; generate plain-language summary.',
+        fields: [
+          ...SOURCE_FIELDS,
+          { id: 'doc_type', label: 'Document Type', type: 'select', options: ['Contract','Policy','SOP','Terms','RFP','Ordinance'] },
+          ...REVIEW_FLAGS, ...FMT_OUTPUT, ...PRIVACY_FIELDS
         ]
       }
     ]
   },
+
+  // 8) Growth: Marketing, Sales & Fundraising (incl. Grants)
   {
-    id: 'crisis-communication',
-    name: 'Crisis Communication & PR',
-    description: 'Manage communications during crisis situations',
+    id: 'growth',
+    name: 'Growth (Marketing, Sales & Fundraising)',
+    description: 'Campaigns, collateral, ICPs, proposals, and grants.',
     tasks: [
       {
-        id: 'crisis-response',
-        name: 'Crisis Response Statement',
-        description: 'Immediate public response to crisis situations',
+        id: 'campaign-kit',
+        name: 'Campaign Kit',
+        description: 'Messaging, value props, assets, and split-tests.',
         fields: [
-          {
-            id: 'crisis_type',
-            label: 'Crisis Type',
-            type: 'select',
-            required: true,
-            options: ['Data Breach', 'Product Recall', 'Financial Issues', 'Leadership Crisis', 'Natural Disaster', 'Legal Issues', 'PR Crisis']
-          },
-          {
-            id: 'severity_level',
-            label: 'Crisis Severity',
-            type: 'select',
-            options: ['Low Impact', 'Moderate Impact', 'High Impact', 'Critical/Severe']
-          },
-          {
-            id: 'primary_audience',
-            label: 'Primary Audience',
-            type: 'multiselect',
-            options: ['Customers', 'Employees', 'Investors', 'Media', 'Regulators', 'Community', 'Partners']
-          },
-          {
-            id: 'response_tone',
-            label: 'Response Tone',
-            type: 'select',
-            options: ['Apologetic', 'Explanatory', 'Reassuring', 'Factual', 'Empathetic']
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'training-development',
-    name: 'Training & Development',
-    description: 'Create training materials and development programs',
-    tasks: [
-      {
-        id: 'training-curriculum',
-        name: 'Training Curriculum Design',
-        description: 'Comprehensive training program development',
-        fields: [
-          {
-            id: 'training_type',
-            label: 'Training Type',
-            type: 'select',
-            required: true,
-            options: ['Technical Skills', 'Soft Skills', 'Leadership', 'Compliance', 'Safety', 'Customer Service', 'Sales']
-          },
-          {
-            id: 'delivery_method',
-            label: 'Delivery Method',
-            type: 'multiselect',
-            options: ['In-person', 'Virtual/Online', 'Hybrid', 'Self-paced', 'Mentoring', 'Workshop']
-          },
-          {
-            id: 'skill_level',
-            label: 'Target Skill Level',
-            type: 'select',
-            options: ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Mixed Levels']
-          },
-          {
-            id: 'duration',
-            label: 'Program Duration',
-            type: 'select',
-            options: ['1-2 hours', 'Half day', 'Full day', 'Multi-day', 'Weekly series', 'Monthly program']
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'compliance-risk',
-    name: 'Compliance & Risk Management',
-    description: 'Develop compliance frameworks and risk assessments',
-    tasks: [
-      {
-        id: 'compliance-framework',
-        name: 'Compliance Framework Development',
-        description: 'Create comprehensive compliance management system',
-        fields: [
-          {
-            id: 'regulatory_area',
-            label: 'Regulatory Focus',
-            type: 'multiselect',
-            required: true,
-            options: ['Financial Services', 'Healthcare', 'Data Privacy', 'Environmental', 'Employment Law', 'Industry-specific']
-          },
-          {
-            id: 'framework_scope',
-            label: 'Framework Scope',
-            type: 'select',
-            options: ['Department-level', 'Organization-wide', 'Multi-entity', 'Cross-border']
-          },
-          {
-            id: 'risk_tolerance',
-            label: 'Risk Tolerance Level',
-            type: 'select',
-            options: ['Very Conservative', 'Conservative', 'Moderate', 'Aggressive']
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'code-creation',
-    name: 'Code Creation & Development',
-    description: 'Generate new code, architectures, and development solutions',
-    tasks: [
-      {
-        id: 'full-stack-app',
-        name: 'Full Stack Application',
-        description: 'Generate complete application code with frontend, backend, and database',
-        fields: [
-          {
-            id: 'framework_frontend',
-            label: 'Frontend Framework',
-            type: 'select',
-            required: true,
-            options: ['React', 'Vue.js', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Vanilla JS']
-          },
-          {
-            id: 'framework_backend',
-            label: 'Backend Framework',
-            type: 'select',
-            required: true,
-            options: ['Node.js/Express', 'Python/Django', 'Python/FastAPI', 'Ruby on Rails', 'PHP/Laravel', 'Java/Spring', 'C#/.NET']
-          },
-          {
-            id: 'database_type',
-            label: 'Database Type',
-            type: 'select',
-            options: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Redis', 'Firebase', 'Supabase']
-          },
-          {
-            id: 'authentication_needs',
-            label: 'Authentication Requirements',
-            type: 'multiselect',
-            options: ['User Registration/Login', 'OAuth (Google/GitHub)', 'Role-based Access', 'JWT Tokens', 'Session Management']
-          },
-          {
-            id: 'deployment_target',
-            label: 'Deployment Target',
-            type: 'select',
-            options: ['Vercel', 'Netlify', 'AWS', 'Google Cloud', 'Docker', 'Traditional Hosting']
-          }
+          { id: 'goal', label: 'Goal', type: 'select', options: ['Lead gen','Activation','Retention','Upsell','Community'] },
+          { id: 'persona', label: 'ICP/Persona', type: 'text' },
+          { id: 'channels', label: 'Channels', type: 'multiselect', options: ['Email','Social','Paid','Events','Partners'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
         ]
       },
       {
-        id: 'api-development',
-        name: 'API Development',
-        description: 'Create REST/GraphQL APIs with proper structure and documentation',
+        id: 'grant-proposal',
+        name: 'Grant/Proposal Writer',
+        description: 'Draft proposals with data-driven need, approach, budget.',
         fields: [
-          {
-            id: 'api_type',
-            label: 'API Type',
-            type: 'select',
-            required: true,
-            options: ['REST API', 'GraphQL', 'WebSocket', 'gRPC', 'Webhook']
-          },
-          {
-            id: 'authentication_method',
-            label: 'Authentication Method',
-            type: 'select',
-            options: ['JWT', 'API Keys', 'OAuth 2.0', 'Basic Auth', 'No Authentication']
-          },
-          {
-            id: 'data_models',
-            label: 'Data Models Focus',
-            type: 'multiselect',
-            options: ['User Management', 'Content Management', 'E-commerce', 'Analytics', 'File Management', 'Custom Domain']
-          },
-          {
-            id: 'endpoint_specifications',
-            label: 'Endpoint Specifications',
-            type: 'textarea',
-            placeholder: 'Describe the main endpoints needed (e.g., CRUD operations, specific business logic)'
-          }
+          { id: 'grant_type', label: 'Grant/Proposal Type', type: 'select', options: ['Federal','State/Local','Foundation','Corporate','RFP'] },
+          { id: 'funding_amount', label: 'Funding Amount', type: 'text', required: true, placeholder: '$250K' },
+          { id: 'duration', label: 'Project Duration', type: 'select', options: ['6 months','1 year','2 years','Multi-year'] },
+          { id: 'target_population', label: 'Target Population/Beneficiaries', type: 'textarea' },
+          { id: 'include_budget', label: 'Include Budget Breakdown', type: 'checkbox', default: true },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
         ]
       },
       {
-        id: 'database-schema',
-        name: 'Database Schema Design',
-        description: 'Generate database schemas with migrations and seed data',
+        id: 'sales-assets',
+        name: 'Sales Assets',
+        description: 'ICPs, objection handling, battlecards, demos scripts.',
         fields: [
-          {
-            id: 'database_type',
-            label: 'Database Type',
-            type: 'select',
-            required: true,
-            options: ['PostgreSQL', 'MySQL', 'MongoDB', 'SQLite', 'Redis', 'Cassandra']
-          },
-          {
-            id: 'relationships_complexity',
-            label: 'Relationship Complexity',
-            type: 'select',
-            options: ['Simple (1-3 tables)', 'Moderate (4-10 tables)', 'Complex (10+ tables)', 'Enterprise Scale']
-          },
-          {
-            id: 'indexing_strategy',
-            label: 'Indexing Strategy',
-            type: 'multiselect',
-            options: ['Primary Keys', 'Foreign Keys', 'Composite Indexes', 'Full-text Search', 'Performance Optimization']
-          },
-          {
-            id: 'data_volume',
-            label: 'Expected Data Volume',
-            type: 'select',
-            options: ['Small (<1M records)', 'Medium (1M-100M)', 'Large (100M-1B)', 'Enterprise (1B+)']
-          }
-        ]
-      },
-      {
-        id: 'component-library',
-        name: 'Component Library Creation',
-        description: 'Build reusable UI components and design systems',
-        fields: [
-          {
-            id: 'framework',
-            label: 'Frontend Framework',
-            type: 'select',
-            required: true,
-            options: ['React', 'Vue.js', 'Angular', 'Svelte', 'Web Components', 'Storybook']
-          },
-          {
-            id: 'styling_approach',
-            label: 'Styling Approach',
-            type: 'select',
-            options: ['Tailwind CSS', 'Styled Components', 'CSS Modules', 'SCSS/Sass', 'CSS-in-JS', 'Vanilla CSS']
-          },
-          {
-            id: 'component_types',
-            label: 'Component Types',
-            type: 'multiselect',
-            options: ['Forms & Inputs', 'Navigation', 'Data Display', 'Feedback', 'Layout', 'Media', 'Overlays']
-          },
-          {
-            id: 'accessibility_requirements',
-            label: 'Accessibility Requirements',
-            type: 'multiselect',
-            options: ['WCAG 2.1 AA', 'Keyboard Navigation', 'Screen Reader Support', 'High Contrast', 'Focus Management']
-          }
-        ]
-      },
-      {
-        id: 'algorithm-implementation',
-        name: 'Algorithm Implementation',
-        description: 'Generate optimized algorithms and data structures',
-        fields: [
-          {
-            id: 'algorithm_type',
-            label: 'Algorithm Type',
-            type: 'select',
-            required: true,
-            options: ['Sorting', 'Searching', 'Graph Algorithms', 'Dynamic Programming', 'Machine Learning', 'Optimization', 'Cryptography']
-          },
-          {
-            id: 'performance_requirements',
-            label: 'Performance Requirements',
-            type: 'select',
-            options: ['Basic Functionality', 'Optimized Performance', 'Memory Efficient', 'Parallel Processing', 'Real-time Processing']
-          },
-          {
-            id: 'language_preference',
-            label: 'Programming Language',
-            type: 'select',
-            options: ['Python', 'JavaScript', 'Java', 'C++', 'Go', 'Rust', 'TypeScript']
-          },
-          {
-            id: 'constraints',
-            label: 'Constraints & Requirements',
-            type: 'textarea',
-            placeholder: 'Specific constraints, input/output format, edge cases to handle'
-          }
-        ]
-      },
-      {
-        id: 'testing-suite',
-        name: 'Testing Suite Generation',
-        description: 'Create comprehensive test suites (unit, integration, e2e)',
-        fields: [
-          {
-            id: 'testing_framework',
-            label: 'Testing Framework',
-            type: 'select',
-            required: true,
-            options: ['Jest', 'Vitest', 'Cypress', 'Playwright', 'Mocha/Chai', 'Jasmine', 'PyTest']
-          },
-          {
-            id: 'coverage_requirements',
-            label: 'Coverage Requirements',
-            type: 'select',
-            options: ['Basic (60%)', 'Good (80%)', 'Excellent (90%)', 'Comprehensive (95%+)']
-          },
-          {
-            id: 'test_types',
-            label: 'Test Types',
-            type: 'multiselect',
-            options: ['Unit Tests', 'Integration Tests', 'E2E Tests', 'API Tests', 'Performance Tests', 'Security Tests']
-          },
-          {
-            id: 'mock_strategies',
-            label: 'Mocking Strategy',
-            type: 'multiselect',
-            options: ['Database Mocking', 'API Mocking', 'External Service Mocking', 'File System Mocking', 'Time/Date Mocking']
-          }
-        ]
-      },
-      {
-        id: 'devops-pipeline',
-        name: 'DevOps & CI/CD Pipeline',
-        description: 'Generate deployment and automation scripts',
-        fields: [
-          {
-            id: 'platform',
-            label: 'Platform',
-            type: 'select',
-            required: true,
-            options: ['GitHub Actions', 'GitLab CI', 'Jenkins', 'CircleCI', 'Azure DevOps', 'AWS CodePipeline']
-          },
-          {
-            id: 'deployment_strategy',
-            label: 'Deployment Strategy',
-            type: 'select',
-            options: ['Blue-Green', 'Rolling Updates', 'Canary', 'Feature Flags', 'Direct Deployment']
-          },
-          {
-            id: 'monitoring_needs',
-            label: 'Monitoring & Observability',
-            type: 'multiselect',
-            options: ['Application Metrics', 'Error Tracking', 'Performance Monitoring', 'Logging', 'Health Checks', 'Alerting']
-          },
-          {
-            id: 'scaling_requirements',
-            label: 'Scaling Requirements',
-            type: 'select',
-            options: ['Single Instance', 'Load Balanced', 'Auto Scaling', 'Microservices', 'Container Orchestration']
-          }
+          { id: 'asset_type', label: 'Asset Type', type: 'select', options: ['ICP','One-pager','Deck outline','Battlecard','Demo script','FAQ'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
         ]
       }
     ]
   }
 ];
 
-// ===== HELPER FUNCTIONS =====
-
-export function getTasksForUseCase(useCaseId?: string): TaskDefinition[] {
-  if (!useCaseId) return [];
-  const useCase = USE_CASES.find(uc => uc.id === useCaseId);
-  return useCase?.tasks || [];
-}
-
-export function getFieldsFor(useCaseId?: string, taskId?: string): DynamicField[] {
-  if (!useCaseId || !taskId) return [];
-  const tasks = getTasksForUseCase(useCaseId);
-  const task = tasks.find(t => t.id === taskId);
-  return task?.fields || [];
-}
-
-export function getUseCaseById(id: string): UseCaseDefinition | undefined {
-  return USE_CASES.find(uc => uc.id === id);
-}
-
-export function getTaskById(useCaseId: string, taskId: string): TaskDefinition | undefined {
-  const useCase = getUseCaseById(useCaseId);
-  return useCase?.tasks.find(t => t.id === taskId);
-}
-
-export function getDomainById(id: string): DomainDefinition | undefined {
-  return DOMAINS.find(d => d.id === id);
-}
-
-// Export all for easy access
-export { USE_CASES as useCases, DOMAINS as domains };
+// (Helper functions from your original file remain unchanged)

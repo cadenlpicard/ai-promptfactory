@@ -11,19 +11,22 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { FormData, Provider, ModelConfig, PromptAnalysis } from '@/types';
-import { getAllModels, getProviderConfig, getModelConfig } from '@/lib/providerRegistry';
-import { domainContextOptions, audienceOptions, toneOptions, styleOptions, thinkingDepthOptions, detailLevelOptions } from '@/lib/dropdownOptions';
+import { FormData, PromptAnalysis } from '@/types';
+import { getModelConfig, getProviderConfig } from '@/lib/providerRegistry';
+import { toneOptions, styleOptions, thinkingDepthOptions, detailLevelOptions } from '@/lib/dropdownOptions';
 import { USE_CASES, DOMAINS, getTasksForUseCase, getFieldsFor } from '@/config/tasksConfig';
-import { Factory, Sparkles, Settings, Zap, Target, Palette, Sliders, Play, ChevronDown, ChevronUp, Layers, Wand2 } from 'lucide-react';
+import { Factory, Zap, Target, Sliders, Play, ChevronDown, ChevronUp, Layers, Wand2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useState, useEffect, useMemo } from 'react';
 import { analyzePrompt } from '@/lib/promptAnalyzer';
 import { useToast } from '@/hooks/use-toast';
 
+// ===============================
+// Zod schema
+// ===============================
 const formSchema = z.object({
   targetModel: z.string().min(1, 'Please select a target model'),
-  model_id: z.string().optional(), // Made optional since we use targetModel now
+  model_id: z.string().optional(),
   provider: z.enum(['openai', 'gemini', 'claude', 'grok', 'llama', 'mistral', 'cohere']),
   user_prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
   domain_context: z.string().optional(),
@@ -36,13 +39,12 @@ const formSchema = z.object({
   success_criteria: z.string().optional(),
   exemplars: z.string().optional(),
   avoid_list: z.string().optional(),
-  
-  // Dynamic use case fields
+  // Dynamic meta
   use_case: z.string().optional(),
   domain: z.string().optional(),
   task: z.string().optional(),
   dynamic_fields: z.record(z.any()).optional(),
-  
+  // Generation params
   temperature: z.number().min(0).max(2),
   creativity: z.number().min(0).max(2).optional(),
   top_p: z.number().min(0).max(1).optional(),
@@ -64,47 +66,55 @@ interface PromptFormProps {
   onAnalyzeStart?: () => void;
 }
 
-// Helper functions for representative labels
+// ===============================
+// Helpers for display labels
+// ===============================
 const getCreativityLabel = (value: number): string => {
-  if (value <= 0.3) return "Rule Follower";
-  if (value <= 0.7) return "Balanced";
-  if (value <= 1.2) return "Creative";
-  if (value <= 1.6) return "Very Creative";
-  return "Creative Genius";
+  if (value <= 0.3) return 'Rule Follower';
+  if (value <= 0.7) return 'Balanced';
+  if (value <= 1.2) return 'Creative';
+  if (value <= 1.6) return 'Very Creative';
+  return 'Creative Genius';
 };
 
 const getFocusLabel = (value: number): string => {
-  if (value <= 0.2) return "Laser Focused";
-  if (value <= 0.5) return "Focused";
-  if (value <= 0.8) return "Balanced";
-  return "Less Focused";
+  if (value <= 0.2) return 'Laser Focused';
+  if (value <= 0.5) return 'Focused';
+  if (value <= 0.8) return 'Balanced';
+  return 'Less Focused';
 };
 
 const getResponseLengthLabel = (value: number): string => {
-  if (value <= 100) return "Brief";
-  if (value <= 300) return "Concise";
-  if (value <= 800) return "Standard";
-  if (value <= 1500) return "Detailed";
-  return "Comprehensive";
+  if (value <= 100) return 'Brief';
+  if (value <= 300) return 'Concise';
+  if (value <= 800) return 'Standard';
+  if (value <= 1500) return 'Detailed';
+  return 'Comprehensive';
 };
 
+// ===============================
+// Component
+// ===============================
 export function PromptForm({ onSubmit, isLoading, onAnalyzeStart }: PromptFormProps) {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [specsOpen, setSpecsOpen] = useState(!isMobile);
   const [settingsOpen, setSettingsOpen] = useState(!isMobile);
-  
+
   // Analysis state
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<PromptAnalysis | null>(null);
   const [userOverrides, setUserOverrides] = useState<Set<string>>(new Set());
-  
-  // Dynamic use case state
+
+  // Dynamic state
   const [selectedUseCase, setSelectedUseCase] = useState<string | undefined>();
   const [selectedTask, setSelectedTask] = useState<string | undefined>();
-const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCase]);
-  const dynamicFields = useMemo(() => getFieldsFor(selectedUseCase, selectedTask), [selectedUseCase, selectedTask]);
-  
+  const tasks = useMemo(() => (selectedUseCase && selectedUseCase !== 'none' ? getTasksForUseCase(selectedUseCase) : []), [selectedUseCase]);
+  const dynamicFields = useMemo(
+    () => (selectedUseCase && selectedUseCase !== 'none' && selectedTask && selectedTask !== 'none' ? getFieldsFor(selectedUseCase, selectedTask) : []),
+    [selectedUseCase, selectedTask]
+  );
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -133,22 +143,15 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
     },
   });
 
-  // Reset dynamic fields when use case or task changes
+  // Reset task-specific fields whenever use case / task flips
   useEffect(() => {
     const defaults: Record<string, any> = {};
-    dynamicFields.forEach(field => {
-      if (field.type === 'checkbox') {
-        defaults[field.id] = field.default ?? false;
-      } else if (field.type === 'number') {
-        defaults[field.id] = field.default ?? field.min ?? 0;
-      } else if (field.type === 'select') {
-        const first = Array.isArray(field.options) ? field.options[0] : '';
-        defaults[field.id] = field.default ?? first ?? '';
-      } else if (field.type === 'multiselect') {
-        defaults[field.id] = field.default ?? [];
-      } else {
-        defaults[field.id] = field.default ?? '';
-      }
+    dynamicFields.forEach((field) => {
+      if (field.type === 'checkbox') defaults[field.id] = field.default ?? false;
+      else if (field.type === 'number') defaults[field.id] = field.default ?? field.min ?? 0;
+      else if (field.type === 'select') defaults[field.id] = field.default ?? (Array.isArray(field.options) ? field.options[0] : '');
+      else if (field.type === 'multiselect') defaults[field.id] = field.default ?? [];
+      else defaults[field.id] = field.default ?? '';
     });
     form.setValue('dynamic_fields', defaults, { shouldDirty: true, shouldValidate: true });
   }, [selectedUseCase, selectedTask, dynamicFields, form]);
@@ -166,86 +169,204 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
     }
   };
 
+  // ===============================
+  // Analyze Prompt → populate fields
+  // ===============================
   const handleAnalyzePrompt = async () => {
     const userPrompt = form.getValues('user_prompt');
-    
+
     if (!userPrompt || userPrompt.trim().length < 10) {
       toast({
-        title: "Prompt too short",
-        description: "Please enter at least 10 characters to analyze your prompt.",
-        variant: "destructive"
+        title: 'Prompt too short',
+        description: 'Please enter at least 10 characters to analyze your prompt.',
+        variant: 'destructive',
       });
       return;
     }
 
     onAnalyzeStart?.();
     setIsAnalyzing(true);
-    
+
     try {
       const analysis = await analyzePrompt(userPrompt);
       setAiSuggestions(analysis);
-      
-      // Get available options for validation
-      const useCaseOptions = USE_CASES.map(uc => uc.id);
-      const domainOptions = DOMAINS.map(d => d.id);
-      
-      console.log('Analysis received:', analysis);
-      console.log('Available use cases:', useCaseOptions);
-      console.log('Available domains:', domainOptions);
-      
-      // Normalize and map AI suggestions to internal IDs
-      const normalize = (s?: string) => (s ?? '').toLowerCase().replace(/[_\s]+/g, '-');
+
+      const useCaseOptions = USE_CASES.map((uc) => uc.id);
+      const domainOptions = DOMAINS.map((d) => d.id);
+
+      const normalize = (s?: string) => (s ?? '').toLowerCase().trim().replace(/[\s_]+/g, '-');
+
+      // ---- NEW: map to consolidated 8 use cases
       const useCaseMap: Record<string, string> = {
-        'content-creation': 'write-blog',
-        'content_creation': 'write-blog',
-        'blogging': 'write-blog',
-        'write': 'write-blog',
-        'writing': 'write-blog',
-        'email': 'email-reply',
-        'communications': 'email-reply',
-        'communication': 'email-reply',
-        'research': 'research',
-        'data-analysis': 'data-analysis',
-        'data_analysis': 'data-analysis',
-        'analytics': 'data-analysis',
-        'code-review': 'code-review',
-        'code_review': 'code-review',
-        'coding': 'code-review',
-        'software-development': 'code-review',
-        'dev': 'code-review',
-        'creative-writing': 'creative-writing',
-        'technical-documentation': 'technical-documentation',
-        'project-planning': 'project-planning',
-        // Sometimes the model reports a "presentation" use case; map to executive summary writing
-        'presentation': 'write-blog',
+        // Content & communication
+        'content': 'content-comms',
+        'content-creation': 'content-comms',
+        'content_creation': 'content-comms',
+        'writing': 'content-comms',
+        'blogging': 'content-comms',
+        'email': 'content-comms',
+        'communications': 'content-comms',
+        'communication': 'content-comms',
+        'press': 'content-comms',
+        'presentation': 'content-comms', // presentation drafts map to content
+        // Research & knowledge
+        'research': 'research-knowledge',
+        'knowledge': 'research-knowledge',
+        'analysis-summary': 'research-knowledge',
+        'literature': 'research-knowledge',
+        // Data & BI
+        'data': 'data-analytics',
+        'analytics': 'data-analytics',
+        'business-intelligence': 'data-analytics',
+        // Software & automation
+        'code': 'software-automation',
+        'coding': 'software-automation',
+        'development': 'software-automation',
+        'devops': 'software-automation',
+        'automation': 'software-automation',
+        // Ops & projects
+        'project-planning': 'operations-projects',
+        'project-management': 'operations-projects',
+        'operations': 'operations-projects',
+        'process': 'operations-projects',
+        // Strategy
+        'strategy': 'strategy-consulting',
+        'consulting': 'strategy-consulting',
+        'roadmap': 'strategy-consulting',
+        // Compliance & legal & policy
+        'compliance': 'compliance-legal-policy',
+        'policy': 'compliance-legal-policy',
+        'legal': 'compliance-legal-policy',
+        // Growth (marketing, sales, fundraising/grants)
+        'marketing': 'growth',
+        'sales': 'growth',
+        'fundraising': 'growth',
+        'grant': 'growth',
+        'grants': 'growth',
       };
+
       const domainMap: Record<string, string> = {
-        'business': 'marketing',
-        'sales': 'marketing',
-        'content': 'marketing',
-        'software': 'software-engineering',
-        'technology': 'software-engineering',
-        'tech': 'software-engineering',
-        'it': 'software-engineering',
-        'general': 'general',
+        general: 'general',
+        business: 'marketing',
+        sales: 'marketing',
+        marketing: 'marketing',
+        tech: 'software-engineering',
+        technology: 'software-engineering',
+        software: 'software-engineering',
+        it: 'software-engineering',
+        finance: 'finance',
+        healthcare: 'healthcare',
+        legal: 'legal',
+        government: 'government',
+        non-profit: 'non-profit',
       };
-      const audienceMap: Record<string, string> = {
-        'business-executives': 'executives',
-        'executives': 'executives',
-        'general-public': 'general-public',
-        'developers': 'developers',
+
+      // ---- Task mapping / synonyms by use case
+      const taskSynonyms: Record<string, Record<string, string>> = {
+        'content-comms': {
+          'generate-content': 'generate-content',
+          'create-content': 'generate-content',
+          'blog-post': 'generate-content',
+          'post': 'generate-content',
+          'press-release': 'generate-content',
+          'landing-copy': 'generate-content',
+          'email-draft': 'generate-content',
+          'transform-content': 'transform-content',
+          'rewrite': 'transform-content',
+          'summarize': 'transform-content',
+          'translate': 'transform-content',
+          'style-change': 'transform-content',
+          'outreach': 'outreach-sequences',
+          'sequence': 'outreach-sequences',
+          'sales-sequence': 'outreach-sequences',
+          'recruiting-sequence': 'outreach-sequences',
+          'fundraising-sequence': 'outreach-sequences',
+        },
+        'research-knowledge': {
+          'literature-review': 'literature-review',
+          'market-review': 'literature-review',
+          'deep-dive': 'literature-review',
+          'compare': 'compare-options',
+          'comparison': 'compare-options',
+          'vendor-compare': 'compare-options',
+          'extract': 'extract-structure',
+          'information-extraction': 'extract-structure',
+          'structure': 'extract-structure',
+        },
+        'data-analytics': {
+          'eda': 'exploratory-analysis',
+          'exploratory': 'exploratory-analysis',
+          'analysis': 'exploratory-analysis',
+          'sql': 'sql-assistant',
+          'query': 'sql-assistant',
+          'sql-assistant': 'sql-assistant',
+          'financial': 'financial-modeling',
+          'finance': 'financial-modeling',
+          'modeling': 'financial-modeling',
+        },
+        'software-automation': {
+          'code-generate': 'code-generate',
+          'generate-code': 'code-generate',
+          'scaffold': 'code-generate',
+          'boilerplate': 'code-generate',
+          'code-review': 'code-review',
+          'review': 'code-review',
+          'security-audit': 'code-review',
+          'performance-review': 'code-review',
+          'ci-cd': 'ci-cd-devops',
+          'devops': 'ci-cd-devops',
+          'pipeline': 'ci-cd-devops',
+          'infra': 'ci-cd-devops',
+        },
+        'operations-projects': {
+          'project-charter': 'project-charter',
+          'charter': 'project-charter',
+          'wbs': 'work-breakdown',
+          'work-breakdown': 'work-breakdown',
+          'process': 'process-design',
+          'sop': 'process-design',
+          'playbook': 'process-design',
+        },
+        'strategy-consulting': {
+          'assessment': 'assessment',
+          'needs-assessment': 'assessment',
+          'diagnostic': 'assessment',
+          'roadmap': 'strategic-roadmap',
+          'strategy': 'strategic-roadmap',
+          'implementation-plan': 'strategic-roadmap',
+        },
+        'compliance-legal-policy': {
+          'policy-brief': 'policy-brief',
+          'policy': 'policy-brief',
+          'brief': 'policy-brief',
+          'doc-review': 'doc-review',
+          'document-review': 'doc-review',
+          'contract-review': 'doc-review',
+        },
+        'growth': {
+          'campaign': 'campaign-kit',
+          'campaign-kit': 'campaign-kit',
+          'messaging': 'campaign-kit',
+          'grant': 'grant-proposal',
+          'grant-proposal': 'grant-proposal',
+          'proposal': 'grant-proposal',
+          'sales-assets': 'sales-assets',
+          'icp': 'sales-assets',
+          'battlecard': 'sales-assets',
+          'demo-script': 'sales-assets',
+        },
       };
-      const desiredUseCase = analysis.use_case ? (useCaseMap[normalize(analysis.use_case)] || analysis.use_case) : undefined;
-      const desiredTask = (() => {
-        let t = analysis.task;
-        if (desiredUseCase === 'write-blog') {
-          const tKey = normalize(analysis.task);
-          if (tKey === 'presentation' || tKey === 'slide-deck' || tKey === 'slides') return 'executive-summary';
-        }
-        return t;
+
+      const normalizeUseCase = (u?: string) => useCaseMap[normalize(u)] || normalize(u) || undefined;
+      const desiredUseCase = normalizeUseCase(analysis.use_case);
+
+      const desiredDomain = (() => {
+        const d = normalize(analysis.domain);
+        return domainOptions.includes(d) ? d : (domainMap[d] && domainOptions.includes(domainMap[d]) ? domainMap[d] : undefined);
       })();
-      const desiredDomain = analysis.domain ? (domainMap[normalize(analysis.domain)] || analysis.domain) : undefined;
-      const desiredAudience = analysis.audience ? (audienceMap[normalize(analysis.audience)] || analysis.audience) : undefined;
+
+      const desiredAudience = analysis.audience ? normalize(analysis.audience) : undefined;
+
       const desiredReasoning = (() => {
         const k = normalize(analysis.thinkingDepth);
         if (!k) return undefined;
@@ -254,6 +375,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
         if (k === 'deep' || k === 'high') return 'high';
         return undefined;
       })();
+
       const desiredTopP = (() => {
         const k = normalize(analysis.focusLevel);
         if (!k) return undefined;
@@ -263,188 +385,124 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
         if (k === 'less-focused') return 1.0;
         return undefined;
       })();
-      
-      // Auto-populate form fields with AI suggestions (validate against available options)
+
+      // Set use case if valid
+      if (desiredUseCase && useCaseOptions.includes(desiredUseCase)) {
+        form.setValue('use_case', desiredUseCase, { shouldDirty: true, shouldValidate: true });
+        setSelectedUseCase(desiredUseCase);
+      }
+
+      // Determine task from suggestion/synonyms
+      let taskToSet: string | undefined = undefined;
       if (desiredUseCase) {
-        if (useCaseOptions.includes(desiredUseCase)) {
-          console.log('Setting use_case to:', desiredUseCase);
-          form.setValue('use_case', desiredUseCase, { shouldDirty: true, shouldValidate: true });
-          setSelectedUseCase(desiredUseCase);
-        } else {
-          console.log('Invalid use_case:', desiredUseCase, 'Available:', useCaseOptions);
+        const available = getTasksForUseCase(desiredUseCase);
+        const ids = available.map((t) => t.id);
+        const suggestRaw = normalize(analysis.task);
+
+        // Try: direct id, then name, then synonyms
+        if (ids.includes(suggestRaw)) taskToSet = suggestRaw;
+        if (!taskToSet && suggestRaw) {
+          const byName = available.find((t) => normalize(t.name) === suggestRaw);
+          if (byName) taskToSet = byName.id;
         }
+        if (!taskToSet && suggestRaw && taskSynonyms[desiredUseCase]) {
+          const syn = taskSynonyms[desiredUseCase][suggestRaw];
+          if (syn && ids.includes(syn)) taskToSet = syn;
+        }
+        // Fallback: pick first task if model is vague but gave a clear use case
+        if (!taskToSet && available.length) taskToSet = available[0].id;
       }
-      
-      if (desiredTask) {
-        const taskDefs = getTasksForUseCase(desiredUseCase);
-        const availableTasks = taskDefs.map(t => t.id);
-        let taskToSet = desiredTask;
 
-        const norm = (s: string | undefined) => (s ?? '').toLowerCase().replace(/[_\s]+/g, '-');
-        const desiredNorm = norm(analysis.task);
-
-        if (!availableTasks.includes(taskToSet) && analysis.task) {
-          // Try by id match (normalized)
-          const byId = availableTasks.find(id => norm(id) === desiredNorm);
-          if (byId) taskToSet = byId;
-
-          // Try by task name exact
-          if (!byId) {
-            const byName = taskDefs.find(t => norm(t.name) === desiredNorm);
-            if (byName) taskToSet = byName.id;
-          }
-
-          // Try partial match
-          if (!availableTasks.includes(taskToSet)) {
-            const partial = taskDefs.find(t => norm(t.name).includes(desiredNorm) || desiredNorm.includes(norm(t.name)));
-            if (partial) taskToSet = partial.id;
-          }
-
-          // Synonyms
-          if (!availableTasks.includes(taskToSet)) {
-            const synonyms: Record<string, string> = {
-              'summary': 'executive-summary',
-              'summarize': 'executive-summary',
-              'slides': 'executive-summary',
-              'slide-deck': 'executive-summary',
-              'presentation': 'executive-summary',
-              'market-analysis': 'market-analysis-post',
-              'tutorial': 'technical-tutorial',
-            };
-            const syn = synonyms[desiredNorm];
-            if (syn && availableTasks.includes(syn)) taskToSet = syn;
-          }
-        }
-
-        if (availableTasks.includes(taskToSet)) {
-          console.log('Setting task to:', taskToSet);
-          form.setValue('task', taskToSet, { shouldDirty: true, shouldValidate: true });
-          setSelectedTask(taskToSet);
-        } else {
-          console.log('Invalid task:', desiredTask, 'Available:', availableTasks);
-        }
+      if (taskToSet) {
+        form.setValue('task', taskToSet, { shouldDirty: true, shouldValidate: true });
+        setSelectedTask(taskToSet);
       }
-      
-      // Smart response length mapping based on use case/task
+
+      // Smart response length tuned to the consolidated set
       if (!userOverrides.has('responseLengthTokens')) {
-        const getSmartResponseLength = (useCase?: string, task?: string): number => {
-          // Executive Summary tasks - concise
-          if (task === 'executive-summary') return 400;
-          
-          // Email tasks - brief
-          if (task === 'email-reply' || task === 'cold-email') return 300;
-          
-          // Tutorial/Documentation tasks - detailed
-          if (task === 'technical-tutorial' || task === 'documentation') return 1200;
-          
-          // Market Analysis - comprehensive  
-          if (task === 'market-analysis-post') return 1000;
-          
-          // Code Review tasks - focused
-          if (task === 'code-review' || task === 'bug-fix') return 700;
-          
-          // Research tasks - thorough
-          if (useCase === 'research' || task === 'research-report') return 1200;
-          
-          // Data Analysis - detailed insights
-          if (useCase === 'data-analysis') return 1000;
-          
-          // Creative Writing - standard
-          if (useCase === 'creative-writing') return 800;
-          
-          // Blog posts - standard to detailed
-          if (task === 'blog-post' || task === 'article') return 900;
-          
-          // Default - standard
-          return 600;
-        };
-        
-        const smartLength = getSmartResponseLength(desiredUseCase, desiredTask);
-        console.log('Setting smart response length to:', smartLength);
+        const smartLength = (() => {
+          switch (taskToSet) {
+            // Content & Comms
+            case 'generate-content': return 900;         // blog/email/press/landing
+            case 'transform-content': return 600;        // summaries/rewrites
+            case 'outreach-sequences': return 450;       // short multi-step
+            // Research & Knowledge
+            case 'literature-review': return 1100;
+            case 'compare-options': return 800;          // table/scorecard length
+            case 'extract-structure': return 300;        // JSON/CSV concise
+            // Data & Analytics
+            case 'exploratory-analysis': return 900;
+            case 'sql-assistant': return 500;
+            case 'financial-modeling': return 1000;
+            // Software & Automation
+            case 'code-generate': return 900;
+            case 'code-review': return 700;
+            case 'ci-cd-devops': return 700;
+            // Operations & Projects
+            case 'project-charter': return 800;
+            case 'work-breakdown': return 750;
+            case 'process-design': return 900;
+            // Strategy
+            case 'assessment': return 900;
+            case 'strategic-roadmap': return 1000;
+            // Compliance / Legal / Policy
+            case 'policy-brief': return 800;
+            case 'doc-review': return 700;
+            // Growth
+            case 'campaign-kit': return 850;
+            case 'grant-proposal': return 1100;
+            case 'sales-assets': return 700;
+            default: return 600;
+          }
+        })();
         form.setValue('responseLengthTokens', smartLength, { shouldDirty: true, shouldValidate: true });
         form.setValue('max_tokens', smartLength, { shouldDirty: true, shouldValidate: true });
       }
-      
+
       if (desiredDomain && !userOverrides.has('domain')) {
-        if (domainOptions.includes(desiredDomain)) {
-          console.log('Setting domain to:', desiredDomain);
-          form.setValue('domain', desiredDomain, { shouldDirty: true, shouldValidate: true });
-        } else {
-          console.log('Invalid domain:', desiredDomain, 'Available:', domainOptions);
-        }
+        form.setValue('domain', desiredDomain, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (desiredAudience && !userOverrides.has('audience')) {
-        console.log('Setting audience to:', desiredAudience);
         form.setValue('audience', desiredAudience, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.tone && !userOverrides.has('tone')) {
-        console.log('Setting tone to:', analysis.tone);
         form.setValue('tone', analysis.tone, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.style && !userOverrides.has('style')) {
-        console.log('Setting style to:', analysis.style);
         form.setValue('style', analysis.style, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.creativity !== undefined && !userOverrides.has('creativity')) {
-        console.log('Setting creativity to:', analysis.creativity);
         form.setValue('creativity', analysis.creativity, { shouldDirty: true, shouldValidate: true });
         form.setValue('temperature', analysis.creativity, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.responseLengthTokens && !userOverrides.has('responseLengthTokens')) {
-        console.log('Setting responseLengthTokens to:', analysis.responseLengthTokens);
         form.setValue('responseLengthTokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
         form.setValue('max_tokens', analysis.responseLengthTokens, { shouldDirty: true, shouldValidate: true });
       }
-      
-      // Map focus/thinking to provider parameters when possible
       if (desiredTopP !== undefined && !userOverrides.has('top_p')) {
-        console.log('Setting top_p to:', desiredTopP);
         form.setValue('top_p', desiredTopP, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (desiredReasoning && !userOverrides.has('reasoning_effort')) {
-        console.log('Setting reasoning_effort to:', desiredReasoning);
         form.setValue('reasoning_effort', desiredReasoning, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.format_requirements && !userOverrides.has('format_requirements')) {
-        console.log('Setting format_requirements to:', analysis.format_requirements);
         form.setValue('format_requirements', analysis.format_requirements, { shouldDirty: true, shouldValidate: true });
       }
-      
       if (analysis.hard_constraints && !userOverrides.has('hard_constraints')) {
-        console.log('Setting hard_constraints to:', analysis.hard_constraints);
         form.setValue('hard_constraints', analysis.hard_constraints, { shouldDirty: true, shouldValidate: true });
       }
-      
-      // Force form to re-render with new values
-      form.trigger();
 
-      toast({
-        title: "Prompt analyzed successfully",
-        description: "Your form has been auto-populated with AI suggestions. You can review and adjust as needed."
-      });
-
-    } catch (error) {
-      console.error('Analysis failed:', error);
-      toast({
-        title: "Analysis failed",
-        description: "Unable to analyze your prompt. You can still configure the form manually.",
-        variant: "destructive"
-      });
+      await form.trigger();
+      toast({ title: 'Prompt analyzed successfully', description: 'Your form has been auto-populated with AI suggestions. You can review and adjust as needed.' });
+    } catch (err) {
+      console.error('Analysis failed:', err);
+      toast({ title: 'Analysis failed', description: 'Unable to analyze your prompt. You can still configure the form manually.', variant: 'destructive' });
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const markFieldAsUserOverride = (fieldName: string) => {
-    setUserOverrides(prev => new Set([...prev, fieldName]));
-  };
+  const markFieldAsUserOverride = (name: string) => setUserOverrides((prev) => new Set([...prev, name]));
 
   return (
     <Card className="h-full border-2 border-primary/20 shadow-card hover:shadow-fun transition-all duration-300">
@@ -461,15 +519,16 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4 sm:space-y-6 max-h-[calc(100vh-8rem)] sm:max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => {
-            console.log("Form submission triggered with data:", data);
-            onSubmit(data);
-          })} className="space-y-4 sm:space-y-8">
-            
-            {/* Raw Material Section - Now First */}
+          <form
+            onSubmit={form.handleSubmit((data) => {
+              onSubmit(data);
+            })}
+            className="space-y-4 sm:space-y-8"
+          >
+            {/* Raw Material */}
             <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -526,39 +585,34 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
               {aiSuggestions && (
                 <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
                   <p className="text-xs text-muted-foreground">
-                    ✨ AI analysis complete! Fields below are auto-populated with suggestions. 
-                    You can review and adjust any values as needed.
+                    ✨ AI analysis complete! Fields below are auto-populated with suggestions. You can review and adjust as needed.
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Dynamic Use Cases Section */}
+            {/* Use Case & Task */}
             <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
                   <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold">🔧 Use Case & Task</h3>
-                {aiSuggestions && (
-                  <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">
-                    AI Suggested
-                  </div>
-                )}
+                {aiSuggestions && <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">AI Suggested</div>}
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                {/* Use Case Selection */}
+                {/* Use Case */}
                 <FormField
                   control={form.control}
                   name="use_case"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">📋 Use Case</FormLabel>
-                      <Select 
+                      <Select
                         onValueChange={(value) => {
                           field.onChange(value);
-                          setSelectedUseCase(value);
+                          setSelectedUseCase(value === 'none' ? undefined : value);
                           setSelectedTask(undefined);
                           form.setValue('task', '');
                           markFieldAsUserOverride('use_case');
@@ -570,9 +624,9 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                             <SelectValue placeholder="Select use case..." />
                           </SelectTrigger>
                         </FormControl>
-                         <SelectContent>
-                           <SelectItem value="none">None (General)</SelectItem>
-                           {USE_CASES.map((useCase) => (
+                        <SelectContent>
+                          <SelectItem value="none">None (General)</SelectItem>
+                          {USE_CASES.map((useCase) => (
                             <SelectItem key={useCase.id} value={useCase.id}>
                               {useCase.name}
                             </SelectItem>
@@ -584,17 +638,17 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                   )}
                 />
 
-                {/* Task Selection */}
+                {/* Task */}
                 <FormField
                   control={form.control}
                   name="task"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">⚡ Task</FormLabel>
-                      <Select 
+                      <Select
                         onValueChange={(value) => {
                           field.onChange(value);
-                          setSelectedTask(value);
+                          setSelectedTask(value === 'none' ? undefined : value);
                           markFieldAsUserOverride('task');
                         }}
                         value={field.value}
@@ -602,12 +656,12 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                       >
                         <FormControl>
                           <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                            <SelectValue placeholder={selectedUseCase ? "Select task..." : "Select use case first"} />
+                            <SelectValue placeholder={selectedUseCase ? 'Select task...' : 'Select use case first'} />
                           </SelectTrigger>
                         </FormControl>
-                         <SelectContent>
-                           <SelectItem value="none">None (General)</SelectItem>
-                           {tasks.map((task) => (
+                        <SelectContent>
+                          <SelectItem value="none">None (General)</SelectItem>
+                          {tasks.map((task) => (
                             <SelectItem key={task.id} value={task.id}>
                               {task.name}
                             </SelectItem>
@@ -619,17 +673,20 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                   )}
                 />
 
-                {/* Domain Selection */}
+                {/* Domain */}
                 <FormField
                   control={form.control}
                   name="domain"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium">🏢 Domain</FormLabel>
-                       <Select onValueChange={(value) => {
-                         field.onChange(value);
-                         markFieldAsUserOverride('domain');
-                       }} value={field.value}>
+                      <Select
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          markFieldAsUserOverride('domain');
+                        }}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                             <SelectValue placeholder="Select domain..." />
@@ -666,11 +723,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                   {field.label} {field.required && <span className="text-destructive">*</span>}
                                 </FormLabel>
                                 <FormControl>
-                                  <Input
-                                    placeholder={field.placeholder}
-                                    className="border-2 border-primary/20 rounded-xl h-12"
-                                    {...formField}
-                                  />
+                                  <Input placeholder={field.placeholder} className="border-2 border-primary/20 rounded-xl h-12" {...formField} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -688,11 +741,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                   {field.label} {field.required && <span className="text-destructive">*</span>}
                                 </FormLabel>
                                 <FormControl>
-                                  <Textarea
-                                    placeholder={field.placeholder}
-                                    className="border-2 border-primary/20 rounded-xl min-h-[80px]"
-                                    {...formField}
-                                  />
+                                  <Textarea placeholder={field.placeholder} className="border-2 border-primary/20 rounded-xl min-h-[80px]" {...formField} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -733,10 +782,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                             render={({ field: formField }) => (
                               <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                 <FormControl>
-                                  <Checkbox
-                                    checked={formField.value}
-                                    onCheckedChange={formField.onChange}
-                                  />
+                                  <Checkbox checked={formField.value} onCheckedChange={formField.onChange} />
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
                                   <FormLabel className="text-sm font-medium">
@@ -761,7 +807,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                 <Select onValueChange={formField.onChange} value={formField.value}>
                                   <FormControl>
                                     <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
-                                      <SelectValue placeholder={field.placeholder || "Select option..."} />
+                                      <SelectValue placeholder={field.placeholder || 'Select option...'} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -789,14 +835,12 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                 </FormLabel>
                                 <FormControl>
                                   <Input
-                                    placeholder={field.placeholder || "Enter comma-separated values..."}
+                                    placeholder={field.placeholder || 'Enter comma-separated values...'}
                                     className="border-2 border-primary/20 rounded-xl h-12"
                                     {...formField}
                                   />
                                 </FormControl>
-                                <FormDescription className="text-xs">
-                                  Enter multiple values separated by commas
-                                </FormDescription>
+                                <FormDescription className="text-xs">Enter multiple values separated by commas</FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -809,7 +853,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
               )}
             </div>
 
-            {/* Target Model Selection */}
+            {/* Target Model */}
             <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -817,7 +861,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold">🎯 Target Model</h3>
               </div>
-              
+
               <FormField
                 control={form.control}
                 name="targetModel"
@@ -845,21 +889,18 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         <SelectItem value="grok-4">xAI Grok 4</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription className="text-sm sm:text-base">
-                      We'll optimize your prompt for this model's best practices using OpenAI
-                    </FormDescription>
+                    <FormDescription className="text-sm sm:text-base">We'll optimize your prompt for this model's best practices</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-
             {/* Manufacturing Specs */}
             <Collapsible open={specsOpen} onOpenChange={setSpecsOpen}>
               <div className="space-y-4 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
                 <CollapsibleTrigger asChild>
-                  <button 
+                  <button
                     type="button"
                     className="w-full flex items-center justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg p-2 -m-2"
                   >
@@ -868,24 +909,12 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         <Target className="h-4 w-4 text-accent" />
                       </div>
                       <h3 className="text-lg font-semibold">🎯 Manufacturing Specs</h3>
-                      {aiSuggestions && (
-                        <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">
-                          AI Suggested
-                        </div>
-                      )}
+                      {aiSuggestions && <div className="px-2 py-1 rounded-full bg-accent/20 text-xs text-accent-foreground">AI Suggested</div>}
                     </div>
-                    {isMobile && (
-                      <div className="flex-shrink-0">
-                        {specsOpen ? (
-                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </div>
-                    )}
+                    {isMobile && <div className="flex-shrink-0">{specsOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}</div>}
                   </button>
                 </CollapsibleTrigger>
-                
+
                 <CollapsibleContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <FormField
@@ -894,19 +923,22 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium">🎭 Tone</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            markFieldAsUserOverride('tone');
-                          }} value={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              markFieldAsUserOverride('tone');
+                            }}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Pick your tone..." />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {toneOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
+                              {toneOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -921,19 +953,22 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium">✍️ Style</FormLabel>
-                          <Select onValueChange={(value) => {
-                            field.onChange(value);
-                            markFieldAsUserOverride('style');
-                           }} value={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              markFieldAsUserOverride('style');
+                            }}
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                 <SelectValue placeholder="Choose your style..." />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {styleOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
+                              {styleOptions.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -944,7 +979,6 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                     />
                   </div>
 
-                  {/* Additional Context Fields */}
                   <div className="grid grid-cols-1 gap-4 mt-4">
                     <FormField
                       control={form.control}
@@ -953,8 +987,8 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         <FormItem>
                           <FormLabel className="text-sm font-medium">📋 Format Requirements</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., Use bullet points, Include examples..."
+                            <Input
+                              placeholder="e.g., Bullet points, include examples…"
                               className="border-2 border-primary/20 rounded-xl h-12"
                               {...field}
                               onChange={(e) => {
@@ -967,7 +1001,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         </FormItem>
                       )}
                     />
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <FormField
                         control={form.control}
@@ -976,8 +1010,8 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                           <FormItem>
                             <FormLabel className="text-sm font-medium">⚠️ Hard Constraints</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Must include..."
+                              <Input
+                                placeholder="Must include…"
                                 className="border-2 border-primary/20 rounded-xl h-12"
                                 {...field}
                                 onChange={(e) => {
@@ -990,7 +1024,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="prohibited"
@@ -998,11 +1032,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                           <FormItem>
                             <FormLabel className="text-sm font-medium">🚫 Prohibited Content</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Don't mention..."
-                                className="border-2 border-primary/20 rounded-xl h-12"
-                                {...field} 
-                              />
+                              <Input placeholder="Don't mention…" className="border-2 border-primary/20 rounded-xl h-12" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -1018,7 +1048,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
             <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
               <div className="space-y-4 p-4 sm:p-6 rounded-xl bg-gradient-surface border border-border/50">
                 <CollapsibleTrigger asChild>
-                  <button 
+                  <button
                     type="button"
                     className="w-full flex items-center justify-between gap-3 text-left focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg p-2 -m-2"
                   >
@@ -1028,32 +1058,22 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                       </div>
                       <h3 className="text-lg font-semibold">⚙️ Factory Settings</h3>
                     </div>
-                    {isMobile && (
-                      <div className="flex-shrink-0">
-                        {settingsOpen ? (
-                          <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </div>
-                    )}
+                    {isMobile && <div className="flex-shrink-0">{settingsOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}</div>}
                   </button>
                 </CollapsibleTrigger>
 
                 <CollapsibleContent className="space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                     {/* Creativity Level */}
+                    {/* Creativity */}
                     <FormField
                       control={form.control}
                       name="creativity"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                           <FormLabel className="text-sm font-medium flex items-center gap-2">
-                             🎨 Creativity Level
-                             <span className="text-xs text-muted-foreground">
-                               ({field.value || 0.7} - {getCreativityLabel(field.value || 0.7)})
-                             </span>
-                           </FormLabel>
+                          <FormLabel className="text-sm font-medium flex items-center gap-2">
+                            🎨 Creativity Level
+                            <span className="text-xs text-muted-foreground">({field.value || 0.7} - {getCreativityLabel(field.value || 0.7)})</span>
+                          </FormLabel>
                           <FormControl>
                             <Slider
                               min={0}
@@ -1067,26 +1087,24 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                               className="w-full"
                             />
                           </FormControl>
-                          <FormDescription className="text-xs">
-                            How creative should the final model be? 🎪
-                          </FormDescription>
+                          <FormDescription className="text-xs">How creative should the final model be?</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Response Length */}
+                    {/* Response length */}
                     <FormField
                       control={form.control}
                       name="max_tokens"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                           <FormLabel className="text-sm font-medium flex items-center gap-2">
-                             📏 Response Length
-                             <span className="text-xs text-muted-foreground">
-                               ({field.value} tokens - {getResponseLengthLabel(field.value)})
-                             </span>
-                           </FormLabel>
+                          <FormLabel className="text-sm font-medium flex items-center gap-2">
+                            📏 Response Length
+                            <span className="text-xs text-muted-foreground">
+                              ({field.value} tokens - {getResponseLengthLabel(field.value)})
+                            </span>
+                          </FormLabel>
                           <FormControl>
                             <Slider
                               min={50}
@@ -1097,50 +1115,44 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                               className="w-full"
                             />
                           </FormControl>
-                          <FormDescription className="text-xs">
-                            How long should the response be? 📚
-                          </FormDescription>
+                          <FormDescription className="text-xs">How long should the response be?</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* Focus Level */}
+                    {/* Focus (top_p) */}
                     {selectedProvider?.params.top_p && (
                       <FormField
                         control={form.control}
                         name="top_p"
                         render={({ field }) => (
                           <FormItem className="space-y-3">
-                             <FormLabel className="text-sm font-medium flex items-center gap-2">
-                               🎯 Focus Level
-                               <span className="text-xs text-muted-foreground">
-                                 ({field.value || 1.0} - {getFocusLabel(field.value || 1.0)})
-                               </span>
-                             </FormLabel>
+                            <FormLabel className="text-sm font-medium flex items-center gap-2">
+                              🎯 Focus Level
+                              <span className="text-xs text-muted-foreground">({field.value || 1.0} - {getFocusLabel(field.value || 1.0)})</span>
+                            </FormLabel>
                             <FormControl>
-                               <Slider
-                                 min={0}
-                                 max={1}
-                                 step={0.1}
-                                 value={[field.value || 1]}
-                                 onValueChange={(vals) => {
-                                   field.onChange(vals[0]);
-                                   markFieldAsUserOverride('focusLevel');
-                                 }}
-                                 className="w-full"
-                               />
+                              <Slider
+                                min={0}
+                                max={1}
+                                step={0.1}
+                                value={[field.value || 1]}
+                                onValueChange={(vals) => {
+                                  field.onChange(vals[0]);
+                                  markFieldAsUserOverride('focusLevel');
+                                }}
+                                className="w-full"
+                              />
                             </FormControl>
-                            <FormDescription className="text-xs">
-                              How focused should the response be? 🔍
-                            </FormDescription>
+                            <FormDescription className="text-xs">How focused should the response be?</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     )}
 
-                    {/* Variety Level */}
+                    {/* Variety (top_k) */}
                     {selectedProvider?.params.top_k && (
                       <FormField
                         control={form.control}
@@ -1161,16 +1173,14 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                 className="w-full"
                               />
                             </FormControl>
-                            <FormDescription className="text-xs">
-                              How varied should the word choices be? 🎨
-                            </FormDescription>
+                            <FormDescription className="text-xs">How varied should the word choices be?</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     )}
 
-                    {/* Thinking Depth */}
+                    {/* Reasoning effort */}
                     {selectedProvider?.params.reasoning_effort && (
                       <FormField
                         control={form.control}
@@ -1178,33 +1188,34 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="text-sm font-medium">🧠 Thinking Depth</FormLabel>
-                            <Select onValueChange={(value) => {
-                              field.onChange(value);
-                              markFieldAsUserOverride('thinkingDepth');
-                            }} value={field.value}>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                markFieldAsUserOverride('thinkingDepth');
+                              }}
+                              value={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger className="border-2 border-primary/20 rounded-xl h-12">
                                   <SelectValue placeholder="How deep should it think?" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {thinkingDepthOptions.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
+                                {thinkingDepthOptions.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            <FormDescription className="text-xs">
-                              How much should the AI think before responding? 🤔
-                            </FormDescription>
+                            <FormDescription className="text-xs">How much should the AI think before responding?</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                     )}
 
-                    {/* Detail Level */}
+                    {/* Verbosity */}
                     {selectedProvider?.params.verbosity && (
                       <FormField
                         control={form.control}
@@ -1219,16 +1230,14 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {detailLevelOptions.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
+                                {detailLevelOptions.map((opt) => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                            <FormDescription className="text-xs">
-                              How detailed should the response be? 📚
-                            </FormDescription>
+                            <FormDescription className="text-xs">How detailed should the response be?</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1236,7 +1245,7 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                     )}
                   </div>
 
-                  {/* Feature Toggles */}
+                  {/* Feature toggles */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6">
                     {selectedProvider?.params.live_search && (
                       <FormField
@@ -1246,15 +1255,10 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
                           <FormItem className="flex flex-row items-center justify-between rounded-xl border-2 border-primary/20 p-4 shadow-card bg-gradient-subtle">
                             <div className="space-y-0.5">
                               <FormLabel className="text-sm font-medium">🔍 Live Search</FormLabel>
-                              <FormDescription className="text-xs">
-                                Real-time web search
-                              </FormDescription>
+                              <FormDescription className="text-xs">Real-time web search</FormDescription>
                             </div>
                             <FormControl>
-                              <Switch
-                                 checked={!!field.value}
-                                onCheckedChange={field.onChange}
-                              />
+                              <Switch checked={!!field.value} onCheckedChange={field.onChange} />
                             </FormControl>
                           </FormItem>
                         )}
@@ -1265,10 +1269,11 @@ const tasks = useMemo(() => getTasksForUseCase(selectedUseCase), [selectedUseCas
               </div>
             </Collapsible>
 
+            {/* Submit */}
             <div className="pt-6 sm:pt-8 border-t border-border/30">
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-lg sm:text-xl h-12 sm:h-16 rounded-xl sm:rounded-2xl transition-all duration-300" 
+              <Button
+                type="submit"
+                className="w-full bg-gradient-fun hover:scale-105 shadow-fun border-0 text-white font-semibold text-lg sm:text-xl h-12 sm:h-16 rounded-xl sm:rounded-2xl transition-all duration-300"
                 disabled={isLoading}
                 size="lg"
               >
