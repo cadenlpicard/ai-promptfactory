@@ -25,9 +25,9 @@ import { useToast } from '@/hooks/use-toast';
 // Zod schema
 // ===============================
 const formSchema = z.object({
-  targetModel: z.string().min(1, 'Please select a target model'),
+  targetModel: z.string().optional(),
   model_id: z.string().optional(),
-  provider: z.enum(['openai', 'gemini', 'claude', 'grok', 'llama', 'mistral', 'cohere']),
+  provider: z.enum(['openai', 'gemini', 'claude', 'grok', 'llama', 'mistral', 'cohere']).optional(),
   user_prompt: z.string().min(10, 'Prompt must be at least 10 characters'),
   domain_context: z.string().optional(),
   audience: z.string().optional(),
@@ -45,17 +45,17 @@ const formSchema = z.object({
   task: z.string().optional(),
   dynamic_fields: z.record(z.any()).optional(),
   // Generation params
-  temperature: z.number().min(0).max(2),
+  temperature: z.number().min(0).max(2).optional(),
   creativity: z.number().min(0).max(2).optional(),
   top_p: z.number().min(0).max(1).optional(),
   top_k: z.number().min(1).max(100).optional(),
-  max_tokens: z.number().min(1).max(16384),
+  max_tokens: z.number().min(1).max(16384).optional(),
   responseLengthTokens: z.number().min(1).max(16384).optional(),
   reasoning_effort: z.enum(['low', 'medium', 'high']).optional(),
   verbosity: z.enum(['concise', 'standard', 'detailed']).optional(),
-  structured_output: z.boolean(),
+  structured_output: z.boolean().optional(),
   live_search: z.boolean().optional(),
-  enable_parallelization: z.boolean(),
+  enable_parallelization: z.boolean().optional(),
   focusLevel: z.string().optional(),
   thinkingDepth: z.string().optional(),
 });
