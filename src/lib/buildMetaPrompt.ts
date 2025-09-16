@@ -61,11 +61,11 @@ ${profile.notes.doNots?.length ? `- Do NOT: ${profile.notes.doNots.join("; ")}` 
    - Accuracy & relevance for ${form.audience || "the audience"}
    - Clear, well-structured, scoped to the request
    - Tone & style = ${form.tone || "Professional"} / ${form.style || "Succinct & structured"}
-   - Brevity aligned to ${form.responseLengthTokens || form.max_tokens || 512} tokens
+    - Brevity aligned to ${form.responseLengthTokens || form.max_tokens || 512} tokens
    - Safety/compliance respected
    Iterate once internally until all are "excellent".
 8) Answer Parameters —
-   - Final answer length target: ${form.responseLengthTokens || form.max_tokens || 512} tokens (do NOT expand reasoning)
+    - Final answer length target: ${form.responseLengthTokens || form.max_tokens || 512} tokens (do NOT expand reasoning)
    - Creativity (temperature): ${form.creativity || form.temperature || 0.7}
    - Focus guidance: ${form.focusLevel ?? "Standard"} (avoid tangents; prefer compact wording if high)
    - Reasoning effort: ${form.thinkingDepth ?? "Standard"}

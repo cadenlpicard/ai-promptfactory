@@ -26,6 +26,7 @@ export interface ComposeInput {
   // Model parameters
   temperature?: number;
   max_tokens?: number;
+  responseLengthTokens?: number;
   focusLevel?: string;
   thinkingDepth?: string;
 }
@@ -400,8 +401,9 @@ function generateConstraints(input: ComposeInput): string {
   
   // Add model parameter constraints
   const modelConstraints = [];
-  if (input.max_tokens) {
-    const lengthGuide = getResponseLengthGuide(input.max_tokens);
+  const responseTokens = input.responseLengthTokens || input.max_tokens;
+  if (responseTokens) {
+    const lengthGuide = getResponseLengthGuide(responseTokens);
     modelConstraints.push(`Response length: ${lengthGuide}`);
   }
   

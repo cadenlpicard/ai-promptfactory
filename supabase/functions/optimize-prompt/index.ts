@@ -23,6 +23,7 @@ interface FormData {
   exemplars?: string;
   temperature?: number;
   max_tokens?: number;
+  responseLengthTokens?: number;
   focusLevel?: string;
   thinkingDepth?: string;
   
@@ -131,6 +132,9 @@ function buildMetaPrompt(formData: FormData): string {
     return "Extended (comprehensive)";
   };
 
+  // Get the response length tokens, preferring responseLengthTokens over max_tokens
+  const responseTokens = formData.responseLengthTokens || formData.max_tokens || 512;
+
   return `You are an expert prompt engineer for multi-model LLMs. Your job is to transform the user's raw prompt and UI selections into a single, high-quality **Optimized Prompt** that consistently produces excellent results for the target model.
 
 ## Target Model
@@ -154,7 +158,7 @@ ${formData.targetModel || 'GPT-4'} (OpenAI)
 
 ## Factory Settings (map UI → behavior; these are instructions to the *final* model)
 - Creativity (temperature): ${formData.temperature || 0.7}
-- Response Length (tokens): ${formData.max_tokens || 512}
+- Response Length (tokens): ${responseTokens}
 - Focus Level: ${formData.focusLevel || 'Standard'}  (Higher = tighter, fewer tangents)
 - Thinking Depth: ${formData.thinkingDepth || 'Standard'}  (e.g., Quick / Standard / Deep Analysis)
 
@@ -181,15 +185,15 @@ ${formData.targetModel || 'GPT-4'} (OpenAI)
    - Accuracy & relevance for the audience
    - Clear, well-structured, scoped to the request
    - Tone & style = ${formData.tone || 'Professional'} / ${formData.style || 'Clear and structured'}
-   - Brevity aligned to ${getResponseLength(formData.max_tokens || 512)}
+   - Brevity aligned to ${getResponseLength(responseTokens)}
    - Safety/compliance respected
    Iterate once internally until all are "excellent".
 8) Answer Parameters —
-   - Final answer length target: ${formData.max_tokens || 512} tokens
-   - Creativity level: ${getCreativityLevel(formData.temperature || 0.7)}
-   - Focus guidance: ${formData.focusLevel || 'Standard'}
-   - Reasoning effort: ${formData.thinkingDepth || 'Standard'}
-   - Tone/Style: ${formData.tone || 'Professional'} / ${formData.style || 'Clear and structured'}
+    - Final answer length target: ${responseTokens} tokens
+    - Creativity level: ${getCreativityLevel(formData.temperature || 0.7)}
+    - Focus guidance: ${formData.focusLevel || 'Standard'}
+    - Reasoning effort: ${formData.thinkingDepth || 'Standard'}
+    - Tone/Style: ${formData.tone || 'Professional'} / ${formData.style || 'Clear and structured'}
 9) Conflict Resolution — hard_constraints > safety/compliance > success_criteria > tone/style.
 10) Safety — If disallowed or risky, refuse briefly and suggest compliant alternatives.
 
