@@ -120,6 +120,19 @@ export const USE_CASES: UseCaseDefinition[] = [
         ]
       },
       {
+        id: 'slide-presentation',
+        name: 'Slide Deck/Presentation',
+        description: 'Create presentation slides with structured content and speaker notes.',
+        fields: [
+          ...SOURCE_FIELDS,
+          { id: 'slide_count', label: 'Number of Slides', type: 'select', options: ['5-8','10-12','15-20','25+'] },
+          { id: 'presentation_type', label: 'Presentation Type', type: 'select', options: ['Pitch deck','Training material','Status update','Strategic overview','Product demo','Research findings'] },
+          { id: 'include_speaker_notes', label: 'Include Speaker Notes', type: 'checkbox', default: true },
+          { id: 'slide_format', label: 'Slide Format', type: 'select', options: ['Title + bullets','Visual heavy','Mixed format','Executive style'] },
+          ...FMT_TONE_LANG, ...FMT_OUTPUT
+        ]
+      },
+      {
         id: 'outreach-sequences',
         name: 'Outreach Sequences',
         description: 'Multi-touch campaigns (sales, recruiting, fundraising).',
